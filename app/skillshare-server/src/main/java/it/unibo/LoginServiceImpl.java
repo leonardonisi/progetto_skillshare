@@ -22,6 +22,9 @@ public class LoginServiceImpl extends RemoteServiceServlet { // implements
         if ("admin".equals(username) && "password123".equals(password)) {
             return username;
         }
+        if ("admin".equals(username) && !"password123".equals(password)) {
+            throw new IllegalArgumentException("Password errata");
+        }
         return null;
     }
 }

@@ -63,4 +63,13 @@ class LoginServiceImplTest {
         });
         assertEquals("Username inesistente", exception.getMessage());
     }
+
+    @Test
+    void authenticate_ShouldThrowException_WhenPasswordIsIncorrect() {
+        // Verifichiamo che il metodo lanci IllegalArgumentException
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            service.authenticate("admin", "password_sbagliata");
+        });
+        assertEquals("Password errata", exception.getMessage());
+    }
 }
