@@ -82,6 +82,36 @@ public class LoginSeleniumTest {
         assertEquals("password", passwordField.getAttribute("value"));
     }
 
+    @Test
+    void clickingLoginNavigatesToHome() {
+        WebElement loginButton = driver.findElement(By.id("btn-login"));
+        assertTrue(loginButton.isDisplayed());
+        assertEquals("Login", loginButton.getText());
+
+        // simulazione click
+        loginButton.click();
+
+        // verifico interfaccia cambiata in home
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement homeTitle = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-home")));
+        assertTrue(homeTitle.isDisplayed());
+    }
+
+    @Test
+    void clickingRegisterNavigatesToRegister() {
+        WebElement registerButton = driver.findElement(By.id("btn-register"));
+        assertTrue(registerButton.isDisplayed());
+        assertEquals("Register", registerButton.getText());
+
+        // simulazione click
+        registerButton.click();
+
+        // verifico interfaccia cambiata in register
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement registerTitle = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-register")));
+        assertTrue(registerTitle.isDisplayed());
+    }
+
     // -------------------------------------------------------------------------
     // HELPER
     // -------------------------------------------------------------------------
