@@ -54,4 +54,13 @@ class LoginServiceImplTest {
         String usernameRestituito = service.authenticate("admin", "password123");
         assertEquals("admin", usernameRestituito);
     }
+
+    @Test
+    void authenticate_ShouldThrowException_WhenUsernameDoesNotExist() {
+        // Verifichiamo che il metodo lanci IllegalArgumentException
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            service.authenticate("inesistente", "qualcosa");
+        });
+        assertEquals("Username inesistente", exception.getMessage());
+    }
 }
