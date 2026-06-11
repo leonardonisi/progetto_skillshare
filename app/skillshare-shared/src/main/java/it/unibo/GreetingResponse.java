@@ -1,6 +1,7 @@
 package it.unibo;
 
 import java.io.Serializable;
+//classe che rappresenta la risposta del server al client
 
 @SuppressWarnings("serial")
 public class GreetingResponse implements Serializable {

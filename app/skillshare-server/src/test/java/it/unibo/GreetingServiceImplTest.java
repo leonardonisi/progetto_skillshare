@@ -21,9 +21,12 @@ import static org.mockito.Mockito.*;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class GreetingServiceImplTest {
 
-    @Mock private ServletConfig servletConfig;
-    @Mock private ServletContext servletContext;
-    @Mock private HttpServletRequest request;
+    @Mock
+    private ServletConfig servletConfig;
+    @Mock
+    private ServletContext servletContext;
+    @Mock
+    private HttpServletRequest request;
 
     private GreetingServiceImpl service;
 
@@ -41,11 +44,10 @@ class GreetingServiceImplTest {
         threadLocal.set(request);
 
         Field field = AbstractRemoteServiceServlet.class
-            .getDeclaredField("perThreadRequest");
+                .getDeclaredField("perThreadRequest");
         field.setAccessible(true);
         field.set(service, threadLocal); // sostituiamo il campo con il nostro ThreadLocal
     }
-
 
     @Test
     void greetServer_greetingShouldContainName() throws IllegalArgumentException {
@@ -57,12 +59,12 @@ class GreetingServiceImplTest {
     @Test
     void greetServer_shouldThrowWhenNameTooShort() {
         assertThrows(IllegalArgumentException.class,
-            () -> service.greetServer("Al"));
+                () -> service.greetServer("Al"));
     }
 
     @Test
     void greetServer_shouldThrowWhenNameIsNull() {
         assertThrows(IllegalArgumentException.class,
-            () -> service.greetServer(null));
+                () -> service.greetServer(null));
     }
 }
