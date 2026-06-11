@@ -9,8 +9,7 @@ import java.util.concurrent.ConcurrentMap;
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class LoginServiceImpl extends RemoteServiceServlet { // implements
-    // LoginService {
+public class LoginServiceImpl extends RemoteServiceServlet implements LoginService {
 
     private static final DB db = DatabaseCore.getDB();
     private static final ConcurrentMap<String, String> dbUtenti = db
