@@ -17,6 +17,10 @@ import java.lang.reflect.Field;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.util.concurrent.ConcurrentMap;
+import org.mapdb.Serializer;
+import org.mapdb.DB;
+
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class LoginServiceImplTest {
@@ -30,23 +34,31 @@ class LoginServiceImplTest {
 
     private LoginServiceImpl service;
 
+    private static final DB db = DatabaseCore.getDB();
+
     @BeforeEach
     void setUp() throws Exception {
         when(servletConfig.getServletContext()).thenReturn(servletContext);
         when(servletContext.getServerInfo()).thenReturn("MockServer/1.0");
         when(request.getHeader("User-Agent")).thenReturn("MockBrowser/1.0");
-
         service = new LoginServiceImpl();
         service.init(servletConfig);
-
         // Crea un ThreadLocal con la request mock e iniettalo via reflection
         ThreadLocal<HttpServletRequest> threadLocal = new ThreadLocal<>();
         threadLocal.set(request);
-
         Field field = AbstractRemoteServiceServlet.class
                 .getDeclaredField("perThreadRequest");
         field.setAccessible(true);
         field.set(service, threadLocal); // sostituiamo il campo con il nostro ThreadLocal
+
+        // Database e aggiunta di utente test
+        DB db = DatabaseCore.getDB();
+        ConcurrentMap<String, String> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.STRING)
+                .createOrOpen();
+        dbUtenti.clear();
+        dbUtenti.put("admin", "password123");
+        DatabaseCore.commit();
+
     }
 
     @Test
