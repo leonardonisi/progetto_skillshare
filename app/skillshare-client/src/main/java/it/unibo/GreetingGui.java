@@ -23,6 +23,8 @@ public class GreetingGui {
             + "attempting to contact the server. Please check your network "
             + "connection and try again.";
 
+    // Crea automaticamente il codice JavaScript
+    // L'oggetto greetingService invia i dati al backend
     private final GreetingServiceAsync greetingService = GWT.create(GreetingService.class);
 
     public void mostra() {
@@ -35,21 +37,22 @@ public class GreetingGui {
         final TextBox nameField = new TextBox();
         final Label errorLabel = new Label();
         final Button ricettaButton = new Button("Vai a ricetta");
-        
+
         nameField.setText("GWT User");
         sendButton.addStyleName("sendButton");
 
-
         // Creazione del Main Panel (VerticalPanel)
+        // Server per impilare i widget verticalmente e centrarli
         VerticalPanel mainPanel = new VerticalPanel();
         mainPanel.setSpacing(10); // Opzionale: aggiunge un po' di spazio tra i widget
-        
+
         // Impostiamo la larghezza al 100% per permettere l'allineamento interno
         mainPanel.setWidth("100%");
 
-        // Allineamento orizzontale al centro per tutti i widget aggiunti dopo questa riga
+        // Allineamento orizzontale al centro per tutti i widget aggiunti dopo questa
+        // riga
         mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        
+
         mainPanel.add(title);
         mainPanel.add(new HTML("<b>Please enter your name:</b>"));
         mainPanel.add(nameField);
@@ -58,6 +61,8 @@ public class GreetingGui {
         mainPanel.add(ricettaButton);
 
         // Aggiunta al RootPanel
+        // carico il mainPanel nel DOM, per farlo visualizzare, altrimenti è solo un
+        // oggetto in memoria
         RootPanel.get().add(mainPanel);
 
         // Focus
@@ -65,6 +70,8 @@ public class GreetingGui {
         nameField.selectAll();
 
         // --- Logica DialogBox ---
+        // è come se fosse un popup, è nascosto finché non viene mostrato (per esempio
+        // messaggi del server o errori)
         final DialogBox dialogBox = new DialogBox();
         dialogBox.setText("Remote Procedure Call");
         dialogBox.setAnimationEnabled(true);
@@ -72,7 +79,7 @@ public class GreetingGui {
         closeButton.getElement().setId("closeButton");
         final Label textToServerLabel = new Label();
         final HTML serverResponseLabel = new HTML();
-        
+
         VerticalPanel dialogVPanel = new VerticalPanel();
         dialogVPanel.addStyleName("dialogVPanel");
         dialogVPanel.add(new HTML("<b>Sending name to the server:</b>"));
@@ -83,26 +90,31 @@ public class GreetingGui {
         dialogVPanel.add(closeButton);
         dialogBox.setWidget(dialogVPanel);
 
+        // gestione del click sul bottone close del dialog box
         closeButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                dialogBox.hide();
-                sendButton.setEnabled(true);
+                dialogBox.hide(); // Nasconde il dialog box
+                sendButton.setEnabled(true); // Riabilita il bottone send
                 sendButton.setFocus(true);
             }
         });
 
         // --- Logica Handler ---
+        // Gestione dei click e del tasto invio della tastiera
         class MyHandler implements ClickHandler, KeyUpHandler {
+            // gestione del click
             public void onClick(ClickEvent event) {
                 sendNameToServer();
             }
 
+            // gestione del tasto invio della tastiera
             public void onKeyUp(KeyUpEvent event) {
                 if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
                     sendNameToServer();
                 }
             }
 
+            // inivia il testo al server
             private void sendNameToServer() {
                 errorLabel.setText("");
                 String textToServer = nameField.getText();
@@ -114,8 +126,12 @@ public class GreetingGui {
                 sendButton.setEnabled(false);
                 textToServerLabel.setText(textToServer);
                 serverResponseLabel.setText("");
-                
+
+                // invio del testo al server, e gestione della risposta con callback asincrono
+                // per evitare di bloccare l'interfaccia utente
                 greetingService.greetServer(textToServer, new AsyncCallback<GreetingResponse>() {
+
+                    // se server è irraggiungibile o si verifica un errore, viene chiamato onFailure
                     public void onFailure(Throwable caught) {
                         dialogBox.setText("Remote Procedure Call - Failure");
                         serverResponseLabel.addStyleName("serverResponseLabelError");
@@ -124,6 +140,7 @@ public class GreetingGui {
                         closeButton.setFocus(true);
                     }
 
+                    // se la chiamata al server ha successo, viene chiamato onSuccess
                     public void onSuccess(GreetingResponse result) {
                         dialogBox.setText("Remote Procedure Call");
                         serverResponseLabel.removeStyleName("serverResponseLabelError");
@@ -142,10 +159,11 @@ public class GreetingGui {
         }
 
         MyHandler handler = new MyHandler();
-        sendButton.addClickHandler(handler);
+        sendButton.addClickHandler(handler); // Associa il click del bottone send all'handler
         nameField.addKeyUpHandler(handler);
 
         // --- Logica Cambio Interfaccia ---
+        // serve per cambiare pagina quando si clicca sul bottone "Vai a ricetta"
         ricettaButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

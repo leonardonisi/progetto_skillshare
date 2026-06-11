@@ -18,13 +18,17 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 					"Name must be at least 4 characters long");
 		}
 
+		// crea la risposta da inviare al client vuota
 		GreetingResponse response = new GreetingResponse();
 
+		// inserissce dati di rete
 		response.setServerInfo(getServletContext().getServerInfo());
 		response.setUserAgent(getThreadLocalRequest().getHeader("User-Agent"));
 
+		// richiama l'oggetto Java che svolge la logica e lo inserisce nella risposta
 		response.setGreeting(new Greeting().greet(input));
 
+		// ritorna la risposta al client
 		return response;
 	}
 }
