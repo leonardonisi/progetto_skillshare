@@ -1,7 +1,5 @@
 package it.unibo;
 
-import org.eclipse.jetty.security.LoginService;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -15,6 +13,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -34,11 +33,17 @@ public class LoginGui {
         HTML title = new HTML("<h1 style='color: #87CEEB;'>ACCESSO A SKILLSHARE</h1>");
         final TextBox usernameField = new TextBox();
         final PasswordTextBox passwordField = new PasswordTextBox();
-        final Button loginButton = new Button("Login");
-        final Button registerButton = new Button("Register");
+        // Aggiunte per mostra password
+        final Button showPasswordButton = new Button("👀");
+        final Label passwordVisibleLabel = new Label();
+        final Label vuoto = new Label("");
+
+        final Button loginButton = new Button("LOGIN");
+        final Button registerButton = new Button("REGISTER");
 
         usernameField.setText("username");
         passwordField.setText("password");
+        passwordVisibleLabel.setVisible(false);
 
         // assegnazione id per identificazione con Selenium
         title.getElement().setId("titolo-login");
@@ -46,6 +51,13 @@ public class LoginGui {
         passwordField.getElement().setId("input-password");
         loginButton.getElement().setId("btn-login");
         registerButton.getElement().setId("btn-register");
+
+        // Grafica per mostra password
+        HorizontalPanel passwordPanel = new HorizontalPanel();
+        passwordPanel.setSpacing(5);
+        passwordPanel.add(vuoto);
+        passwordPanel.add(passwordField);
+        passwordPanel.add(showPasswordButton);
 
         // Creazione del layout minimo e aggiunta a schermo
         VerticalPanel mainPanel = new VerticalPanel();
@@ -55,7 +67,8 @@ public class LoginGui {
         mainPanel.add(title);
         mainPanel.add(new HTML("<h2>Inserisci username e password:</h2>"));
         mainPanel.add(usernameField);
-        mainPanel.add(passwordField);
+        mainPanel.add(passwordPanel);
+        mainPanel.add(passwordVisibleLabel);
         mainPanel.add(loginButton);
         mainPanel.add(registerButton);
 
@@ -64,7 +77,9 @@ public class LoginGui {
         usernameField.setWidth("200px");
         passwordField.setWidth("200px");
         loginButton.setWidth("200px");
-        registerButton.setWidth("100px");
+        registerButton.setWidth("80px");
+        showPasswordButton.setWidth("30px");
+        vuoto.setWidth("30px");
 
         RootPanel.get().add(mainPanel);
 
@@ -133,6 +148,19 @@ public class LoginGui {
                 registerTitle.getElement().setId("titolo-register");
                 registerPanel.add(registerTitle);
                 RootPanel.get().add(registerPanel);
+            }
+        });
+
+        showPasswordButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                if (passwordVisibleLabel.isVisible()) {
+                    passwordVisibleLabel.setVisible(false);
+                    passwordField.setVisible(true);
+                } else {
+                    passwordVisibleLabel.setText(passwordField.getText());
+                    passwordVisibleLabel.setVisible(true);
+                }
             }
         });
     }

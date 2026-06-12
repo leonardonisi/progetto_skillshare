@@ -85,7 +85,7 @@ public class LoginSeleniumTest {
     void clickingLoginNavigatesToHome() {
         WebElement loginButton = driver.findElement(By.id("btn-login"));
         assertTrue(loginButton.isDisplayed());
-        assertEquals("Login", loginButton.getText());
+        assertEquals("LOGIN", loginButton.getText());
 
         // simulazione click
         loginButton.click();
@@ -100,7 +100,7 @@ public class LoginSeleniumTest {
     void clickingRegisterNavigatesToRegister() {
         WebElement registerButton = driver.findElement(By.id("btn-register"));
         assertTrue(registerButton.isDisplayed());
-        assertEquals("Register", registerButton.getText());
+        assertEquals("REGISTER", registerButton.getText());
 
         // simulazione click
         registerButton.click();
