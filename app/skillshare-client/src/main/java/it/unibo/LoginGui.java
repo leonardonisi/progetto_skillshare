@@ -1,16 +1,27 @@
 package it.unibo;
 
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.PasswordTextBox;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.PasswordTextBox;
 
 public class LoginGui {
+
+    private final LoginServiceAsync loginService = GWT.create(LoginService.class);
 
     public void mostra() {
         // Pulisce tutto il contenuto del body
@@ -62,12 +73,27 @@ public class LoginGui {
         loginButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 // new HomeGui().mostra();
-                // Evento per test Selenium, da aggiungere classe della HomeGUI
-                VerticalPanel homePanel = new VerticalPanel();
-                HTML homeTitle = new HTML("<h1>HOME</h1>");
-                homeTitle.getElement().setId("titolo-home");
-                homePanel.add(homeTitle);
-                RootPanel.get().add(homePanel);
+
+                String username = usernameField.getText();
+                String password = passwordField.getText();
+
+                loginService.authenticate(username, password, new AsyncCallback<String>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Window.alert(caught.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(String result) {
+                        // new HomeGui().mostra();
+                        // Evento per test Selenium, da aggiungere classe della HomeGUI
+                        VerticalPanel homePanel = new VerticalPanel();
+                        HTML homeTitle = new HTML("<h1>HOME</h1>");
+                        homeTitle.getElement().setId("titolo-home");
+                        homePanel.add(homeTitle);
+                        RootPanel.get().add(homePanel);
+                    }
+                });
             }
 
         });
