@@ -88,10 +88,18 @@ public class LoginGui {
         usernameField.selectAll();
 
         // --- Logica Handler ---
-        loginButton.addClickHandler(new ClickHandler() {
+        class LoginHandler implements KeyUpHandler, ClickHandler {
             public void onClick(ClickEvent event) {
-                // new HomeGui().mostra();
+                login();
+            }
 
+            public void onKeyUp(KeyUpEvent event) {
+                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+                    login();
+                }
+            }
+
+            private void login() {
                 String username = usernameField.getText();
                 String password = passwordField.getText();
 
@@ -137,7 +145,12 @@ public class LoginGui {
                  */
             }
 
-        });
+        }
+        LoginHandler loginHandler = new LoginHandler();
+        loginButton.addClickHandler(loginHandler);
+        usernameField.addKeyUpHandler(loginHandler);
+        passwordField.addKeyUpHandler(loginHandler);
+
         registerButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
