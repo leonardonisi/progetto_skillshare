@@ -57,27 +57,26 @@ public class LoginSeleniumTest {
 
     @Test
     void pageLoadsWithCorrectTitle() {
-        // 1. Cerchiamo l'elemento del titolo tramite l'ID
+        // Cerco l'elemento del titolo tramite l'ID
         WebElement titleElement = driver.findElement(By.id("titolo-login"));
-        // 2. Verifichiamo che il TESTO dell'elemento sia quello richiesto dalla User
-        // Story
+        // Verifico
         assertEquals("ACCESSO A SKILLSHARE", titleElement.getText());
     }
 
     @Test
     void usernameFieldIsPresent() {
-        // Cerchiamo username tramide id
+        // Cerco username tramite id
         WebElement usernameField = driver.findElement(By.id("input-username"));
-        // Verifichiamo che il campo username sia presente
+        // Verifico che il campo username sia presente
         assertTrue(usernameField.isDisplayed());
         assertEquals("username", usernameField.getAttribute("value"));
     }
 
     @Test
     void passwordFieldIsPresent() {
-        // Cerchiamo password tramite id
+        // Cerco password tramite id
         WebElement passwordField = driver.findElement(By.id("input-password"));
-        // Verifichiamo che il campo password sia presente
+        // Verifico che il campo password sia presente
         assertTrue(passwordField.isDisplayed());
         assertEquals("password", passwordField.getAttribute("value"));
     }
@@ -110,6 +109,45 @@ public class LoginSeleniumTest {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement registerTitle = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-register")));
         assertTrue(registerTitle.isDisplayed());
+    }
+
+    @Test
+    void loginWithInvalidUsernameShowsError() {
+        WebElement usernameField = driver.findElement(By.id("input-username"));
+        WebElement passwordField = driver.findElement(By.id("input-password"));
+        WebElement loginButton = driver.findElement(By.id("btn-login"));
+
+        usernameField.clear();
+        usernameField.sendKeys("inesistente");
+        passwordField.clear();
+        passwordField.sendKeys("qualcosa");
+        loginButton.click();
+
+        // verifico che venga mostrato un alert con il messaggio di errore
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+        assertEquals("Username inesistente", alert.getText());
+        alert.accept();
+    }
+
+    @Test
+    void loginWithInvalidPasswordShowsError() {
+        WebElement usernameField = driver.findElement(By.id("input-username"));
+        WebElement passwordField = driver.findElement(By.id("input-password"));
+        WebElement loginButton = driver.findElement(By.id("btn-login"));
+
+        usernameField.clear();
+        usernameField.sendKeys("admin");
+        passwordField.clear();
+        passwordField.sendKeys("password_sbagliata");
+        loginButton.click();
+
+        // verifico che venga mostrato un alert con il messaggio di errore
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+        assertEquals("Password errata", alert.getText());
+        alert.accept();
+
     }
 
     // -------------------------------------------------------------------------
