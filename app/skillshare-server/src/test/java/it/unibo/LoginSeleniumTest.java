@@ -83,10 +83,16 @@ public class LoginSeleniumTest {
 
     @Test
     void clickingLoginNavigatesToHome() {
+        WebElement usernameField = driver.findElement(By.id("input-username"));
+        WebElement passwordField = driver.findElement(By.id("input-password"));
         WebElement loginButton = driver.findElement(By.id("btn-login"));
         assertTrue(loginButton.isDisplayed());
         assertEquals("LOGIN", loginButton.getText());
 
+        usernameField.clear();
+        usernameField.sendKeys("admin");
+        passwordField.clear();
+        passwordField.sendKeys("password");
         // simulazione click
         loginButton.click();
 
