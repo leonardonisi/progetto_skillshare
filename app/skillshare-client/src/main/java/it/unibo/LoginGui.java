@@ -6,10 +6,8 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -22,8 +20,7 @@ import com.google.gwt.user.client.ui.PasswordTextBox;
 
 public class LoginGui {
 
-    // private final LoginServiceAsync loginService =
-    // GWT.create(LoginService.class);
+    private final LoginServiceAsync loginService = GWT.create(LoginService.class);
 
     public void mostra() {
         // Pulisce tutto il contenuto del body
@@ -102,47 +99,37 @@ public class LoginGui {
             private void login() {
                 String username = usernameField.getText();
                 String password = passwordField.getText();
+                loginService.authenticate(username, password, new AsyncCallback<String>() {
 
-                // onFailure Manuale per test (Utente inesistente)
-                if ("inesistente".equals(username)) {
-                    Window.alert("Username inesistente");
-                    return; // Blocca l'esecuzione qui
-                }
-                // onFailure Manuale per test (Password errata)
-                if ("admin".equals(username) && "password_sbagliata".equals(password)) {
-                    Window.alert("Password errata");
-                    return; // Blocca l'esecuzione qui
-                }
-                // onSuccess Manuale per test
-                if ("username".equals(username) && "password".equals(password)) {
-                    RootPanel.get().clear();
-                    VerticalPanel homePanel = new VerticalPanel();
-                    HTML homeTitle = new HTML("<h1>HOME</h1>");
-                    homeTitle.getElement().setId("titolo-home");
-                    homePanel.add(homeTitle);
-                    RootPanel.get().add(homePanel);
-                }
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Errore rete ");
+                    }
 
-                /*
-                 * loginService.authenticate(username, password, new AsyncCallback<String>() {
-                 * 
-                 * @Override
-                 * public void onFailure(Throwable caught) {
-                 * Window.alert(caught.getMessage());
-                 * }
-                 * 
-                 * @Override
-                 * public void onSuccess(String result) {
-                 * // new HomeGui().mostra();
-                 * // Evento per test Selenium, da aggiungere classe della HomeGUI
-                 * VerticalPanel homePanel = new VerticalPanel();
-                 * HTML homeTitle = new HTML("<h1>HOME</h1>");
-                 * homeTitle.getElement().setId("titolo-home");
-                 * homePanel.add(homeTitle);
-                 * RootPanel.get().add(homePanel);
-                 * }
-                 * });
-                 */
+                    @Override
+                    public void onSuccess(String result) {
+                        if ("Username non valido".equals(result)) {
+                            Window.alert("Username non valido");
+                        } else if ("Username inesistente".equals(result)) {
+                            Window.alert("Username inesistente");
+                        } else if ("Password errata".equals(result)) {
+                            Window.alert("Password errata");
+                        } else {
+                            RootPanel.get().clear();
+                            // -------------------------------------------------------------
+                            // new HomeGui().mostra(); --> DA SCOMMENTARE QUANDO SI CREA LA HOMEGUI
+                            // -------------------------------------------------------------
+                            // DA RIMUOVERE QUANDO SI HA LA HOMEGUI
+                            VerticalPanel homePanel = new VerticalPanel();
+                            HTML homeTitle = new HTML("<h1>HOME</h1>");
+                            homeTitle.getElement().setId("titolo-home");
+                            homePanel.add(homeTitle);
+                            RootPanel.get().add(homePanel);
+                            // -------------------------------------------------------------
+                        }
+                    }
+                });
+
             }
 
         }
@@ -154,13 +141,16 @@ public class LoginGui {
         registerButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                // new RegisterGui().mostra();
-                // Evento per test Selenium, da aggiungere classe della RegisterGUI
+                // -------------------------------------------------------------
+                // new RegisterGui().mostra(); --> DA SCOMMENTARE QUANDO SI CREA LA REGISTERGUI
+                // -------------------------------------------------------------
+                // DA RIMUOVERE QUANDO SI HA LA REGISTERGUI
                 VerticalPanel registerPanel = new VerticalPanel();
                 HTML registerTitle = new HTML("<h1>REGISTER</h1>");
                 registerTitle.getElement().setId("titolo-register");
                 registerPanel.add(registerTitle);
                 RootPanel.get().add(registerPanel);
+                // -------------------------------------------------------------
             }
         });
 
