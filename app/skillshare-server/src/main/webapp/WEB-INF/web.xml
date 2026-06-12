@@ -22,6 +22,15 @@
     <url-pattern>/app/ingredienti</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>loginServlet</servlet-name>
+    <servlet-class>it.unibo.LoginServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>loginServlet</servlet-name>
+    <url-pattern>/app/login</url-pattern>
+  </servlet-mapping>
+
 	<!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
