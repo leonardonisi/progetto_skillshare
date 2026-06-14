@@ -13,15 +13,17 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class MainLayoutGui extends Composite {
-
+    // Contenitore dinamico per le varie viste
     private SimplePanel contenitoreDinamico;
 
     public MainLayoutGui() {
+        // inizializzazione layout principale
         VerticalPanel mainContainer = new VerticalPanel();
         mainContainer.setWidth("100%");
         mainContainer.setHeight("100%");
         mainContainer.getElement().getStyle().setProperty("padding", "20px");
 
+        // inizializzazione header
         HorizontalPanel header = new HorizontalPanel();
         header.setWidth("100%");
         header.setHeight("60px");
@@ -29,6 +31,7 @@ public class MainLayoutGui extends Composite {
         header.getElement().getStyle().setProperty("borderBottom", "2px solid #ccc");
         header.getElement().getStyle().setProperty("marginBottom", "30px");
 
+        // logo e link di navigazione
         Label logoLabel = new com.google.gwt.user.client.ui.Label("SKILLSHARE");
         logoLabel.getElement().getStyle().setProperty("fontWeight", "bold");
         logoLabel.getElement().getStyle().setProperty("fontSize", "22px");
@@ -41,6 +44,7 @@ public class MainLayoutGui extends Composite {
         Label lblChat = new com.google.gwt.user.client.ui.Label("CHAT");
         Label lblProfilo = new com.google.gwt.user.client.ui.Label("👤 Profilo");
 
+        // Stile per renderere i link cliccabili
         lblMarket.getElement().getStyle().setProperty("cursor", "pointer");
         lblMarket.getElement().getStyle().setProperty("fontWeight", "bold");
         lblPerTe.getElement().getStyle().setProperty("cursor", "pointer");
@@ -58,17 +62,18 @@ public class MainLayoutGui extends Composite {
         header.add(navLinks);
         header.add(lblProfilo);
         
+        // Allineamento e spaziatura
         header.setCellWidth(logoLabel, "20%");
         header.setCellWidth(navLinks, "60%");
         header.setCellHorizontalAlignment(navLinks, com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellWidth(lblProfilo, "20%");
         header.setCellHorizontalAlignment(lblProfilo, com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_RIGHT);
 
-        // --- 2. INIZIALIZZAZIONE CONTENITORE DINAMICO ---
+        // inizializzazione contenitore dinamico
         contenitoreDinamico = new SimplePanel();
         contenitoreDinamico.setWidth("100%");
 
-        // --- 3. GESTIONE DEI CLICK ---
+        // gestione click sui link di navigazione (cambia vista, andranno poi implementate le vere pagine)
         lblMarket.addClickHandler(event -> cambiaVista(creaVistaMarketplace()));
         lblPerTe.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina PER TE in costruzione...")));
         lblChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
@@ -76,16 +81,18 @@ public class MainLayoutGui extends Composite {
 
         mainContainer.add(header);
         mainContainer.add(contenitoreDinamico);
-
+        // mostra vista iniziale (marketplace)
         cambiaVista(creaVistaMarketplace());
         initWidget(mainContainer);
     }
 
+    // metodo per cambiare la vista mostrata nel contenitore dinamico
     private void cambiaVista(Widget nuovaVista) {
         contenitoreDinamico.clear(); 
         contenitoreDinamico.add(nuovaVista); 
     }
 
+    // metodo per generare un pannello fittizio con un messaggio (usato per le pagine non ancora implementate)
     private Widget creaVistaPlaceholder(String messaggio) {
         VerticalPanel placeholder = new VerticalPanel();
         placeholder.setWidth("100%");
@@ -101,12 +108,13 @@ public class MainLayoutGui extends Composite {
         return placeholder;
     }
 
+    // costruisce la vista del marketplace con barra di ricerca, elenco di annunci e dettaglio annuncio
     private Widget creaVistaMarketplace() {
         VerticalPanel vistaMarket = new VerticalPanel();
         vistaMarket.setWidth("80%");
         vistaMarket.getElement().getStyle().setProperty("margin", "0 auto");
 
-        // BARRA DI RICERCA
+        // Barra di ricerca e pulsante "Pubblica"
         HorizontalPanel searchBar = new HorizontalPanel();
         searchBar.setWidth("100%");
         searchBar.setSpacing(10); 
@@ -132,12 +140,12 @@ public class MainLayoutGui extends Composite {
         searchBar.add(searchBox);
         searchBar.add(btnPubblica);
 
-        // AREA CONTENUTI
+        // Area contenuto con elenco annunci a sinistra e dettaglio annuncio a destra
         HorizontalPanel contentArea = new HorizontalPanel();
         contentArea.setWidth("100%");
         contentArea.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP); 
 
-        // Colonna Sinistra
+        // Colonna Sinistra (lista annunci)
         VerticalPanel colonnaSinistra = new VerticalPanel();
         colonnaSinistra.setWidth("100%"); 
         
@@ -172,7 +180,7 @@ public class MainLayoutGui extends Composite {
         SimplePanel spacer = new SimplePanel();
         spacer.setWidth("100%"); 
 
-        // Colonna Destra
+        // Colonna Destra (dettaglio annuncio)
         VerticalPanel colonnaDestra = new VerticalPanel();
         colonnaDestra.setWidth("100%"); 
         colonnaDestra.getElement().getStyle().setProperty("border", "1px solid #666");
@@ -198,7 +206,7 @@ public class MainLayoutGui extends Composite {
         headerDettaglio.setCellHorizontalAlignment(votoDettaglio, HasHorizontalAlignment.ALIGN_RIGHT);
 
         colonnaDestra.add(headerDettaglio);
-
+        // Dettagli dell'annuncio
         Label lblCategoria = new Label("CATEGORIA: Sviluppo Software");
         lblCategoria.getElement().getStyle().setProperty("fontSize", "16px"); 
         lblCategoria.getElement().getStyle().setProperty("marginBottom", "20px");
@@ -220,6 +228,7 @@ public class MainLayoutGui extends Composite {
         colonnaDestra.add(lblDispo);
         colonnaDestra.add(lblContro);
         
+        // Tasto d'azione per richiedere lo scambio
         Button btnRichiedi = new Button("RICHIEDI");
         btnRichiedi.setHeight("40px");
         btnRichiedi.setWidth("130px");
