@@ -34,8 +34,6 @@ class LoginServiceImplTest {
 
     private LoginServiceImpl service;
 
-    private static final DB db = DatabaseCore.getDB();
-
     @BeforeEach
     void setUp() throws Exception {
         when(servletConfig.getServletContext()).thenReturn(servletContext);
@@ -56,32 +54,26 @@ class LoginServiceImplTest {
         ConcurrentMap<String, String> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.STRING)
                 .createOrOpen();
         dbUtenti.clear();
-        dbUtenti.put("admin", "password123");
+        dbUtenti.put("admin", "password");
         DatabaseCore.commit();
 
     }
 
     @Test
-    void authenticate_validCredentials_shouldReturnUsername() throws IllegalArgumentException {
-        String usernameRestituito = service.authenticate("admin", "password123");
+    void authenticate_validCredentials_shouldReturnUsername() {
+        String usernameRestituito = service.authenticate("admin", "password");
         assertEquals("admin", usernameRestituito);
     }
 
     @Test
-    void authenticate_ShouldThrowException_WhenUsernameDoesNotExist() {
-        // Verifichiamo che il metodo lanci IllegalArgumentException
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            service.authenticate("inesistente", "qualcosa");
-        });
-        assertEquals("Username inesistente", exception.getMessage());
+    void authenticate_ShouldReturnError_WhenUsernameDoesNotExist() {
+        String result = service.authenticate("inesistente", "password");
+        assertEquals("Username inesistente", result);
     }
 
     @Test
-    void authenticate_ShouldThrowException_WhenPasswordIsIncorrect() {
-        // Verifichiamo che il metodo lanci IllegalArgumentException
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            service.authenticate("admin", "password_sbagliata");
-        });
-        assertEquals("Password errata", exception.getMessage());
+    void authenticate_ShouldReturnError_WhenPasswordIsIncorrect() {
+        String result = service.authenticate("admin", "password_sbagliata");
+        assertEquals("Password errata", result);
     }
 }
