@@ -2,16 +2,19 @@ package it.unibo;
 
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class MainLayoutGui extends Composite {
+
+    private SimplePanel contenitoreDinamico;
+
     public MainLayoutGui() {
         VerticalPanel mainContainer = new VerticalPanel();
         mainContainer.setWidth("100%");
         mainContainer.setHeight("100%");
         mainContainer.getElement().getStyle().setProperty("padding", "20px");
-
-        initWidget(mainContainer);
 
         HorizontalPanel header = new HorizontalPanel();
         header.setWidth("100%");
@@ -55,6 +58,40 @@ public class MainLayoutGui extends Composite {
         header.setCellWidth(lblProfilo, "20%");
         header.setCellHorizontalAlignment(lblProfilo, com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_RIGHT);
 
+        // --- 2. INIZIALIZZAZIONE CONTENITORE DINAMICO ---
+        contenitoreDinamico = new SimplePanel();
+        contenitoreDinamico.setWidth("100%");
+
+        // --- 3. GESTIONE DEI CLICK ---
+        lblMarket.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina MARKETPLACE in costruzione...")));
+        lblPerTe.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina PER TE in costruzione...")));
+        lblChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
+        lblProfilo.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina PROFILO in costruzione...")));
+
         mainContainer.add(header);
+        mainContainer.add(contenitoreDinamico);
+
+        cambiaVista(creaVistaPlaceholder("Pagina MARKETPLACE in costruzione..."));
+        initWidget(mainContainer);
+    }
+
+    private void cambiaVista(Widget nuovaVista) {
+        contenitoreDinamico.clear(); 
+        contenitoreDinamico.add(nuovaVista); 
+    }
+
+    private com.google.gwt.user.client.ui.Widget creaVistaPlaceholder(String messaggio) {
+        VerticalPanel placeholder = new VerticalPanel();
+        placeholder.setWidth("100%");
+        placeholder.setHeight("300px");
+        placeholder.setVerticalAlignment(com.google.gwt.user.client.ui.HasVerticalAlignment.ALIGN_MIDDLE);
+        placeholder.setHorizontalAlignment(com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_CENTER);
+        
+        com.google.gwt.user.client.ui.Label lblMessaggio = new com.google.gwt.user.client.ui.Label(messaggio);
+        lblMessaggio.getElement().getStyle().setProperty("fontSize", "20px");
+        lblMessaggio.getElement().getStyle().setProperty("color", "gray");
+        
+        placeholder.add(lblMessaggio);
+        return placeholder;
     }
 }
