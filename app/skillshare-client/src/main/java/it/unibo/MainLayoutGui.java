@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -15,6 +16,11 @@ import com.google.gwt.user.client.ui.Widget;
 public class MainLayoutGui extends Composite {
     // Contenitore dinamico per le varie viste
     private SimplePanel contenitoreDinamico;
+
+    public void mostra() {
+        RootPanel.get().clear();
+        RootPanel.get().add(this); // Attacca questo layout allo schermo
+    }
 
     public MainLayoutGui() {
         // inizializzazione layout principale
@@ -27,7 +33,7 @@ public class MainLayoutGui extends Composite {
         HorizontalPanel header = new HorizontalPanel();
         header.setWidth("100%");
         header.setHeight("60px");
-        header.setVerticalAlignment(com.google.gwt.user.client.ui.HasVerticalAlignment.ALIGN_MIDDLE);
+        header.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         header.getElement().getStyle().setProperty("borderBottom", "2px solid #ccc");
         header.getElement().getStyle().setProperty("marginBottom", "30px");
 
@@ -35,14 +41,24 @@ public class MainLayoutGui extends Composite {
         Label logoLabel = new com.google.gwt.user.client.ui.Label("SKILLSHARE");
         logoLabel.getElement().getStyle().setProperty("fontWeight", "bold");
         logoLabel.getElement().getStyle().setProperty("fontSize", "22px");
+        // ID per il test Selenium del login
+        logoLabel.getElement().setId("titolo-home");
 
         HorizontalPanel navLinks = new HorizontalPanel();
         navLinks.setSpacing(20); 
 
-        Label lblMarket = new com.google.gwt.user.client.ui.Label("MARKET");
-        Label lblPerTe = new com.google.gwt.user.client.ui.Label("PER TE");
-        Label lblChat = new com.google.gwt.user.client.ui.Label("CHAT");
-        Label lblProfilo = new com.google.gwt.user.client.ui.Label("👤 Profilo");
+        Label lblMarket = new Label("MARKET");
+        Label lblPerTe = new Label("PER TE");
+        Label lblChat = new Label("CHAT");
+        Label lblProfilo = new Label("👤 Profilo");
+        //ID per i tuoi futuri test Selenium della Home
+        lblMarket.getElement().setId("nav-market");
+        lblPerTe.getElement().setId("nav-perte");
+        lblChat.getElement().setId("nav-chat");
+        lblProfilo.getElement().setId("nav-profilo");
+
+        // Stile per renderere i link cliccabili
+        lblMarket.getElement().getStyle().setProperty("cursor", "pointer");
 
         // Stile per renderere i link cliccabili
         lblMarket.getElement().getStyle().setProperty("cursor", "pointer");
@@ -65,9 +81,9 @@ public class MainLayoutGui extends Composite {
         // Allineamento e spaziatura
         header.setCellWidth(logoLabel, "20%");
         header.setCellWidth(navLinks, "60%");
-        header.setCellHorizontalAlignment(navLinks, com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_CENTER);
+        header.setCellHorizontalAlignment(navLinks, HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellWidth(lblProfilo, "20%");
-        header.setCellHorizontalAlignment(lblProfilo, com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_RIGHT);
+        header.setCellHorizontalAlignment(lblProfilo, HasHorizontalAlignment.ALIGN_RIGHT);
 
         // inizializzazione contenitore dinamico
         contenitoreDinamico = new SimplePanel();
@@ -97,10 +113,10 @@ public class MainLayoutGui extends Composite {
         VerticalPanel placeholder = new VerticalPanel();
         placeholder.setWidth("100%");
         placeholder.setHeight("300px");
-        placeholder.setVerticalAlignment(com.google.gwt.user.client.ui.HasVerticalAlignment.ALIGN_MIDDLE);
-        placeholder.setHorizontalAlignment(com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_CENTER);
+        placeholder.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+        placeholder.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         
-        com.google.gwt.user.client.ui.Label lblMessaggio = new com.google.gwt.user.client.ui.Label(messaggio);
+        Label lblMessaggio = new Label(messaggio);
         lblMessaggio.getElement().getStyle().setProperty("fontSize", "20px");
         lblMessaggio.getElement().getStyle().setProperty("color", "gray");
         
@@ -134,6 +150,9 @@ public class MainLayoutGui extends Composite {
         btnPubblica.getElement().getStyle().setProperty("fontSize", "14px");
         btnPubblica.getElement().getStyle().setProperty("cursor", "pointer");
         btnPubblica.getElement().getStyle().setProperty("fontWeight", "bold");
+
+        // test selenium
+        btnPubblica.getElement().setId("btn-pubblica");
 
         btnPubblica.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CREAZIONE ANNUNCIO in costruzione...")));
 

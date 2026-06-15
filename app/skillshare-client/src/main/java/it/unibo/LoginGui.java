@@ -117,14 +117,17 @@ public class LoginGui {
                         } else {
                             RootPanel.get().clear();
                             // -------------------------------------------------------------
-                            // new HomeGui().mostra(); --> DA SCOMMENTARE QUANDO SI CREA LA HOMEGUI
+                            new MainLayoutGui().mostra(); //--> DA SCOMMENTARE QUANDO SI CREA LA HOMEGUI
                             // -------------------------------------------------------------
                             // DA RIMUOVERE QUANDO SI HA LA HOMEGUI
+                            /*
+                             
                             VerticalPanel homePanel = new VerticalPanel();
                             HTML homeTitle = new HTML("<h1>HOME</h1>");
                             homeTitle.getElement().setId("titolo-home");
                             homePanel.add(homeTitle);
                             RootPanel.get().add(homePanel);
+                            */
                             // -------------------------------------------------------------
                         }
                     }
