@@ -13,8 +13,7 @@ public class RegisterServiceImpl extends RemoteServiceServlet implements Registe
         db.hashMap("utenti", Serializer.STRING, Serializer.STRING).createOrOpen();
 
     static {
-        // Aggiunta di un utente admin di default
-        dbUtenti.put("usato", "password");
+        dbUtenti.put("admin", "password");
         DatabaseCore.commit();
     }
 
@@ -32,7 +31,9 @@ public class RegisterServiceImpl extends RemoteServiceServlet implements Registe
             return "Password non conforme";
         }
         else{
-            return "OK";
+            dbUtenti.put(username, password);
+            DatabaseCore.commit();
+            return "ok";
         }
     }
 }
