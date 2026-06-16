@@ -141,16 +141,8 @@ public class LoginGui {
         registerButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                // -------------------------------------------------------------
-                // new RegisterGui().mostra(); --> DA SCOMMENTARE QUANDO SI CREA LA REGISTERGUI
-                // -------------------------------------------------------------
-                // DA RIMUOVERE QUANDO SI HA LA REGISTERGUI
-                VerticalPanel registerPanel = new VerticalPanel();
-                HTML registerTitle = new HTML("<h1>REGISTER</h1>");
-                registerTitle.getElement().setId("titolo-register");
-                registerPanel.add(registerTitle);
-                RootPanel.get().add(registerPanel);
-                // -------------------------------------------------------------
+                
+                new RegisterGui().mostra();
             }
         });
 

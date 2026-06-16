@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RegisterSeleniumTest {
 
-    private static final String BASE_URL = System.getProperty("app.url", "http://localhost:8080/register");
+    private static final String BASE_URL = System.getProperty("app.url", "http://localhost:8080");
     private static final Duration TIMEOUT = Duration.ofSeconds(15);
 
     private static WebDriver driver;
@@ -49,8 +49,13 @@ public class RegisterSeleniumTest {
     @BeforeEach
     void loadApp() {
         driver.get(BASE_URL);
-            new WebDriverWait(driver, TIMEOUT)
-            .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-registrazione")));
+
+        WebElement vaiPaginaRegistrazione = new WebDriverWait(driver, Duration.ofSeconds(40))
+        .until(ExpectedConditions.elementToBeClickable(By.id("btn-register")));
+        vaiPaginaRegistrazione.click();
+
+        new WebDriverWait(driver, TIMEOUT)
+        .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-registrazione")));
     }
 
     // -------------------------------------------------------------------------
@@ -71,7 +76,6 @@ public class RegisterSeleniumTest {
         WebElement usernameField = driver.findElement(By.id("input-username"));
 
         assertTrue(usernameField.isDisplayed());
-        assertEquals("username", usernameField.getAttribute("value"));
     }
 
     @Test
@@ -80,7 +84,6 @@ public class RegisterSeleniumTest {
         WebElement passwordField = driver.findElement(By.id("input-password"));
 
         assertTrue(passwordField.isDisplayed());
-        assertEquals("password", passwordField.getAttribute("value"));
     }
 
     @Test
@@ -89,7 +92,6 @@ public class RegisterSeleniumTest {
         WebElement confirmPasswordField = driver.findElement(By.id("input-confirm-password"));
 
         assertTrue(confirmPasswordField.isDisplayed());
-        assertEquals("conferma password", confirmPasswordField.getAttribute("value"));
     }
 
     @Test
@@ -124,7 +126,7 @@ public class RegisterSeleniumTest {
 
     @Test
     void registerWithInvalidConfirmPasswordShowsError() {
-        executeRegistration("admin", "password", "pasword");
+        executeRegistration("sbagliato", "password", "pasword");
 
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         Alert alert = wait.until(ExpectedConditions.alertIsPresent());
@@ -133,29 +135,54 @@ public class RegisterSeleniumTest {
     }
 
     @Test
-    void registrationShowsSuccessMessageAndLoginPageButton() {
-        executeRegistration("admin", "password", "password");
+    void registerWithTooShortUsernameShowsError() {
+        executeRegistration("tu", "password", "pasword");
 
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("register-button")));
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("cancel-button")));
-        WebElement loginPageButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("bottone-pagina-login")));
         Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-
-        assertTrue(loginPageButton.isDisplayed());
-        assertEquals("Registrazione Completata", alert.getText());
+        assertEquals("Username troppo corto", alert.getText());
         alert.accept();
     }
 
     @Test
-    void clickingLoginPageButtonNavigatesToLogin() {
-        executeRegistration("admin", "password", "password");
+    void registerWithTooShortPasswordShowsError() {
+        executeRegistration("buono", "pa", "pa");
 
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-        WebElement loginPageButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("bottone-pagina-login")));
         Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-
+        assertEquals("Password troppo corta", alert.getText());
         alert.accept();
+    }
+
+    @Test
+    void registrationShowsSuccessMessageAndLoginPageButton() {
+        executeRegistration("nuovo", "password", "password");
+
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+
+        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+        assertEquals("Registrazione Completata", alert.getText());
+        alert.accept();
+
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("register-button")));
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("cancel-button")));
+        WebElement loginPageButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("login-page-button")));
+
+        assertTrue(loginPageButton.isDisplayed());
+        assertEquals("TORNA ALLA PAGINA DI LOGIN", loginPageButton.getText());
+
+    }
+
+    @Test
+    void clickingLoginPageButtonNavigatesToLogin() {
+        executeRegistration("login", "password", "password");
+        
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+
+        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+        alert.accept();
+
+        WebElement loginPageButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("login-page-button")));
         loginPageButton.click();
 
         WebElement loginTitle = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-login")));

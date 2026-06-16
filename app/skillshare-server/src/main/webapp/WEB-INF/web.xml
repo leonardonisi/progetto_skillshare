@@ -23,6 +23,16 @@
   </servlet-mapping>
 
   <servlet>
+      <servlet-name>registerServlet</servlet-name>
+      <servlet-class>it.unibo.RegisterServiceImpl</servlet-class>
+  </servlet>
+    
+  <servlet-mapping>
+      <servlet-name>registerServlet</servlet-name>
+      <url-pattern>/app/register</url-pattern> 
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>loginServlet</servlet-name>
     <servlet-class>it.unibo.LoginServiceImpl</servlet-class>
   </servlet>
