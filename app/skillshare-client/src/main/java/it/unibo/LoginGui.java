@@ -116,19 +116,7 @@ public class LoginGui {
                             Window.alert("Password errata");
                         } else {
                             RootPanel.get().clear();
-                            // -------------------------------------------------------------
-                            new MainLayoutGui().mostra(); //--> DA SCOMMENTARE QUANDO SI CREA LA HOMEGUI
-                            // -------------------------------------------------------------
-                            // DA RIMUOVERE QUANDO SI HA LA HOMEGUI
-                            /*
-                             
-                            VerticalPanel homePanel = new VerticalPanel();
-                            HTML homeTitle = new HTML("<h1>HOME</h1>");
-                            homeTitle.getElement().setId("titolo-home");
-                            homePanel.add(homeTitle);
-                            RootPanel.get().add(homePanel);
-                            */
-                            // -------------------------------------------------------------
+                            new MainLayoutGui().mostra();
                         }
                     }
                 });

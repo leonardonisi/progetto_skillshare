@@ -12,8 +12,5 @@ public class App implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 		new LoginGui().mostra();
-    /*MainLayoutGui layout = new MainLayoutGui();
-    com.google.gwt.user.client.ui.RootPanel.get().add(layout);
-    */
 	}
 }
