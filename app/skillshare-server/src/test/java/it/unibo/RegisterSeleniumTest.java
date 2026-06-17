@@ -116,7 +116,7 @@ public class RegisterSeleniumTest {
 
     @Test
     void registerWithAlreadyUsedUsernameShowsError() {
-        executeRegistration("usato", "password", "password");
+        executeRegistration("admin", "password", "password");
 
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         Alert alert = wait.until(ExpectedConditions.alertIsPresent());
