@@ -38,8 +38,8 @@ public class LoginGui {
         final Button loginButton = new Button("LOGIN");
         final Button registerButton = new Button("REGISTER");
 
-        usernameField.setText("username");
-        passwordField.setText("password");
+        usernameField.getElement().setAttribute("placeholder", "Username");
+        passwordField.getElement().setAttribute("placeholder", "Password");
         passwordVisibleLabel.setVisible(false);
 
         // assegnazione id per identificazione con Selenium
@@ -70,7 +70,6 @@ public class LoginGui {
         mainPanel.add(registerButton);
 
         // Modifica widget stile
-        // title.getElement().getStyle().setColor("blue");
         usernameField.setWidth("200px");
         passwordField.setWidth("200px");
         loginButton.setWidth("200px");
@@ -141,7 +140,7 @@ public class LoginGui {
         registerButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                
+
                 new RegisterGui().mostra();
             }
         });
