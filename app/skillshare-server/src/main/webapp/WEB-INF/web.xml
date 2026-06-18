@@ -36,9 +36,20 @@
     <servlet-name>loginServlet</servlet-name>
     <servlet-class>it.unibo.LoginServiceImpl</servlet-class>
   </servlet>
+
+  <servlet>
+    <servlet-name>marketServlet</servlet-name>
+    <servlet-class>it.unibo.MarketServiceImpl</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>loginServlet</servlet-name>
     <url-pattern>/app/login</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>marketServlet</servlet-name>
+    <url-pattern>/app/market</url-pattern>
   </servlet-mapping>
 
 	<!-- Default page to serve -->
