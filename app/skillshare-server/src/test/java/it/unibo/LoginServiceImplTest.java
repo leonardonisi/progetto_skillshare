@@ -53,7 +53,7 @@ class LoginServiceImplTest {
         DB db = DatabaseCore.getDB();
         ConcurrentMap<String, String> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.STRING)
                 .createOrOpen();
-        dbUtenti.clear();
+        dbUtenti.remove("inesistente");
         dbUtenti.put("admin", "password");
         DatabaseCore.commit();
 
