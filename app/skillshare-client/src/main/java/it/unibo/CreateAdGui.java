@@ -104,6 +104,15 @@ public class CreateAdGui {
                 // Validazione locale richiesta dai test di accettazione
                 if (offro.isEmpty() || cerco.isEmpty() || disponibilita.isEmpty()) {
                     Window.alert("Devi specificare sia cosa offri sia cosa cerchi sia la disponibilità");
+                    /*
+                     * @Override
+                     * public void onFailure(Throwable caught) {
+                     * Window.alert("Errore rete ");
+                     * }
+                     * 
+                     * @Override
+                     * public void onSuccess(String result) {
+                     */
                 } else {
                     Window.alert("Annuncio pubblicato con successo");
                     RootPanel.get().clear();
