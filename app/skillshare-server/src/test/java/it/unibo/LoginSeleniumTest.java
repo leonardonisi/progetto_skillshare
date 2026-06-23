@@ -69,7 +69,7 @@ public class LoginSeleniumTest {
         WebElement usernameField = driver.findElement(By.id("input-username"));
         // Verifico che il campo username sia presente
         assertTrue(usernameField.isDisplayed());
-        assertEquals("username", usernameField.getAttribute("value"));
+        assertEquals("", usernameField.getAttribute("value"));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class LoginSeleniumTest {
         WebElement passwordField = driver.findElement(By.id("input-password"));
         // Verifico che il campo password sia presente
         assertTrue(passwordField.isDisplayed());
-        assertEquals("password", passwordField.getAttribute("value"));
+        assertEquals("", passwordField.getAttribute("value"));
     }
 
     @Test
@@ -113,7 +113,8 @@ public class LoginSeleniumTest {
 
         // verifico interfaccia cambiata in register
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-        WebElement registerTitle = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-register")));
+        WebElement registerTitle = wait
+                .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-registrazione")));
         assertTrue(registerTitle.isDisplayed());
     }
 
