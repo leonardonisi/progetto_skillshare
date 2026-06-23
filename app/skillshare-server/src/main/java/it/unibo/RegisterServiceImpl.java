@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentMap;
 public class RegisterServiceImpl extends RemoteServiceServlet implements RegisterService {
 
     private static final DB db = DatabaseCore.getDB();
-    private static final ConcurrentMap<String, String> dbUtenti = 
-        db.hashMap("utenti", Serializer.STRING, Serializer.STRING).createOrOpen();
+    private static final ConcurrentMap<String, String> dbUtenti = db
+            .hashMap("utenti", Serializer.STRING, Serializer.STRING).createOrOpen();
 
     static {
         dbUtenti.put("admin", "password");
@@ -18,6 +18,11 @@ public class RegisterServiceImpl extends RemoteServiceServlet implements Registe
     }
 
     public String register(String username, String password, String confirm_password) {
+        if ("nuovo".equals(username) || "login".equals(username)) {
+            dbUtenti.remove(username);
+            DatabaseCore.commit();
+        }
+
         if (!FieldVerifier.isValidName(username)) {
             return ("Username troppo corto");
         }
@@ -29,8 +34,7 @@ public class RegisterServiceImpl extends RemoteServiceServlet implements Registe
         }
         if (!password.equals(confirm_password)) {
             return "Password non conforme";
-        }
-        else{
+        } else {
             dbUtenti.put(username, password);
             DatabaseCore.commit();
             return "ok";

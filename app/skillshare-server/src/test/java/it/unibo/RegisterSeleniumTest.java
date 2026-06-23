@@ -17,7 +17,6 @@ import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 public class RegisterSeleniumTest {
 
     private static final String BASE_URL = System.getProperty("app.url", "http://localhost:8080");
@@ -48,14 +47,18 @@ public class RegisterSeleniumTest {
 
     @BeforeEach
     void loadApp() {
+        try {
+            driver.switchTo().alert().accept();
+        } catch (Exception e) {
+            // Non c'è alcun alert da accettare
+        }
         driver.get(BASE_URL);
-
         WebElement vaiPaginaRegistrazione = new WebDriverWait(driver, Duration.ofSeconds(40))
-        .until(ExpectedConditions.elementToBeClickable(By.id("btn-register")));
+                .until(ExpectedConditions.elementToBeClickable(By.id("btn-register")));
         vaiPaginaRegistrazione.click();
 
         new WebDriverWait(driver, TIMEOUT)
-        .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-registrazione")));
+                .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-registrazione")));
     }
 
     // -------------------------------------------------------------------------
@@ -95,7 +98,7 @@ public class RegisterSeleniumTest {
     }
 
     @Test
-    void confirmRegisterButtonIsPresent(){
+    void confirmRegisterButtonIsPresent() {
         WebElement registerButton = driver.findElement(By.id("register-button"));
         assertTrue(registerButton.isDisplayed());
         assertEquals("CREA ACCOUNT", registerButton.getText());
@@ -166,7 +169,8 @@ public class RegisterSeleniumTest {
 
         wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("register-button")));
         wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("cancel-button")));
-        WebElement loginPageButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("login-page-button")));
+        WebElement loginPageButton = wait
+                .until(ExpectedConditions.presenceOfElementLocated(By.id("login-page-button")));
 
         assertTrue(loginPageButton.isDisplayed());
         assertEquals("TORNA ALLA PAGINA DI LOGIN", loginPageButton.getText());
@@ -176,37 +180,37 @@ public class RegisterSeleniumTest {
     @Test
     void clickingLoginPageButtonNavigatesToLogin() {
         executeRegistration("login", "password", "password");
-        
+
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
         Alert alert = wait.until(ExpectedConditions.alertIsPresent());
         alert.accept();
 
-        WebElement loginPageButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("login-page-button")));
+        WebElement loginPageButton = wait
+                .until(ExpectedConditions.presenceOfElementLocated(By.id("login-page-button")));
         loginPageButton.click();
 
         WebElement loginTitle = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-login")));
         assertTrue(loginTitle.isDisplayed());
     }
 
-
     // -------------------------------------------------------------------------
     // HELPER
     // -------------------------------------------------------------------------
     // aspetta che la pagina sia caricata
-    private void executeRegistration(String username, String password, String confirm_password){
+    private void executeRegistration(String username, String password, String confirm_password) {
         WebElement usernameField = driver.findElement(By.id("input-username"));
         WebElement passwordField = driver.findElement(By.id("input-password"));
         WebElement confirmPasswordField = driver.findElement(By.id("input-confirm-password"));
         WebElement registerButton = driver.findElement(By.id("register-button"));
-        
+
         usernameField.clear();
         usernameField.sendKeys(username);
         passwordField.clear();
         passwordField.sendKeys(password);
         confirmPasswordField.clear();
         confirmPasswordField.sendKeys(confirm_password);
-        
+
         registerButton.click();
     }
 }
