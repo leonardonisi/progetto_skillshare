@@ -2,9 +2,6 @@ package it.unibo;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
@@ -13,6 +10,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class CreateAdGui {
@@ -26,12 +24,14 @@ public class CreateAdGui {
 
         // Inizializzazione Widget
         HTML title = new HTML("<h1 style='color: #87CEEB;'>PUBBLICA ANNUNCIO</h1>");
+        HTML subtitle = new HTML("<h2>Inserisci i dettagli del tuo annuncio:</h2>");
         final TextBox titleField = new TextBox();
         final ListBox categoryList = new ListBox();
-        final TextBox offertSkill = new TextBox();
-        final TextBox disponibility = new TextBox();
-        final TextBox searchedSkill = new TextBox();
+        final TextArea offertSkill = new TextArea();
+        final TextArea disponibility = new TextArea();
+        final TextArea searchedSkill = new TextArea();
         final Button btnPubblica = new Button("PUBBLICA");
+        final Button btnAnnulla = new Button("ANNULLA");
 
         // Aggiunta delle categorie
         categoryList.addItem("Informatica");
@@ -39,12 +39,6 @@ public class CreateAdGui {
         categoryList.addItem("Lingue");
         categoryList.addItem("Economia");
         categoryList.addItem("Altro");
-
-        // assegnazione placeholder
-        titleField.getElement().setAttribute("placeholder", "Titolo annuncio");
-        offertSkill.getElement().setAttribute("placeholder", "Skill offerta");
-        disponibility.getElement().setAttribute("placeholder", "Disponibilità");
-        searchedSkill.getElement().setAttribute("placeholder", "Skill ricercata");
 
         // assegnazione id per identificazione con Selenium
         title.getElement().setId("titolo-create-ad");
@@ -61,8 +55,11 @@ public class CreateAdGui {
         mainPanel.setWidth("100%");
         mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
+        // Diminuzione spazio tra titolo e sottotitolo
+        subtitle.getElement().getStyle().setProperty("marginTop", "-50px");
+
         mainPanel.add(title);
-        mainPanel.add(new HTML("<h2>Inserisci i dettagli del tuo annuncio:</h2>"));
+        mainPanel.add(subtitle);
         mainPanel.add(new Label("Titolo Annuncio:"));
         mainPanel.add(titleField);
         mainPanel.add(new Label("Categoria:"));
@@ -74,30 +71,29 @@ public class CreateAdGui {
         mainPanel.add(new Label("Skill Ricercata:"));
         mainPanel.add(searchedSkill);
         mainPanel.add(btnPubblica);
+        mainPanel.add(btnAnnulla);
 
         // Modifica widget stile per allineamento
         titleField.setWidth("200px");
-        categoryList.setWidth("206px"); // Bilanciato per padding nativi dei browser
-        offertSkill.setWidth("200px");
-        disponibility.setWidth("200px");
-        searchedSkill.setWidth("200px");
+        categoryList.setWidth("206px");
         btnPubblica.setWidth("200px");
+        btnAnnulla.setWidth("80px");
+
+        offertSkill.setCharacterWidth(50); // Larghezza del box
+        offertSkill.setVisibleLines(6);
+        disponibility.setCharacterWidth(50); // Larghezza del box
+        disponibility.setVisibleLines(2);
+        searchedSkill.setCharacterWidth(50); // Larghezza del box
+        searchedSkill.setVisibleLines(6);
 
         RootPanel.get().add(mainPanel);
         titleField.setFocus(true);
         // --- Logica Handler ---
-        class CreateAdHandler implements KeyUpHandler, ClickHandler {
+        class CreateAdHandler implements ClickHandler {
 
             @Override
             public void onClick(ClickEvent event) {
                 pubblica();
-            }
-
-            @Override
-            public void onKeyUp(KeyUpEvent event) {
-                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-                    pubblica();
-                }
             }
 
             private void pubblica() {
@@ -119,9 +115,9 @@ public class CreateAdGui {
         // Istanziazione dell'handler e aggancio ai widget coinvolti
         CreateAdHandler createAdHandler = new CreateAdHandler();
         btnPubblica.addClickHandler(createAdHandler);
-        titleField.addKeyUpHandler(createAdHandler);
-        offertSkill.addKeyUpHandler(createAdHandler);
-        disponibility.addKeyUpHandler(createAdHandler);
-        searchedSkill.addKeyUpHandler(createAdHandler);
+        btnAnnulla.addClickHandler(event -> {
+            RootPanel.get().clear();
+            new MainLayoutGui().mostra();
+        });
     }
 }
