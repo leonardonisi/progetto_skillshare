@@ -14,6 +14,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 public class MainLayoutSeleniumTest {
 
     private static final String BASE_URL = System.getProperty("app.url", "http://localhost:8080/");
@@ -40,7 +41,7 @@ public class MainLayoutSeleniumTest {
     @BeforeEach
     void loadAppAndLogin() {
         driver.get(BASE_URL);
-        
+
         // Aspetta il login e superalo per arrivare alla tua Home Page
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement usernameField = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("input-username")));
@@ -67,7 +68,7 @@ public class MainLayoutSeleniumTest {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement placeholderTesto = wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//div[contains(text(), 'Pagina CHAT in costruzione...')]")));
-        
+
         assertTrue(placeholderTesto.isDisplayed());
     }
 
@@ -79,20 +80,19 @@ public class MainLayoutSeleniumTest {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement placeholderTesto = wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//div[contains(text(), 'Pagina PROFILO in costruzione...')]")));
-        
+
         assertTrue(placeholderTesto.isDisplayed());
     }
-    
+
     @Test
     void pulsantePubblicaMostraPaginaCreazione() {
         WebElement btnPubblica = driver.findElement(By.id("btn-pubblica"));
         btnPubblica.click();
 
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-        WebElement placeholderTesto = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//div[contains(text(), 'Pagina CREAZIONE ANNUNCIO in costruzione...')]")));
-        
-        assertTrue(placeholderTesto.isDisplayed());
+        WebElement createTitle = wait
+                .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-create-ad")));
+        assertTrue(createTitle.isDisplayed());
     }
-    
+
 }
