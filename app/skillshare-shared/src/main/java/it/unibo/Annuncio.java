@@ -109,6 +109,11 @@ public class Annuncio implements Serializable {
             return this;
         }
 
+        public Builder utenteId(String utenteId) {
+            this.utenteId = utenteId;
+            return this;
+        }
+
         public Annuncio build() {
             return new Annuncio(this);
         }
