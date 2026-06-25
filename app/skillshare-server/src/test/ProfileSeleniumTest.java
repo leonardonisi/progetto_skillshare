@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ProfileSeleniumTest {
 
-    // NOTA: Assicurati che l'app sia avviata sulla porta 8080 prima di lanciare il test!
     private static final String BASE_URL = System.getProperty("app.url", "http://localhost:8080/");
     private static final Duration TIMEOUT = Duration.ofSeconds(15);
 
@@ -44,17 +43,23 @@ public class ProfileSeleniumTest {
     @BeforeEach
     void loadApp() {
         driver.get(BASE_URL);
-        // Aspettiamo che carichi il titolo del profilo
+        new WebDriverWait(driver, TIMEOUT)
+                .until(ExpectedConditions.elementToBeClickable(By.id("nav-profilo")));
+        
+        driver.findElement(By.id("nav-profilo")).click();
+        
         new WebDriverWait(driver, TIMEOUT)
                 .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-profilo")));
     }
 
+    // Verifica che la pagina del profilo si carichi correttamente e che il titolo sia presente
     @Test
     void pageLoadsWithCorrectTitle() {
         WebElement titleElement = driver.findElement(By.id("titolo-profilo"));
         assertEquals("IL MIO PROFILO", titleElement.getText());
     }
 
+    //verifica che il bottone "MODIFICA PROFILO" sia presente e visibile
     @Test
     void editButtonIsPresent() {
         WebElement editButton = driver.findElement(By.id("btn-modifica"));
@@ -62,12 +67,14 @@ public class ProfileSeleniumTest {
         assertEquals("MODIFICA PROFILO", editButton.getText());
     }
 
+    //verifica che la sezione foto del profilo sia presente e visibile
     @Test
     void avatarIsPresent() {
         WebElement avatar = driver.findElement(By.id("img-avatar"));
         assertTrue(avatar.isDisplayed());
     }
 
+    //verifica che le informazioni dell'utente (username e biografia) siano presenti e visibili
     @Test
     void userInfoIsPresent() {
         WebElement username = driver.findElement(By.id("lbl-username"));
@@ -76,8 +83,57 @@ public class ProfileSeleniumTest {
         assertTrue(username.isDisplayed());
         assertTrue(bio.isDisplayed());
         
-        // Verifichiamo che contengano del testo di base (placeholder)
         assertTrue(username.getText().contains("Username:"));
         assertTrue(bio.getText().contains("Biografia:"));
+    }
+
+    // Controlla l'esistenza e la visibilità del menu a tendina per le categorie
+    @Test
+    void categoriesDropdownIsPresent() {
+        WebElement categorieDropdown = driver.findElement(By.id("select-categorie"));
+        assertTrue(categorieDropdown.isDisplayed());
+    }
+
+    //verifica che il pannello per le categorie selezionate sia presente e visibile
+    @Test
+    void categoriesAreaIsPresent() {
+        WebElement categorieDropdown = driver.findElement(By.id("select-categorie"));
+        assertTrue(categorieDropdown.isDisplayed());
+
+        WebElement tagPanel = driver.findElement(By.id("panel-tag-categorie"));
+        assertTrue(tagPanel.isDisplayed());
+    } 
+
+    // Verifica che selezionando una categoria dal menu a tendina, venga aggiunta un'etichetta nel pannello delle categorie selezionate
+    @Test
+    void selectingCategoryAddsTag() {
+        WebElement categorieDropdown = driver.findElement(By.id("select-categorie"));
+        
+        org.openqa.selenium.support.ui.Select select = new org.openqa.selenium.support.ui.Select(categorieDropdown);
+        
+        select.selectByIndex(1);
+
+        WebElement tagPanel = driver.findElement(By.id("panel-tag-categorie"));
+        assertFalse(tagPanel.getText().isEmpty());
+    }
+
+    // Verifica che l'etichetta della locazione sia presente con il testo iniziale corretto
+    @Test
+    void locationLabelIsPresent() {
+        WebElement locazioneLabel = driver.findElement(By.id("lbl-locazione"));
+        assertTrue(locazioneLabel.isDisplayed());
+        assertTrue(locazioneLabel.getText().contains("Locazione:"));
+    }
+
+    //verifica che il bottone "Torna alla Home" sia presente e funzioni correttamente
+    @Test
+    void backToHomeButtonWorks() {
+        WebElement btnHome = driver.findElement(By.id("btn-torna-home"));
+        assertTrue(btnHome.isDisplayed());
+        btnHome.click();
+
+        WebElement titoloHome = new WebDriverWait(driver, TIMEOUT)
+                .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-home")));
+        assertTrue(titoloHome.isDisplayed());
     }
 }

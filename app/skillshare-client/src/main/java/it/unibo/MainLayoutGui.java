@@ -93,7 +93,7 @@ public class MainLayoutGui extends Composite {
         lblMarket.addClickHandler(event -> cambiaVista(creaVistaMarketplace()));
         lblPerTe.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina PER TE in costruzione...")));
         lblChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
-        lblProfilo.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina PROFILO in costruzione...")));
+        lblProfilo.addClickHandler(event -> { new ProfileGui().mostra();});
 
         mainContainer.add(header);
         mainContainer.add(contenitoreDinamico);
