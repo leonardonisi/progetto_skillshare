@@ -44,11 +44,12 @@
   
   <servlet>
         <servlet-name>createAdServlet</servlet-name>
-        <servlet-class>it.unibo.server.CreateAdServiceImpl</servlet-class>
+        <servlet-class>it.unibo.CreateAdServiceImpl</servlet-class>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>createAdServlet</servlet-name>
-        <url-pattern>/skillshare/createAd</url-pattern> 
+
+  <servlet-mapping>
+      <servlet-name>createAdServlet</servlet-name>
+      <url-pattern>/app/createAd</url-pattern> 
     </servlet-mapping>
 
   <servlet-mapping>
