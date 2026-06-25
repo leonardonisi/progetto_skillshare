@@ -113,7 +113,14 @@ public class CreateAdGui {
                 if (offro.isEmpty() || cerco.isEmpty() || disponibilita.isEmpty()) {
                     Window.alert("Devi specificare sia cosa offri sia cosa cerchi sia la disponibilità");
                 } else {
-                    Annuncio nuovoAnnuncio = new Annuncio(titolo, categoria, offro, cerco, disponibilita, autore);
+                    Annuncio nuovoAnnuncio = new Annuncio.Builder()
+                            .titolo(titolo)
+                            .categoria(categoria)
+                            .skillOfferta(offro)
+                            .controprestazioneCercata(cerco)
+                            .disponibilita(disponibilita)
+                            .utenteId(autore)
+                            .build();
                     createAdService.pubblicaAnnuncio(nuovoAnnuncio, new AsyncCallback<Boolean>() {
                         @Override
                         public void onFailure(Throwable caught) {
