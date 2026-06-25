@@ -1,7 +1,10 @@
 package it.unibo;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
@@ -15,8 +18,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class CreateAdGui {
 
-    // private final CreateAdServiceAsync createAdService =
-    // GWT.create(CreateAdService.class);
+    private final CreateAdServiceAsync createAdService = GWT.create(CreateAdService.class);
 
     public void mostra() {
         // Pulisce tutto il contenuto del body
@@ -78,12 +80,11 @@ public class CreateAdGui {
         categoryList.setWidth("206px");
         btnPubblica.setWidth("200px");
         btnAnnulla.setWidth("80px");
-
-        offertSkill.setCharacterWidth(50); // Larghezza del box
+        offertSkill.setCharacterWidth(50);
         offertSkill.setVisibleLines(6);
-        disponibility.setCharacterWidth(50); // Larghezza del box
+        disponibility.setCharacterWidth(50);
         disponibility.setVisibleLines(2);
-        searchedSkill.setCharacterWidth(50); // Larghezza del box
+        searchedSkill.setCharacterWidth(50);
         searchedSkill.setVisibleLines(6);
 
         RootPanel.get().add(mainPanel);
@@ -97,26 +98,39 @@ public class CreateAdGui {
             }
 
             private void pubblica() {
+                String titolo = titleField.getText().trim();
+                String categoria = categoryList.getSelectedItemText();
                 String offro = offertSkill.getText().trim();
                 String cerco = searchedSkill.getText().trim();
                 String disponibilita = disponibility.getText().trim();
+                String autore = Cookies.getCookie("username");
+
+                if (autore == null || autore.isEmpty()) {
+                    autore = "test";
+                }
 
                 // Validazione locale richiesta dai test di accettazione
                 if (offro.isEmpty() || cerco.isEmpty() || disponibilita.isEmpty()) {
                     Window.alert("Devi specificare sia cosa offri sia cosa cerchi sia la disponibilità");
-                    /*
-                     * @Override
-                     * public void onFailure(Throwable caught) {
-                     * Window.alert("Errore rete ");
-                     * }
-                     * 
-                     * @Override
-                     * public void onSuccess(String result) {
-                     */
                 } else {
-                    Window.alert("Annuncio pubblicato con successo");
-                    RootPanel.get().clear();
-                    new MainLayoutGui().mostra();
+                    Annuncio nuovoAnnuncio = new Annuncio(titolo, categoria, offro, cerco, disponibilita, autore);
+                    createAdService.pubblicaAnnuncio(nuovoAnnuncio, new AsyncCallback<Boolean>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Window.alert("Errore di rete o server non raggiungibile: " + caught.getMessage());
+                        }
+
+                        @Override
+                        public void onSuccess(Boolean result) {
+                            if (result) {
+                                Window.alert("Annuncio pubblicato con successo");
+                                RootPanel.get().clear();
+                                new MainLayoutGui().mostra();
+                            } else {
+                                Window.alert("Errore lato server: impossibile pubblicare l'annuncio.");
+                            }
+                        }
+                    });
                 }
             }
         }
