@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.PasswordTextBox;
+import com.google.gwt.user.client.Cookies;
 
 public class LoginGui {
 
@@ -114,6 +115,7 @@ public class LoginGui {
                         } else if ("Password errata".equals(result)) {
                             Window.alert("Password errata");
                         } else {
+                            Cookies.setCookie("username", username);
                             RootPanel.get().clear();
                             new MainLayoutGui().mostra();
                         }
