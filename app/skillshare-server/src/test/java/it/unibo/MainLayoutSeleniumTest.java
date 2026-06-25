@@ -1,12 +1,10 @@
 package it.unibo;
 
-import java.time.Duration;
-
 import org.junit.jupiter.api.AfterAll;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -14,6 +12,11 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.Select;
+
+import java.time.Duration;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MainLayoutSeleniumTest {
 
@@ -57,6 +60,43 @@ public class MainLayoutSeleniumTest {
         // Aspetta che l'header della tua MainLayoutGui sia visibile
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-market")));
     }
+
+    @Test void searchButtonIsPresent () {
+        WebElement registerButton = driver.findElement(By.id("search-button"));
+        assertTrue(registerButton.isDisplayed());
+        assertEquals("CERCA", registerButton.getText());
+    }
+
+    @Test
+    public void testPresenzaETestoDefaultTendinaCategorie() {
+        WebElement tendinaElement = driver.findElement(By.id("tendina-categorie"));
+        Select tendina = new Select(tendinaElement);
+        assertEquals("Scegli categoria", tendina.getFirstSelectedOption().getText());
+    }
+
+    /*@Test TEST NON IMPLEMENTABILE
+    public void testSelezioneCategoriaFiltraSkillCorrettamente() {
+        WebElement tendinaElement = driver.findElement(By.id("tendina-categorie"));
+        Select tendina = new Select(tendinaElement);
+        tendina.selectByVisibleText("Sviluppo Software");
+
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+
+        // 4. Verifica che le card caricate a sinistra appartengano a quella categoria
+        // Recuperiamo tutti gli elementi che contengono il testo della categoria nella colonna di sinistra.
+        // (Presuppone che tu abbia aggiunto una classe es. "label-categoria" alle label dentro le card)
+        List<WebElement> etichetteCategorie = driver.findElements(By.id("label-categoria"));
+
+        // Assicuriamoci che la ricerca abbia prodotto almeno un risultato (altrimenti il ciclo for non gira e il test passa "a vuoto")
+        assertFalse("La ricerca non ha prodotto risultati", etichetteCategorie.isEmpty());
+
+        // Controlliamo che ogni singola card caricata abbia la dicitura corretta
+        for (WebElement etichetta : etichetteCategorie) {
+            String testoCategoria = etichetta.getText();
+            assertTrue("Trovata una card con categoria errata: " + testoCategoria, 
+                    testoCategoria.contains("Sviluppo Software"));
+        }
+    }*/
 
     @Test
     void navigazioneVersoChatMostraPlaceholder() {
