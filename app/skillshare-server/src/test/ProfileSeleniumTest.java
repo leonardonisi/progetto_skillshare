@@ -61,4 +61,23 @@ public class ProfileSeleniumTest {
         assertTrue(editButton.isDisplayed());
         assertEquals("MODIFICA PROFILO", editButton.getText());
     }
+
+    @Test
+    void avatarIsPresent() {
+        WebElement avatar = driver.findElement(By.id("img-avatar"));
+        assertTrue(avatar.isDisplayed());
+    }
+
+    @Test
+    void userInfoIsPresent() {
+        WebElement username = driver.findElement(By.id("lbl-username"));
+        WebElement bio = driver.findElement(By.id("lbl-bio"));
+        
+        assertTrue(username.isDisplayed());
+        assertTrue(bio.isDisplayed());
+        
+        // Verifichiamo che contengano del testo di base (placeholder)
+        assertTrue(username.getText().contains("Username:"));
+        assertTrue(bio.getText().contains("Biografia:"));
+    }
 }
