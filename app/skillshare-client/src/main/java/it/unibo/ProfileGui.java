@@ -31,6 +31,7 @@ public class ProfileGui {
         pageBackground.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
         Button btnHome = new Button("← Torna alla Home");
+        btnHome.getElement().setId("btn-torna-home");
         btnHome.getElement().getStyle().setProperty("margin", "5px 20px"); 
         btnHome.getElement().getStyle().setProperty("padding", "6px 12px");
         btnHome.getElement().getStyle().setProperty("cursor", "pointer");
@@ -54,7 +55,19 @@ public class ProfileGui {
         title.getElement().setId("titolo-profilo");
 
         // Foto/avatar arrotondata
-        //DA FARE
+        Label avatar = new Label("👤");
+        avatar.getElement().setId("img-avatar"); 
+
+        avatar.getElement().getStyle().setProperty("width", "120px");
+        avatar.getElement().getStyle().setProperty("height", "120px");
+        avatar.getElement().getStyle().setProperty("backgroundColor", "#ffffff"); 
+        avatar.getElement().getStyle().setProperty("border", "2px solid #dbdbdb"); 
+        avatar.getElement().getStyle().setProperty("borderRadius", "50%"); 
+
+        avatar.getElement().getStyle().setProperty("fontSize", "80px"); 
+        avatar.getElement().getStyle().setProperty("lineHeight", "120px"); 
+        avatar.getElement().getStyle().setProperty("textAlign", "center"); 
+        avatar.getElement().getStyle().setProperty("margin", "0 auto");
 
         // Username 
         Label usernameLabel = new Label("Username: Filker67");
@@ -119,7 +132,7 @@ public class ProfileGui {
                 if (selectedIndex > 0) {
                     String scelta = categorieDropdown.getItemText(selectedIndex);
                     
-                    // controllo categorie duplicate e limite massimo
+                    // Controllo categorie duplicate e limite massimo
                     if (categorieSelezionate.contains(scelta)) {
                         Window.alert("Hai già selezionato questa categoria!");
                     } else if (categorieSelezionate.size() >= 10) {
@@ -158,14 +171,14 @@ public class ProfileGui {
         editButton.getElement().getStyle().setProperty("marginTop", "20px");
         editButton.getElement().getStyle().setProperty("padding", "10px 20px");
 
-        // Assemblaggio della Card
+       
         cardPanel.add(title);
-        //cardPanel.add(avatar);
+        cardPanel.add(avatar);
         cardPanel.add(usernameLabel);
         cardPanel.add(bodyPanel);
         cardPanel.add(editButton);
 
-        // Aggiunge la Card allo Sfondo, e lo Sfondo alla Pagina
+        
         pageBackground.add(cardPanel);
         RootPanel.get().add(pageBackground);
         

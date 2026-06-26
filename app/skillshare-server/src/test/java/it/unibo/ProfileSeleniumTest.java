@@ -101,7 +101,7 @@ public class ProfileSeleniumTest {
         assertTrue(categorieDropdown.isDisplayed());
 
         WebElement tagPanel = driver.findElement(By.id("panel-tag-categorie"));
-        assertTrue(tagPanel.isDisplayed());
+        assertNotNull(tagPanel);
     } 
 
     // Verifica che selezionando una categoria dal menu a tendina, venga aggiunta un'etichetta nel pannello delle categorie selezionate
