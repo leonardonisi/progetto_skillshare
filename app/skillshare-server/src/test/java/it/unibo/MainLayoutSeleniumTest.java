@@ -1,12 +1,10 @@
 package it.unibo;
 
-import java.time.Duration;
-
 import org.junit.jupiter.api.AfterAll;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -14,6 +12,10 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.Select;
+import java.time.Duration;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class MainLayoutSeleniumTest {
 
@@ -58,8 +60,23 @@ public class MainLayoutSeleniumTest {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-market")));
     }
 
+    @Test void searchButtonIsPresent(){
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement searchButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("search-button")));
+        assertTrue(searchButton.isDisplayed());
+        assertEquals("CERCA", searchButton.getText());
+    }
+
     @Test
-    void navigazioneVersoChatMostraPlaceholder() {
+    public void testPresenzaETestoDefaultTendinaCategorie() {
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement tendinaElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("tendina-categorie")));
+        Select tendina = new Select(tendinaElement);
+        assertEquals("Scegli categoria", tendina.getFirstSelectedOption().getText());
+    }
+
+    @Test
+    void navigazioneVersoChatMostraPaginaChat() {
         // Trova il link della Chat nel tuo header e cliccalo
         WebElement navChat = driver.findElement(By.id("nav-chat"));
         navChat.click();
@@ -73,7 +90,7 @@ public class MainLayoutSeleniumTest {
     }
 
     @Test
-    void navigazioneVersoProfiloMostraPlaceholder() {
+    void navigazioneVersoProfiloMostraPaginaProfilo() {
         WebElement navProfilo = driver.findElement(By.id("nav-profilo"));
         navProfilo.click();
 

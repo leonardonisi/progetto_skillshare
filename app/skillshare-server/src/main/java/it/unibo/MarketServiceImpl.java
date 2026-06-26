@@ -2,19 +2,25 @@ package it.unibo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentMap;
 
+import org.mapdb.DB;
+import org.mapdb.Serializer;
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
+import jakarta.servlet.ServletException;
 
 public class MarketServiceImpl extends RemoteServiceServlet implements MarketService  {
 
     @Override
-    public List<String> getAnnunci() throws IllegalArgumentException {
-        // Struttura mock provvisoria in attesa dell'integrazione con MapDB
-        List<String> annunciMock = new ArrayList<>();
-        annunciMock.add("Ripetizioni di Java - Offro");
-        annunciMock.add("Appunti di Sistemi Operativi - Cerco");
-        annunciMock.add("Riparazione PC - Offro");
-        
-        return annunciMock;
+    public void init() throws ServletException {
+        super.init();
+        DatabaseCore.seedDatabase(); 
+    }
+
+    @Override
+    public List<Annuncio> getAnnunci() {
+        DB db = DatabaseCore.getDB();
+        ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+        return new ArrayList<>(dbAnnunci.values());
     }
 }

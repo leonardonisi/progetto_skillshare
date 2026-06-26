@@ -20,7 +20,7 @@ public class MarketServiceImplTest {
     @Test
     public void testGetAnnunciRitornaListaMock() {
         // Chiama il metodo del backend
-        List<String> annunci = marketService.getAnnunci();
+        List<Annuncio> annunci = marketService.getAnnunci();
 
         // Verifica che la lista esista e non sia vuota
         assertNotNull(annunci, "La lista degli annunci non deve essere null");
