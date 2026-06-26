@@ -92,6 +92,47 @@ public class MainLayoutGui extends Composite {
 
         lblChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
 
+        Label lblSkill = new Label("SKILL");
+        lblSkill.getElement().getStyle().setProperty("cursor", "pointer");
+        lblSkill.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblSkill.getElement().setId("nav-skill");
+
+        // Menù a discesa
+        PopupPanel menuSkill = new PopupPanel(true);
+        menuSkill.getElement().getStyle().setProperty("backgroundColor", "white");
+        menuSkill.getElement().getStyle().setProperty("border", "1px solid #ccc");
+        menuSkill.getElement().getStyle().setProperty("padding", "10px");
+
+        // Comportamento Cursore
+        lblSkill.addMouseOverHandler(event -> {
+            menuSkill.setPopupPosition(lblSkill.getAbsoluteLeft(), lblSkill.getAbsoluteTop() + 30);
+            menuSkill.show();
+        });
+
+        VerticalPanel menuContent = new VerticalPanel();
+        menuContent.setSpacing(5);
+
+        // Voci del menu
+        Label itemSkill = new Label("LE MIE SKILL");
+        itemSkill.getElement().getStyle().setProperty("cursor", "pointer");
+
+        itemSkill.addClickHandler(event -> {
+            cambiaVista(creaVistaPlaceholder("Pagina LE MIE SKILL in costruzione..."));
+            menuSkill.hide();
+        });
+
+        Label itemRichieste = new Label("LE MIE RICHIESTE");        
+        itemRichieste.getElement().getStyle().setProperty("cursor", "pointer");
+        
+        itemRichieste.addClickHandler(event -> {
+            cambiaVista(creaVistaPlaceholder("Pagina LE MIE RICHIESTE in costruzione..."));
+            menuSkill.hide();
+        });
+
+        menuContent.add(itemSkill);
+        menuContent.add(itemRichieste);
+        menuSkill.add(menuContent);
+
         Label lblProfilo = new Label("👤 Profilo");
         lblProfilo.getElement().getStyle().setProperty("cursor", "pointer");
         lblProfilo.getElement().getStyle().setProperty("fontWeight", "bold");
@@ -102,6 +143,7 @@ public class MainLayoutGui extends Composite {
         navLinks.add(lblMarket);
         navLinks.add(lblPerTe);
         navLinks.add(lblChat);
+        navLinks.add(lblSkill);
 
         header.add(logoLabel);
         header.add(navLinks);
