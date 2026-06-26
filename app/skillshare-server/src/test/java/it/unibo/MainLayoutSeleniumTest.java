@@ -95,10 +95,8 @@ public class MainLayoutSeleniumTest {
         navProfilo.click();
 
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-        WebElement placeholderTesto = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//div[contains(text(), 'Pagina PROFILO in costruzione...')]")));
-
-        assertTrue(placeholderTesto.isDisplayed());
+        WebElement titoloProfilo = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-profilo")));
+        assertTrue(titoloProfilo.isDisplayed());
     }
 
     @Test

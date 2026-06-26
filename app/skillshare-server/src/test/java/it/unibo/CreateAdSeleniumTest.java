@@ -55,13 +55,16 @@ public class CreateAdSeleniumTest {
 
         driver.get(BASE_URL);
 
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+
+        WebElement inputUsername = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("input-username")));
+
         // Inserisci le credenziali per superare la login
-        driver.findElement(By.id("input-username")).sendKeys("admin");
+        inputUsername.sendKeys("admin");
         driver.findElement(By.id("input-password")).sendKeys("password");
         driver.findElement(By.id("btn-login")).click();
 
         // Attende il caricamento e clicca sul pulsante "PUBBLICA" della Home
-        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement btnPubblicaHome = wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-pubblica")));
         btnPubblicaHome.click();
 

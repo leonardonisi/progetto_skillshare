@@ -97,7 +97,7 @@ public class MainLayoutGui extends Composite {
         lblProfilo.getElement().getStyle().setProperty("fontWeight", "bold");
         lblProfilo.getElement().setId("nav-profilo");
 
-        lblProfilo.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina PROFILO in costruzione...")));
+        lblProfilo.addClickHandler(event -> { new ProfileGui().mostra();});
 
         navLinks.add(lblMarket);
         navLinks.add(lblPerTe);
