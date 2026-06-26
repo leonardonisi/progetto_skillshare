@@ -113,18 +113,6 @@ public class MainLayoutSeleniumTest {
     }
 
     @Test
-    void navigazioneVersoProfiloMostraPlaceholder() {
-        WebElement navProfilo = driver.findElement(By.id("nav-profilo"));
-        navProfilo.click();
-
-        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-        WebElement placeholderTesto = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//div[contains(text(), 'Pagina PROFILO in costruzione...')]")));
-
-        assertTrue(placeholderTesto.isDisplayed());
-    }
-
-    @Test
     void pulsantePubblicaMostraPaginaCreazione() {
         WebElement btnPubblica = driver.findElement(By.id("btn-pubblica"));
         btnPubblica.click();
