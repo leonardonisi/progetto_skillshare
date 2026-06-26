@@ -35,6 +35,7 @@ public class MainLayoutGui extends Composite {
     // Elementi del dettaglio annuncio che cambieranno dinamicamente
     private Label titoloDettaglio;
     private Button btnRichiedi;
+    private Button btnChat;
     private Label votoDettaglio;
     private Label lblCategoria;
     private Label lblDettagli;
@@ -299,9 +300,23 @@ public class MainLayoutGui extends Composite {
 
         btnRichiedi.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina RICHIESTA SCAMBIO in costruzione...")));
 
+        // Bottone Dettaglio Chat
+        btnChat = new Button("💬");
+        btnChat.setHeight("40px");
+        btnChat.setWidth("40px");
+        btnChat.getElement().getStyle().setProperty("backgroundImage", "none");
+        btnChat.getElement().getStyle().setProperty("backgroundColor", "#007BFF");
+        btnChat.getElement().getStyle().setProperty("color", "white");
+        btnChat.getElement().getStyle().setProperty("border", "none");
+        btnChat.getElement().getStyle().setProperty("cursor", "pointer");
+        btnChat.getElement().getStyle().setProperty("fontSize", "20px");
+        btnChat.setVisible(false);
+
+        btnChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
+
         // Assemblaggio Contenitore Bottoni
         btnContainer.add(btnRichiedi);
-        
+        btnContainer.add(btnChat);
 
         // Asseblaggio Colonna Destra
         colonnaDestra.add(headerDettaglio);
@@ -385,5 +400,6 @@ public class MainLayoutGui extends Composite {
         lblContro.setText("CONTROPRESTAZIONE: " + a.getControprestazione());
 
         btnRichiedi.setVisible(true);
+        btnChat.setVisible(true);
     }
 }
