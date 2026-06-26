@@ -14,8 +14,8 @@ public class CreateAdServiceImpl extends RemoteServiceServlet implements CreateA
     @Override
     public boolean pubblicaAnnuncio(Annuncio annuncio) {
         if (annuncio == null || annuncio.getTitolo() == null || annuncio.getSkillOfferta() == null
-                || annuncio.getControprestazioneCercata() == null || annuncio.getDisponibilita() == null
-                || annuncio.getUtenteId() == null) {
+                || annuncio.getControprestazione() == null || annuncio.getDisponibilita() == null
+                || annuncio.getUtente() == null) {
             return false;
         }
         try {

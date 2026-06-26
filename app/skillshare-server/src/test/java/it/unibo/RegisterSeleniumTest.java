@@ -67,33 +67,25 @@ public class RegisterSeleniumTest {
 
     @Test
     void pageLoadsWithCorrectTitle() {
-
         WebElement titleElement = driver.findElement(By.id("titolo-registrazione"));
-
         assertEquals("Registrazione a SkillShare", titleElement.getText());
     }
 
     @Test
     void usernameFieldIsPresent() {
-
         WebElement usernameField = driver.findElement(By.id("input-username"));
-
         assertTrue(usernameField.isDisplayed());
     }
 
     @Test
     void passwordFieldIsPresent() {
-
         WebElement passwordField = driver.findElement(By.id("input-password"));
-
         assertTrue(passwordField.isDisplayed());
     }
 
     @Test
     void confirmPasswordFieldIsPresent() {
-
         WebElement confirmPasswordField = driver.findElement(By.id("input-confirm-password"));
-
         assertTrue(confirmPasswordField.isDisplayed());
     }
 
@@ -120,7 +112,6 @@ public class RegisterSeleniumTest {
     @Test
     void registerWithAlreadyUsedUsernameShowsError() {
         executeRegistration("admin", "password", "password");
-
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         Alert alert = wait.until(ExpectedConditions.alertIsPresent());
         assertEquals("Username già usato", alert.getText());

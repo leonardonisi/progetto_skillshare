@@ -62,8 +62,14 @@ class CreateAdServiceImplTest {
 
     @Test
     void testPubblicaAnnuncioSuccess() {
-        Annuncio annuncio = new Annuncio("Ripetizioni Java", "Informatica", "Thread", "Cucina", "Sabato Mattina",
-                "utente123");
+        Annuncio annuncio = new Annuncio.Builder()
+                .titolo("Ripetizioni Java")
+                .categoria("Informatica")
+                .skillOfferta("Thread")
+                .controprestazioneCercata("Cucina")
+                .disponibilita("Sabato Mattina")
+                .utenteId("utente123")
+                .build();
         boolean result = service.pubblicaAnnuncio(annuncio);
         assertTrue(result, "L'annuncio dovrebbe essere pubblicato con successo.");
 
@@ -77,7 +83,14 @@ class CreateAdServiceImplTest {
 
     @Test
     void pubblicaAnnuncio_CampiObbligatoriVuoti_DeveRifiutareIlSalvataggio() {
-        Annuncio annuncioInvalido = new Annuncio("Titolo", "Informatica", "", "", "Sempre", "utente-loggato");
+        Annuncio annuncioInvalido = new Annuncio.Builder()
+                .titolo("Ripetizioni Java")
+                .categoria("Informatica")
+                .skillOfferta("")
+                .controprestazioneCercata("")
+                .disponibilita("Sabato Mattina")
+                .utenteId("utente123")
+                .build();
         boolean result = service.pubblicaAnnuncio(annuncioInvalido);
 
         assertFalse(result, "Errore di salvataggio");
