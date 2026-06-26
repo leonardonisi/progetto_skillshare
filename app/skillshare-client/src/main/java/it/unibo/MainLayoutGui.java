@@ -14,6 +14,8 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.Label;
 
 public class MainLayoutGui extends Composite {
     // Contenitore dinamico per le varie viste
@@ -135,7 +137,20 @@ public class MainLayoutGui extends Composite {
         vistaMarket.setWidth("80%");
         vistaMarket.getElement().getStyle().setProperty("margin", "0 auto");
 
-        // Barra di ricerca e pulsante "Pubblica"
+        // Menu a tendina per le categorie
+        ListBox tendinaCategorie = new com.google.gwt.user.client.ui.ListBox();
+        tendinaCategorie.addItem("Scegli categoria");
+        tendinaCategorie.addItem("Sviluppo Software");
+        tendinaCategorie.addItem("Design e Grafica");
+        tendinaCategorie.addItem("Lingue Straniere");
+        tendinaCategorie.addItem("Musica");
+        tendinaCategorie.setHeight("47px");
+        tendinaCategorie.getElement().setId("tendina-categorie");
+        tendinaCategorie.getElement().getStyle().setProperty("fontSize", "14px");
+        tendinaCategorie.getElement().getStyle().setProperty("padding", "5px");
+        tendinaCategorie.getElement().getStyle().setProperty("cursor", "pointer");
+
+        // Barra di ricerca
         HorizontalPanel searchBar = new HorizontalPanel();
         searchBar.setWidth("100%");
         searchBar.setSpacing(10);
@@ -149,14 +164,33 @@ public class MainLayoutGui extends Composite {
         searchBox.getElement().getStyle().setProperty("fontSize", "16px");
         searchBox.getElement().getStyle().setProperty("padding", "5px 15px");
 
+        // Bottone Cerca
+        Button btnCerca = new Button("CERCA");
+        btnCerca.setHeight("47px");
+        btnCerca.setWidth("100px");
+        btnCerca.getElement().setId("search-button");
+        btnCerca.getElement().getStyle().setProperty("fontSize", "14px");
+        btnCerca.getElement().getStyle().setProperty("cursor", "pointer");
+        btnCerca.getElement().getStyle().setProperty("fontWeight", "bold");
+        btnCerca.getElement().getStyle().setProperty("backgroundImage", "none");
+        btnCerca.getElement().getStyle().setProperty("backgroundColor", "#007BFF"); // Blu generico
+        btnCerca.getElement().getStyle().setProperty("color", "white");
+        btnCerca.getElement().getStyle().setProperty("border", "none");
+
+        // Divisorio
+        SimplePanel divisorio = new SimplePanel();
+        divisorio.setPixelSize(2, 47);
+        divisorio.getElement().getStyle().setProperty("backgroundColor", "#000000");
+        divisorio.getElement().getStyle().setProperty("marginLeft", "5px");
+        divisorio.getElement().getStyle().setProperty("marginRight", "5px");
+
+        //Bottone Pubblica
         Button btnPubblica = new Button("PUBBLICA");
         btnPubblica.setHeight("47px");
         btnPubblica.setWidth("180px");
         btnPubblica.getElement().getStyle().setProperty("fontSize", "14px");
         btnPubblica.getElement().getStyle().setProperty("cursor", "pointer");
         btnPubblica.getElement().getStyle().setProperty("fontWeight", "bold");
-
-        // test selenium
         btnPubblica.getElement().setId("btn-pubblica");
 
         btnPubblica.addClickHandler(new ClickHandler() {
@@ -166,7 +200,11 @@ public class MainLayoutGui extends Composite {
             }
         });
 
+        searchBar.add(tendinaCategorie);
+        searchBar.add(divisorio);
         searchBar.add(searchBox);
+        searchBar.add(btnCerca);
+        searchBar.add(divisorio);
         searchBar.add(btnPubblica);
 
         // Area contenuto con elenco annunci a sinistra e dettaglio annuncio a destra
@@ -233,10 +271,11 @@ public class MainLayoutGui extends Composite {
         headerDettaglio.add(titoloDettaglio);
         headerDettaglio.add(votoDettaglio);
         headerDettaglio.setCellHorizontalAlignment(votoDettaglio, HasHorizontalAlignment.ALIGN_RIGHT);
-
         colonnaDestra.add(headerDettaglio);
+
         // Dettagli dell'annuncio
         Label lblCategoria = new Label("CATEGORIA: Sviluppo Software");
+        lblCategoria.getElement().setId("label-categoria");
         lblCategoria.getElement().getStyle().setProperty("fontSize", "16px");
         lblCategoria.getElement().getStyle().setProperty("marginBottom", "20px");
 
