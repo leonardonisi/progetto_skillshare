@@ -42,14 +42,24 @@ public class ProfileSeleniumTest {
 
     @BeforeEach
     void loadApp() {
+        try {
+            driver.switchTo().alert().accept();
+        } catch (Exception e) {
+            // Nessun alert presente
+        }
+
         driver.get(BASE_URL);
-        new WebDriverWait(driver, TIMEOUT)
-                .until(ExpectedConditions.elementToBeClickable(By.id("nav-profilo")));
-        
-        driver.findElement(By.id("nav-profilo")).click();
-        
-        new WebDriverWait(driver, TIMEOUT)
-                .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-profilo")));
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+
+        WebElement inputUsername = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("input-username")));
+        inputUsername.sendKeys("admin");
+        driver.findElement(By.id("input-password")).sendKeys("password");
+        driver.findElement(By.id("btn-login")).click();
+
+        WebElement navProfilo = wait.until(ExpectedConditions.elementToBeClickable(By.id("nav-profilo")));
+        navProfilo.click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-profilo")));
     }
 
     // Verifica che la pagina del profilo si carichi correttamente e che il titolo sia presente

@@ -7,5 +7,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("market")
 public interface MarketService extends RemoteService {
-    List<String> getAnnunci() throws IllegalArgumentException;
+    List<Annuncio> getAnnunci() throws IllegalArgumentException;
 }

@@ -3,6 +3,8 @@ package it.unibo;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import java.io.File;
+import org.mapdb.Serializer;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Gestore centralizzato del database MapDB.
@@ -28,6 +30,27 @@ public class DatabaseCore {
     public static void disableTestMode() {
         testMode = false;
         close(); 
+    }
+
+    // inizializza il database con annunci preimpostati
+    public static void seedDatabase() {
+        DB db = DatabaseCore.getDB();
+        ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+        
+        if (dbAnnunci.isEmpty()) {
+            for (int i = 1; i <= 10; i++) {
+                Annuncio a = new Annuncio.Builder()
+                    .titolo("Skill #" + i)
+                    .categoria("Sviluppo Software")
+                    .skillOfferta("Java GWT")
+                    .controprestazioneCercata("Grafica")
+                    .disponibilita("Weekend")
+                    .utenteId("User" + i)
+                    .build();
+                dbAnnunci.put(i, a);
+            }
+            DatabaseCore.commit();
+        }
     }
 
     /**

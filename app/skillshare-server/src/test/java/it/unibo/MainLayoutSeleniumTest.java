@@ -13,10 +13,9 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.Select;
-
 import java.time.Duration;
-
 import static org.junit.jupiter.api.Assertions.*;
+
 
 public class MainLayoutSeleniumTest {
 
@@ -61,45 +60,23 @@ public class MainLayoutSeleniumTest {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-market")));
     }
 
-    @Test void searchButtonIsPresent () {
-        WebElement registerButton = driver.findElement(By.id("search-button"));
-        assertTrue(registerButton.isDisplayed());
-        assertEquals("CERCA", registerButton.getText());
+    @Test void searchButtonIsPresent(){
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement searchButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("search-button")));
+        assertTrue(searchButton.isDisplayed());
+        assertEquals("CERCA", searchButton.getText());
     }
 
     @Test
     public void testPresenzaETestoDefaultTendinaCategorie() {
-        WebElement tendinaElement = driver.findElement(By.id("tendina-categorie"));
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement tendinaElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("tendina-categorie")));
         Select tendina = new Select(tendinaElement);
         assertEquals("Scegli categoria", tendina.getFirstSelectedOption().getText());
     }
 
-    /*@Test TEST NON IMPLEMENTABILE
-    public void testSelezioneCategoriaFiltraSkillCorrettamente() {
-        WebElement tendinaElement = driver.findElement(By.id("tendina-categorie"));
-        Select tendina = new Select(tendinaElement);
-        tendina.selectByVisibleText("Sviluppo Software");
-
-        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-
-        // 4. Verifica che le card caricate a sinistra appartengano a quella categoria
-        // Recuperiamo tutti gli elementi che contengono il testo della categoria nella colonna di sinistra.
-        // (Presuppone che tu abbia aggiunto una classe es. "label-categoria" alle label dentro le card)
-        List<WebElement> etichetteCategorie = driver.findElements(By.id("label-categoria"));
-
-        // Assicuriamoci che la ricerca abbia prodotto almeno un risultato (altrimenti il ciclo for non gira e il test passa "a vuoto")
-        assertFalse("La ricerca non ha prodotto risultati", etichetteCategorie.isEmpty());
-
-        // Controlliamo che ogni singola card caricata abbia la dicitura corretta
-        for (WebElement etichetta : etichetteCategorie) {
-            String testoCategoria = etichetta.getText();
-            assertTrue("Trovata una card con categoria errata: " + testoCategoria, 
-                    testoCategoria.contains("Sviluppo Software"));
-        }
-    }*/
-
     @Test
-    void navigazioneVersoChatMostraPlaceholder() {
+    void navigazioneVersoChatMostraPaginaChat() {
         // Trova il link della Chat nel tuo header e cliccalo
         WebElement navChat = driver.findElement(By.id("nav-chat"));
         navChat.click();
@@ -110,6 +87,16 @@ public class MainLayoutSeleniumTest {
                 By.xpath("//div[contains(text(), 'Pagina CHAT in costruzione...')]")));
 
         assertTrue(placeholderTesto.isDisplayed());
+    }
+
+    @Test
+    void navigazioneVersoProfiloMostraPaginaProfilo() {
+        WebElement navProfilo = driver.findElement(By.id("nav-profilo"));
+        navProfilo.click();
+
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement titoloProfilo = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-profilo")));
+        assertTrue(titoloProfilo.isDisplayed());
     }
 
     @Test
