@@ -67,6 +67,48 @@ public class MainLayoutSeleniumTest {
         assertEquals("CERCA", searchButton.getText());
     }
 
+    @Test void marketLinkIsPresent(){
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement marketLink = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-market")));
+        assertTrue(marketLink.isDisplayed());
+        assertEquals("MARKET", marketLink.getText());
+    }
+
+    @Test void forYouLinkIsPresent(){
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement forYouLink = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-perte")));
+        assertTrue(forYouLink.isDisplayed());
+        assertEquals("PER TE", forYouLink.getText());
+    }
+
+    @Test void chatLinkIsPresent(){
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement chatLink = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-chat")));
+        assertTrue(chatLink.isDisplayed());
+        assertEquals("CHAT", chatLink.getText());
+    }
+
+    @Test void profileIconIsPresent(){
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement profileIcon = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-profilo")));
+        assertTrue(profileIcon.isDisplayed());
+        assertEquals("👤 Profilo", profileIcon.getText());
+    }
+
+    @Test void searchBarIsPresent(){
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement searchBar = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("search-bar")));
+        assertTrue(searchBar.isDisplayed());
+        assertEquals("Cerca...", searchBar.getAttribute("placeholder"));
+    }
+
+    @Test void publishButtonIsPresent(){
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement publishButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("btn-pubblica")));
+        assertTrue(publishButton.isDisplayed());
+        assertEquals("PUBBLICA", publishButton.getText());
+    }
+
     @Test
     public void testPresenzaETestoDefaultTendinaCategorie() {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
