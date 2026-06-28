@@ -21,6 +21,9 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainLayoutGui extends Composite {
@@ -42,6 +45,7 @@ public class MainLayoutGui extends Composite {
     private Label lblDettagli;
     private Label lblDispo;
     private Label lblContro;
+    private List<Annuncio> tuttiGliAnnunci;
 
     public void mostra() {
         RootPanel.get().clear();
@@ -222,11 +226,30 @@ public class MainLayoutGui extends Composite {
             @Override
             public void onSuccess(List<String> result) {
                 tendinaCategorie.clear();
-                tendinaCategorie.addItem("Scegli categoria");
+                tendinaCategorie.addItem("Tutte le Categorie");
                 
                 for (String categoria : result) {
                     tendinaCategorie.addItem(categoria);
                 }
+            }
+        });
+
+        // logica di filtraggio
+        tendinaCategorie.addChangeHandler(event -> {
+            String categoriaScelta = tendinaCategorie.getSelectedItemText();
+            List<Annuncio> annunciFiltrati = new ArrayList<>();
+
+            if (tuttiGliAnnunci != null) {
+                if (categoriaScelta.equals("tutte le Categorie") || categoriaScelta.equals("Errore caricamento")) {
+                    annunciFiltrati.addAll(tuttiGliAnnunci);
+                } else {
+                    for (Annuncio a : tuttiGliAnnunci) {
+                        if (a.getCategoria().equals(categoriaScelta)) {
+                            annunciFiltrati.add(a);
+                        }
+                    }
+                }
+                aggiornaVistaAnnunci(annunciFiltrati);
             }
         });
 
@@ -321,6 +344,7 @@ public class MainLayoutGui extends Composite {
 
         // Label Dettaglio dei dettagli strutturali
         lblCategoria = new Label();
+        lblCategoria.getElement().setId("lbl-categoria");
         lblCategoria.getElement().getStyle().setProperty("fontSize", "16px");
         lblCategoria.getElement().getStyle().setProperty("marginBottom", "20px");
 
@@ -404,6 +428,7 @@ public class MainLayoutGui extends Composite {
 
     private FocusPanel creaCard(Annuncio a) {
         FocusPanel card = new FocusPanel();
+        card.getElement().setId("card-annuncio");
         card.setWidth("100%");
         card.getElement().getStyle().setProperty("border", "1px solid #666");
         card.getElement().getStyle().setProperty("marginBottom", "15px");
@@ -436,16 +461,27 @@ public class MainLayoutGui extends Composite {
 
             @Override
             public void onSuccess(List<Annuncio> result) {
-                colonnaSinistra.clear();
-                if (result == null || result.isEmpty()) {
-                    colonnaSinistra.add(new Label("Nessun annuncio presente nel marketplace."));
-                    return;
-                }
-                for (Annuncio a : result) {
-                    colonnaSinistra.add(creaCard(a));
-                }
+                tuttiGliAnnunci = result; 
+
+                aggiornaVistaAnnunci(tuttiGliAnnunci);
             }
         });
+    }
+
+    private void aggiornaVistaAnnunci(List<Annuncio> annunciDaMostrare) {
+        colonnaSinistra.clear();
+        
+        if (annunciDaMostrare == null || annunciDaMostrare.isEmpty()) {
+            Label alert = new Label("Nessun annuncio trovato");
+            alert.getElement().setId("alert-filtraggio-categorie");
+            alert.getElement().getStyle().setProperty("fontSize", "22px");
+            colonnaSinistra.add(alert);
+            return;
+        }
+        
+        for (Annuncio a : annunciDaMostrare) {
+            colonnaSinistra.add(creaCard(a));
+        }
     }
 
     private void mostraDettaglio(Annuncio a) {

@@ -1,5 +1,6 @@
 package it.unibo;
 
+import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -114,7 +115,7 @@ public class MainLayoutSeleniumTest {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement tendinaElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("tendina-categorie")));
         Select tendina = new Select(tendinaElement);
-        assertEquals("Scegli categoria", tendina.getFirstSelectedOption().getText());
+        assertEquals("Tutte le Categorie", tendina.getFirstSelectedOption().getText());
     }
 
     @Test
@@ -152,4 +153,34 @@ public class MainLayoutSeleniumTest {
         assertTrue(createTitle.isDisplayed());
     }
 
+    @Test
+    public void testSelezioneCategoriaSenzaAnnunciMostraAlert(){
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+
+        WebElement tendinaElement = wait.until(ExpectedConditions.elementToBeClickable(By.id("tendina-categorie")));
+        Select tendina = new Select(tendinaElement);
+        
+        tendina.selectByVisibleText("Yoga e Pilates");
+        WebElement alert = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("alert-filtraggio-categorie")));
+
+        assertTrue(alert.getText().equals("Nessun annuncio trovato"));
+    }
+
+    @Test
+    public void testSelezioneCategoriaFiltraSkillCorrettamente() {
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+
+        WebElement tendinaElement = wait.until(ExpectedConditions.elementToBeClickable(By.id("tendina-categorie")));
+        Select tendina = new Select(tendinaElement);
+        
+        tendina.selectByVisibleText("Sviluppo Software");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("card-annuncio")));
+        List<WebElement> cardList = driver.findElements(By.id("card-annuncio"));
+
+        WebElement primaCard = cardList.get(0);
+        primaCard.click();
+
+        WebElement categoriaAnnuncio = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("lbl-categoria")));
+        assertTrue(categoriaAnnuncio.getText().contains("Sviluppo Software"));
+    }
 }
