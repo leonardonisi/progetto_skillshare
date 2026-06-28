@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import java.util.List;
 
 public class CreateAdGui {
 
@@ -35,12 +36,25 @@ public class CreateAdGui {
         final Button btnPubblica = new Button("PUBBLICA");
         final Button btnAnnulla = new Button("ANNULLA");
 
-        // Aggiunta delle categorie
-        categoryList.addItem("Informatica");
-        categoryList.addItem("Cucina");
-        categoryList.addItem("Lingue");
-        categoryList.addItem("Economia");
-        categoryList.addItem("Altro");
+        // aggiunta delle categorie
+        createAdService.getCategorie(new AsyncCallback<List<String>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                categoryList.clear();
+                categoryList.addItem("Errore caricamento");
+                Window.alert("Impossibile caricare le categorie: " + caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(List<String> result) {
+                categoryList.clear();
+                categoryList.addItem("Scegli categoria");
+                
+                for (String categoria : result) {
+                    categoryList.addItem(categoria);
+                }
+            }
+        });
 
         // assegnazione id per identificazione con Selenium
         title.getElement().setId("titolo-create-ad");
@@ -89,7 +103,8 @@ public class CreateAdGui {
 
         RootPanel.get().add(mainPanel);
         titleField.setFocus(true);
-        // --- Logica Handler ---
+
+        // Logica Handler 
         class CreateAdHandler implements ClickHandler {
 
             @Override

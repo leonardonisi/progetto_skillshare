@@ -19,10 +19,20 @@
     <servlet-class>it.unibo.LoginServiceImpl</servlet-class>
   </servlet>
 
+  <servlet-mapping>
+    <servlet-name>loginServlet</servlet-name>
+    <url-pattern>/app/login</url-pattern>
+  </servlet-mapping>
+
   <servlet>
     <servlet-name>marketServlet</servlet-name>
     <servlet-class>it.unibo.MarketServiceImpl</servlet-class>
   </servlet>
+
+  <servlet-mapping>
+    <servlet-name>marketServlet</servlet-name>
+    <url-pattern>/app/market</url-pattern>
+  </servlet-mapping>
   
   <servlet>
         <servlet-name>createAdServlet</servlet-name>
@@ -34,14 +44,14 @@
       <url-pattern>/app/createAd</url-pattern> 
     </servlet-mapping>
 
+    <servlet>
+      <servlet-name>profileServlet</servlet-name>
+      <servlet-class>it.unibo.ProfileServiceImpl</servlet-class>
+  </servlet>
+    
   <servlet-mapping>
-    <servlet-name>loginServlet</servlet-name>
-    <url-pattern>/app/login</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>marketServlet</servlet-name>
-    <url-pattern>/app/market</url-pattern>
+      <servlet-name>profileServlet</servlet-name>
+      <url-pattern>/app/profile</url-pattern> 
   </servlet-mapping>
 
 	<!-- Default page to serve -->

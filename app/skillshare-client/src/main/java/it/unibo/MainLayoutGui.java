@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.dom.client.Style;
@@ -189,7 +190,6 @@ public class MainLayoutGui extends Composite {
         return placeholder;
     }
 
-
     private Widget creaVistaMarketplace() {
         VerticalPanel vistaMarket = new VerticalPanel();
         vistaMarket.setWidth("80%");
@@ -204,16 +204,31 @@ public class MainLayoutGui extends Composite {
 
         // Elenco per filtrare Categorie
         ListBox tendinaCategorie = new ListBox();
-        tendinaCategorie.addItem("Scegli categoria");
-        tendinaCategorie.addItem("Sviluppo Software");
-        tendinaCategorie.addItem("Design e Grafica");
-        tendinaCategorie.addItem("Lingue Straniere");
-        tendinaCategorie.addItem("Musica");
         tendinaCategorie.setHeight("47px");
         tendinaCategorie.getElement().setId("tendina-categorie");
         tendinaCategorie.getElement().getStyle().setProperty("fontSize", "14px");
         tendinaCategorie.getElement().getStyle().setProperty("padding", "5px");
         tendinaCategorie.getElement().getStyle().setProperty("cursor", "pointer");
+
+        // aggiunta delle categorie
+        servizio.getCategorie(new AsyncCallback<List<String>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                tendinaCategorie.clear();
+                tendinaCategorie.addItem("Errore caricamento");
+                Window.alert("Impossibile caricare le categorie: " + caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(List<String> result) {
+                tendinaCategorie.clear();
+                tendinaCategorie.addItem("Scegli categoria");
+                
+                for (String categoria : result) {
+                    tendinaCategorie.addItem(categoria);
+                }
+            }
+        });
 
         // Divisorio
         SimplePanel divisorio1 = new SimplePanel();

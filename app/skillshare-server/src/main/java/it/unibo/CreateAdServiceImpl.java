@@ -4,6 +4,8 @@ import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 import org.mapdb.DB;
 import org.mapdb.Serializer;
 import java.util.concurrent.ConcurrentMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreateAdServiceImpl extends RemoteServiceServlet implements CreateAdService {
     private static final DB db = DatabaseCore.getDB();
@@ -26,6 +28,12 @@ public class CreateAdServiceImpl extends RemoteServiceServlet implements CreateA
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public List<String> getCategorie() {
+        List<String> categorieImmutabili = DatabaseCore.getCategorie();
+        return new ArrayList<>(categorieImmutabili);
     }
 
 }
