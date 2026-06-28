@@ -189,7 +189,6 @@ public class MainLayoutGui extends Composite {
         return placeholder;
     }
 
-
     private Widget creaVistaMarketplace() {
         VerticalPanel vistaMarket = new VerticalPanel();
         vistaMarket.setWidth("80%");
