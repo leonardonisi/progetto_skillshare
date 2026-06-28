@@ -23,4 +23,10 @@ public class MarketServiceImpl extends RemoteServiceServlet implements MarketSer
         ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
         return new ArrayList<>(dbAnnunci.values());
     }
+
+    @Override
+    public List<String> getCategorie() {
+        List<String> categorieImmutabili = DatabaseCore.getCategorie();
+        return new ArrayList<>(categorieImmutabili);
+    }
 }

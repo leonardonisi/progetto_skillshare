@@ -6,4 +6,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface MarketServiceAsync {
     void getAnnunci(AsyncCallback<List<Annuncio>> callback);
+
+    void getCategorie(AsyncCallback<List<String>> callback);
 }

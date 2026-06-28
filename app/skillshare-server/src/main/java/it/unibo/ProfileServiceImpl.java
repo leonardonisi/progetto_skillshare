@@ -18,5 +18,4 @@ public class ProfileServiceImpl extends RemoteServiceServlet implements ProfileS
         List<String> categorieImmutabili = DatabaseCore.getCategorie();
         return new ArrayList<>(categorieImmutabili);
     }
-
 }
