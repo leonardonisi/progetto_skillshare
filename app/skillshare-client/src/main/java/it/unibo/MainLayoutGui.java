@@ -42,7 +42,7 @@ public class MainLayoutGui extends Composite {
     private Button btnChat;
     private Label votoDettaglio;
     private Label lblCategoria;
-    private Label lblDettagli;
+    private Label lblDescrizione;
     private Label lblDispo;
     private Label lblContro;
     private List<Annuncio> tuttiGliAnnunci;
@@ -269,18 +269,27 @@ public class MainLayoutGui extends Composite {
         searchBox.getElement().getStyle().setProperty("fontSize", "16px");
         searchBox.getElement().getStyle().setProperty("padding", "5px 15px");
 
-        // Bottone di Ricerca
-        Button btnCerca = new Button("CERCA");
-        btnCerca.setHeight("47px");
-        btnCerca.setWidth("100px");
-        btnCerca.getElement().setId("search-button");
-        btnCerca.getElement().getStyle().setProperty("fontSize", "14px");
-        btnCerca.getElement().getStyle().setProperty("cursor", "pointer");
-        btnCerca.getElement().getStyle().setProperty("fontWeight", "bold");
-        btnCerca.getElement().getStyle().setProperty("backgroundImage", "none");
-        btnCerca.getElement().getStyle().setProperty("backgroundColor", "#007BFF"); // Blu generico
-        btnCerca.getElement().getStyle().setProperty("color", "white");
-        btnCerca.getElement().getStyle().setProperty("border", "none");
+        // logica di riceca in tempo reale
+        searchBox.addKeyUpHandler(event -> {
+            String ricercaEffettuata = searchBox.getText().trim().toLowerCase();
+            List<Annuncio> annunciFiltrati = new ArrayList<>();
+
+            if (tuttiGliAnnunci != null) {
+                if (ricercaEffettuata.isEmpty()) {
+                    annunciFiltrati.addAll(tuttiGliAnnunci);
+                } else {
+                    for (Annuncio a : tuttiGliAnnunci) {
+                        String titolo = a.getTitolo().toLowerCase();
+                        String descrizione = a.getSkillOfferta().toLowerCase();
+
+                        if (titolo.contains(ricercaEffettuata)|| descrizione.contains(ricercaEffettuata)) {
+                            annunciFiltrati.add(a);
+                        }
+                    }
+                }
+                aggiornaVistaAnnunci(annunciFiltrati);
+            }
+        });
 
         // Divisorio
         SimplePanel divisorio2 = new SimplePanel();
@@ -296,13 +305,17 @@ public class MainLayoutGui extends Composite {
         btnPubblica.getElement().getStyle().setProperty("fontSize", "14px");
         btnPubblica.getElement().getStyle().setProperty("cursor", "pointer");
         btnPubblica.getElement().getStyle().setProperty("fontWeight", "bold");
+        btnPubblica.getElement().getStyle().setProperty("backgroundImage", "none");
+        btnPubblica.getElement().getStyle().setProperty("backgroundColor", "#007BFF");
+        btnPubblica.getElement().getStyle().setProperty("color", "white");
+        btnPubblica.getElement().getStyle().setProperty("border", "none");
         btnPubblica.getElement().setId("btn-pubblica");
+
         btnPubblica.addClickHandler(event -> new CreateAdGui().mostra());
 
         searchBar.add(tendinaCategorie);
         searchBar.add(divisorio1);
         searchBar.add(searchBox);
-        searchBar.add(btnCerca);
         searchBar.add(divisorio2);
         searchBar.add(btnPubblica);
 
@@ -331,6 +344,7 @@ public class MainLayoutGui extends Composite {
         headerDettaglio.getElement().getStyle().setProperty("marginBottom", "30px");
 
         titoloDettaglio = new Label("Seleziona un annuncio");
+        titoloDettaglio.getElement().setId("lbl-titolo");
         titoloDettaglio.getElement().getStyle().setProperty("fontWeight", "bold");
         titoloDettaglio.getElement().getStyle().setProperty("fontSize", "28px");
 
@@ -348,9 +362,10 @@ public class MainLayoutGui extends Composite {
         lblCategoria.getElement().getStyle().setProperty("fontSize", "16px");
         lblCategoria.getElement().getStyle().setProperty("marginBottom", "20px");
 
-        lblDettagli = new Label();
-        lblDettagli.getElement().getStyle().setProperty("fontSize", "16px");
-        lblDettagli.getElement().getStyle().setProperty("marginBottom", "20px");
+        lblDescrizione = new Label();
+        lblDescrizione.getElement().setId("lbl-descrizione");
+        lblDescrizione.getElement().getStyle().setProperty("fontSize", "16px");
+        lblDescrizione.getElement().getStyle().setProperty("marginBottom", "20px");
 
         lblDispo = new Label();
         lblDispo.getElement().getStyle().setProperty("fontSize", "16px");
@@ -402,7 +417,7 @@ public class MainLayoutGui extends Composite {
         // Asseblaggio Colonna Destra
         colonnaDestra.add(headerDettaglio);
         colonnaDestra.add(lblCategoria);
-        colonnaDestra.add(lblDettagli);
+        colonnaDestra.add(lblDescrizione);
         colonnaDestra.add(lblDispo);
         colonnaDestra.add(lblContro);
         colonnaDestra.add(btnContainer);
@@ -488,7 +503,7 @@ public class MainLayoutGui extends Composite {
         titoloDettaglio.setText(a.getTitolo());
         votoDettaglio.setText("👤 4.9"); // voto fisso di mockup, da collegare a database
         lblCategoria.setText("CATEGORIA: " + a.getCategoria());
-        lblDettagli.setText("OFFERTA: " + a.getSkillOfferta()); 
+        lblDescrizione.setText("OFFERTA: " + a.getSkillOfferta()); 
         lblDispo.setText("DISPONIBILITÀ: " + a.getDisponibilita());
         lblContro.setText("CONTROPRESTAZIONE: " + a.getControprestazione());
 

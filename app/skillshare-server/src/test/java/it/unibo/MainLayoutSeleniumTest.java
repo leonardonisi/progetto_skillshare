@@ -61,13 +61,6 @@ public class MainLayoutSeleniumTest {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-market")));
     }
 
-    @Test void searchButtonIsPresent(){
-        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-        WebElement searchButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("search-button")));
-        assertTrue(searchButton.isDisplayed());
-        assertEquals("CERCA", searchButton.getText());
-    }
-
     @Test void marketLinkIsPresent(){
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement marketLink = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-market")));
@@ -182,5 +175,29 @@ public class MainLayoutSeleniumTest {
 
         WebElement categoriaAnnuncio = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("lbl-categoria")));
         assertTrue(categoriaAnnuncio.getText().contains("Sviluppo Software"));
+    }
+
+    @Test
+    public void testBarraDiRicercaFiltraSkillCorrettamente(){
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+
+        WebElement searchBar = wait.until(ExpectedConditions.elementToBeClickable(By.id("search-bar")));
+
+        searchBar.getText();
+        searchBar.sendKeys("Socket");
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("card-annuncio")));
+        List<WebElement> cardList = driver.findElements(By.id("card-annuncio"));
+
+        WebElement primaCard = cardList.get(0);
+        primaCard.click();
+
+        WebElement titoloAnnuncio = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("lbl-titolo")));
+        WebElement descrizioneAnnuncio = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("lbl-descrizione")));
+
+        String titoloTesto = titoloAnnuncio.getText().toLowerCase();
+        String descrizioneTesto = descrizioneAnnuncio.getText().toLowerCase();
+
+        assertTrue(titoloTesto.contains("socket") || descrizioneTesto.contains("socket"));
     }
 }
