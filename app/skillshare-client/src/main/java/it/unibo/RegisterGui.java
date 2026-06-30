@@ -26,24 +26,32 @@ public class RegisterGui{
         RootPanel.get().clear();
 
         HTML title = new HTML("<h1 style='color: #87CEEB;'>Registrazione a SkillShare</h1>");
+        title.getElement().setId("titolo-registrazione");
+
         final TextBox usernameField = new TextBox();
+        usernameField.getElement().setAttribute("placeholder", "username");
+        usernameField.getElement().setId("input-username");
+        usernameField.setWidth("300px");
+
         final PasswordTextBox passwordField = new PasswordTextBox();
+        passwordField.getElement().setAttribute("placeholder", "password");
+        passwordField.getElement().setId("input-password");
+        passwordField.setWidth("300px");
+
         final PasswordTextBox confirmPasswordField = new PasswordTextBox();
+        confirmPasswordField.getElement().setAttribute("placeholder", "conferma password");
+        confirmPasswordField.getElement().setId("input-confirm-password");
+        confirmPasswordField.setWidth("300px");
 
         final Button registerButton = new Button("CREA ACCOUNT");
-        final Button clearButton = new Button("ANNULLA");
-        final Button loginPageButton = new Button("TORNA ALLA PAGINA DI LOGIN");
-
-        usernameField.getElement().setAttribute("placeholder", "username");
-        passwordField.getElement().setAttribute("placeholder", "password");
-        confirmPasswordField.getElement().setAttribute("placeholder", "conferma password");
-
-        title.getElement().setId("titolo-registrazione");
-        usernameField.getElement().setId("input-username");
-        passwordField.getElement().setId("input-password");
-        confirmPasswordField.getElement().setId("input-confirm-password");
         registerButton.getElement().setId("register-button");
+        registerButton.setWidth("150px");
+
+        final Button clearButton = new Button("ANNULLA");
         clearButton.getElement().setId("cancel-button");
+        clearButton.setWidth("150px");
+
+        final Button loginPageButton = new Button("TORNA ALLA PAGINA DI LOGIN");
         loginPageButton.getElement().setId("login-page-button");
 
         HorizontalPanel buttonPanel = new HorizontalPanel();
@@ -61,13 +69,6 @@ public class RegisterGui{
         mainPanel.add(passwordField);
         mainPanel.add(confirmPasswordField);
         mainPanel.add(buttonPanel);
-
-        //stile
-        usernameField.setWidth("300px");
-        passwordField.setWidth("300px");
-        confirmPasswordField.setWidth("300px");
-        registerButton.setWidth("150px");
-        clearButton.setWidth("150px");
 
         RootPanel.get().add(mainPanel);
 

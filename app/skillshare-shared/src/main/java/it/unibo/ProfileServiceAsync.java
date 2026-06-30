@@ -3,8 +3,6 @@ package it.unibo;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.List;
 
-public interface CreateAdServiceAsync {
-    void pubblicaAnnuncio(Annuncio annuncio, AsyncCallback<Boolean> callback);
-
+public interface ProfileServiceAsync {
     void getCategorie(AsyncCallback<List<String>> callback);
 }

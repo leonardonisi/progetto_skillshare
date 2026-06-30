@@ -2,8 +2,16 @@ package it.unibo;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
-import java.io.File;
 import org.mapdb.Serializer;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -16,47 +24,106 @@ public class DatabaseCore {
     private static DB db;
     private static boolean testMode = false;
 
-    /**
-     * Attiva la modalità test (Database in memoria RAM).
-     */
+    
+    // Attiva la modalità test (Database in memoria RAM).
     public static void enableTestMode() {
         testMode = true;
         close(); 
     }
 
-    /**
-     * Disattiva la modalità test e torna al database su file.
-     */
+    // Disattiva la modalità test e torna al database su file.
     public static void disableTestMode() {
         testMode = false;
         close(); 
+    }
+
+    public static ConcurrentMap<Integer, Annuncio> getMappaAnnunci() {
+        DB db = getDB();
+        return db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+    }
+
+    public static ConcurrentMap<String, Utente> getMappaUtenti() {
+        DB db = getDB();
+        return db.hashMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
+    }
+
+    public static synchronized java.util.concurrent.ConcurrentMap<Integer, RichiestaScambio> getMappaRichieste() {
+        DB db = getDB();
+        return db.hashMap("richieste", org.mapdb.Serializer.INTEGER, org.mapdb.Serializer.JAVA).createOrOpen();
+    }
+
+    public static synchronized int generaNuovoIdRichiesta() {
+        DB db = getDB();
+        org.mapdb.Atomic.Integer idCounter = db.atomicInteger("richiesta_id_counter", 0).createOrOpen();
+        return idCounter.incrementAndGet();
     }
 
     // inizializza il database con annunci preimpostati
     public static void seedDatabase() {
         DB db = DatabaseCore.getDB();
         ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+
+        ConcurrentMap<String, Utente> dbUtenti = getMappaUtenti();
+        if (dbUtenti.isEmpty()) {
+            Utente admin = new Utente("admin", "password");
+            admin.setBio("Sono l'amministratore del sistema.");
+            dbUtenti.put(admin.getUsername(), admin);
+            DatabaseCore.commit();
+        }
         
         if (dbAnnunci.isEmpty()) {
             for (int i = 1; i <= 10; i++) {
                 Annuncio a = new Annuncio.Builder()
+                    .autore("Mario")
                     .titolo("Skill #" + i)
                     .categoria("Sviluppo Software")
                     .skillOfferta("Java GWT")
                     .controprestazioneCercata("Grafica")
                     .disponibilita("Weekend")
-                    .utenteId("User" + i)
                     .build();
                 dbAnnunci.put(i, a);
             }
             DatabaseCore.commit();
         }
+
+        seedCategorie(db);
     }
 
-    /**
-     * Restituisce l'istanza attiva del database.
-     * synchronized per prevenire accessi contemporanei da thread diversi.
-     */
+    private static void seedCategorie(DB db) {
+        Set<String> dbCategorie = (Set<String>) db.hashSet("categorie", Serializer.STRING).createOrOpen();
+        if (dbCategorie.isEmpty()) {
+            try (InputStream is = DatabaseCore.class.getClassLoader().getResourceAsStream("cat.txt")) {
+                if (is != null) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            String categoria = line.trim();
+                            if (!categoria.isEmpty()) {
+                                dbCategorie.add(categoria);
+                            }
+                        }
+                    }
+                    DatabaseCore.commit();
+                    System.out.println("MAPDB -> Categorie caricate da file con successo.");
+                } else {
+                    System.err.println("MAPDB -> ATTENZIONE: File 'cat.txt' non trovato nelle resources!");
+                }
+            } catch (Exception e) {
+                System.err.println("MAPDB -> Errore durante la lettura delle categorie: " + e.getMessage());
+            }
+        }
+    }
+
+    // Restituisce la lista completa delle categorie in formato immutabile.
+    public static List<String> getCategorie() {
+        DB db = getDB();
+        Set<String> dbCategorie = (Set<String>) db.hashSet("categorie", Serializer.STRING).createOrOpen();
+        List<String> categorieList = new ArrayList<>(dbCategorie);
+        Collections.sort(categorieList);
+        return Collections.unmodifiableList(categorieList);
+    }
+
+    // Restituisce l'istanza attiva del database, è synchronized per prevenire accessi contemporanei da thread diversi.
     public static synchronized DB getDB() {
         if (db == null || db.isClosed()) {
             if (testMode) {
@@ -93,18 +160,14 @@ public class DatabaseCore {
         return db;
     }
 
-    /**
-     * Salva permanentemente le modifiche su disco.
-     */
+    // Salva permanentemente le modifiche su disco.
     public static void commit() {
         if (db != null && !db.isClosed()) {
             db.commit();
         }
     }
 
-    /**
-     * Chiude la connessione al database e libera il file.
-     */
+    // Chiude la connessione al database e libera il file.
     public static void close() {
         if (db != null && !db.isClosed()) {
             db.close();

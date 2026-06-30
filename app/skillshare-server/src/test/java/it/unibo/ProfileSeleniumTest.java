@@ -48,8 +48,8 @@ public class ProfileSeleniumTest {
             // Nessun alert presente
         }
 
-        driver.get(BASE_URL);
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        driver.get(BASE_URL);
 
         WebElement inputUsername = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("input-username")));
         inputUsername.sendKeys("admin");

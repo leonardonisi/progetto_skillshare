@@ -16,10 +16,15 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.ui.Image;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainLayoutGui extends Composite {
@@ -33,14 +38,17 @@ public class MainLayoutGui extends Composite {
     VerticalPanel colonnaDestra;
 
     // Elementi del dettaglio annuncio che cambieranno dinamicamente
+    private String utenteCorrente;
     private Label titoloDettaglio;
     private Button btnRichiedi;
     private Button btnChat;
     private Label votoDettaglio;
     private Label lblCategoria;
-    private Label lblDettagli;
+    private Label lblDescrizione;
     private Label lblDispo;
     private Label lblContro;
+    private Image imgProfilo;
+    private List<Annuncio> tuttiGliAnnunci;
 
     public void mostra() {
         RootPanel.get().clear();
@@ -48,6 +56,8 @@ public class MainLayoutGui extends Composite {
     }
 
     public MainLayoutGui() {
+        this.utenteCorrente = SessionManager.getUtenteLoggato();
+
         // inizializzazione layout principale (Header Fisso + Contenitore Dinamico)
         VerticalPanel mainContainer = new VerticalPanel();
         mainContainer.setWidth("100%");
@@ -57,24 +67,33 @@ public class MainLayoutGui extends Composite {
         // inizializzazione header
         HorizontalPanel header = new HorizontalPanel();
         header.setWidth("100%");
-        header.setHeight("60px");
+        header.setHeight("40px");
         header.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         header.getElement().getStyle().setProperty("borderBottom", "2px solid #ccc");
         header.getElement().getStyle().setProperty("marginBottom", "30px");
+
+        HorizontalPanel logoBenvenuto = new HorizontalPanel();
+        logoBenvenuto.setSpacing(30);
 
         // titolo pagina
         Label logoLabel = new com.google.gwt.user.client.ui.Label("SKILLSHARE");
         logoLabel.getElement().getStyle().setProperty("fontWeight", "bold");
         logoLabel.getElement().getStyle().setProperty("fontSize", "22px");
+        logoLabel.getElement().getStyle().setProperty("color", "#007BFF");
         logoLabel.getElement().setId("titolo-home");
+
+        Label lblBenvenuto = new Label("Ciao, " + utenteCorrente);
+        lblBenvenuto.getElement().getStyle().setProperty("fontSize", "22px");
+        lblBenvenuto.getElement().getStyle().setProperty("whiteSpace", "nowrap");
+        lblBenvenuto.getElement().setId("benvenuto-utente");
 
         // Link di navigazione
         HorizontalPanel navLinks = new HorizontalPanel();
-        navLinks.setSpacing(20);
 
         Label lblMarket = new Label("MARKET");
         lblMarket.getElement().getStyle().setProperty("cursor", "pointer");
         lblMarket.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblMarket.getElement().getStyle().setProperty("fontSize", "18px");
         lblMarket.getElement().setId("nav-market");
 
         lblMarket.addClickHandler(event -> cambiaVista(creaVistaMarketplace()));
@@ -82,6 +101,8 @@ public class MainLayoutGui extends Composite {
         Label lblPerTe = new Label("PER TE");
         lblPerTe.getElement().getStyle().setProperty("cursor", "pointer");
         lblPerTe.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblPerTe.getElement().getStyle().setProperty("fontSize", "18px");
+        lblPerTe.getElement().getStyle().setProperty("marginLeft", "60px");
         lblPerTe.getElement().setId("nav-perte");
 
         lblPerTe.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina PER TE in costruzione...")));
@@ -89,6 +110,8 @@ public class MainLayoutGui extends Composite {
         Label lblChat = new Label("CHAT");
         lblChat.getElement().getStyle().setProperty("cursor", "pointer");
         lblChat.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblChat.getElement().getStyle().setProperty("fontSize", "18px");
+        lblChat.getElement().getStyle().setProperty("marginLeft", "60px");
         lblChat.getElement().setId("nav-chat");
 
         lblChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
@@ -96,6 +119,8 @@ public class MainLayoutGui extends Composite {
         Label lblSkill = new Label("SKILL");
         lblSkill.getElement().getStyle().setProperty("cursor", "pointer");
         lblSkill.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblSkill.getElement().getStyle().setProperty("fontSize", "18px");
+        lblSkill.getElement().getStyle().setProperty("marginLeft", "60px");
         lblSkill.getElement().setId("nav-skill");
 
         // Menù a discesa
@@ -134,27 +159,36 @@ public class MainLayoutGui extends Composite {
         menuContent.add(itemRichieste);
         menuSkill.add(menuContent);
 
-        Label lblProfilo = new Label("👤 Profilo");
-        lblProfilo.getElement().getStyle().setProperty("cursor", "pointer");
-        lblProfilo.getElement().getStyle().setProperty("fontWeight", "bold");
-        lblProfilo.getElement().setId("nav-profilo");
+        imgProfilo = new Image();
 
-        lblProfilo.addClickHandler(event -> { new ProfileGui().mostra();});
+        caricaImmagineProfilo(imgProfilo);
+
+        imgProfilo.setPixelSize(40, 40);
+        imgProfilo.getElement().getStyle().setProperty("borderRadius", "50%");
+        imgProfilo.getElement().getStyle().setProperty("objectFit", "cover");
+        imgProfilo.getElement().getStyle().setProperty("cursor", "pointer");
+        imgProfilo.getElement().getStyle().setProperty("border", "2px solid #007BFF");
+        imgProfilo.getElement().setId("nav-profilo");
+
+        imgProfilo.addClickHandler(event -> {
+            new ProfileGui().mostra();
+        });
 
         navLinks.add(lblMarket);
         navLinks.add(lblPerTe);
         navLinks.add(lblChat);
         navLinks.add(lblSkill);
 
-        header.add(logoLabel);
-        header.add(navLinks);
-        header.add(lblProfilo);
+        logoBenvenuto.add(logoLabel);
+        logoBenvenuto.add(lblBenvenuto);
 
-        header.setCellWidth(logoLabel, "20%");
-        header.setCellWidth(navLinks, "60%");
+        header.add(logoBenvenuto);
+        header.add(navLinks);
+        header.add(imgProfilo);
+
+        header.setCellWidth(logoLabel, "30%");
+        header.setCellWidth(navLinks, "50%");
         header.setCellHorizontalAlignment(navLinks, HasHorizontalAlignment.ALIGN_CENTER);
-        header.setCellWidth(lblProfilo, "20%");
-        header.setCellHorizontalAlignment(lblProfilo, HasHorizontalAlignment.ALIGN_RIGHT);
 
         // inizializzazione contenitore dinamico
         contenitoreDinamico = new SimplePanel();
@@ -189,7 +223,6 @@ public class MainLayoutGui extends Composite {
         return placeholder;
     }
 
-
     private Widget creaVistaMarketplace() {
         VerticalPanel vistaMarket = new VerticalPanel();
         vistaMarket.setWidth("80%");
@@ -204,16 +237,50 @@ public class MainLayoutGui extends Composite {
 
         // Elenco per filtrare Categorie
         ListBox tendinaCategorie = new ListBox();
-        tendinaCategorie.addItem("Scegli categoria");
-        tendinaCategorie.addItem("Sviluppo Software");
-        tendinaCategorie.addItem("Design e Grafica");
-        tendinaCategorie.addItem("Lingue Straniere");
-        tendinaCategorie.addItem("Musica");
         tendinaCategorie.setHeight("47px");
         tendinaCategorie.getElement().setId("tendina-categorie");
         tendinaCategorie.getElement().getStyle().setProperty("fontSize", "14px");
         tendinaCategorie.getElement().getStyle().setProperty("padding", "5px");
         tendinaCategorie.getElement().getStyle().setProperty("cursor", "pointer");
+
+        // aggiunta delle categorie
+        servizio.getCategorie(new AsyncCallback<List<String>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                tendinaCategorie.clear();
+                tendinaCategorie.addItem("Errore caricamento");
+                Window.alert("Impossibile caricare le categorie: " + caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(List<String> result) {
+                tendinaCategorie.clear();
+                tendinaCategorie.addItem("Tutte le Categorie");
+                
+                for (String categoria : result) {
+                    tendinaCategorie.addItem(categoria);
+                }
+            }
+        });
+
+        // logica di filtraggio
+        tendinaCategorie.addChangeHandler(event -> {
+            String categoriaScelta = tendinaCategorie.getSelectedItemText();
+            List<Annuncio> annunciFiltrati = new ArrayList<>();
+
+            if (tuttiGliAnnunci != null) {
+                if (categoriaScelta.equals("Tutte le Categorie") || categoriaScelta.equals("Errore caricamento")) {
+                    annunciFiltrati.addAll(tuttiGliAnnunci);
+                } else {
+                    for (Annuncio a : tuttiGliAnnunci) {
+                        if (a.getCategoria().equals(categoriaScelta)) {
+                            annunciFiltrati.add(a);
+                        }
+                    }
+                }
+                aggiornaVistaAnnunci(annunciFiltrati);
+            }
+        });
 
         // Divisorio
         SimplePanel divisorio1 = new SimplePanel();
@@ -231,18 +298,27 @@ public class MainLayoutGui extends Composite {
         searchBox.getElement().getStyle().setProperty("fontSize", "16px");
         searchBox.getElement().getStyle().setProperty("padding", "5px 15px");
 
-        // Bottone di Ricerca
-        Button btnCerca = new Button("CERCA");
-        btnCerca.setHeight("47px");
-        btnCerca.setWidth("100px");
-        btnCerca.getElement().setId("search-button");
-        btnCerca.getElement().getStyle().setProperty("fontSize", "14px");
-        btnCerca.getElement().getStyle().setProperty("cursor", "pointer");
-        btnCerca.getElement().getStyle().setProperty("fontWeight", "bold");
-        btnCerca.getElement().getStyle().setProperty("backgroundImage", "none");
-        btnCerca.getElement().getStyle().setProperty("backgroundColor", "#007BFF"); // Blu generico
-        btnCerca.getElement().getStyle().setProperty("color", "white");
-        btnCerca.getElement().getStyle().setProperty("border", "none");
+        // logica di riceca in tempo reale
+        searchBox.addKeyUpHandler(event -> {
+            String ricercaEffettuata = searchBox.getText().trim().toLowerCase();
+            List<Annuncio> annunciFiltrati = new ArrayList<>();
+
+            if (tuttiGliAnnunci != null) {
+                if (ricercaEffettuata.isEmpty()) {
+                    annunciFiltrati.addAll(tuttiGliAnnunci);
+                } else {
+                    for (Annuncio a : tuttiGliAnnunci) {
+                        String titolo = a.getTitolo().toLowerCase();
+                        String descrizione = a.getSkillOfferta().toLowerCase();
+
+                        if (titolo.contains(ricercaEffettuata)|| descrizione.contains(ricercaEffettuata)) {
+                            annunciFiltrati.add(a);
+                        }
+                    }
+                }
+                aggiornaVistaAnnunci(annunciFiltrati);
+            }
+        });
 
         // Divisorio
         SimplePanel divisorio2 = new SimplePanel();
@@ -258,13 +334,17 @@ public class MainLayoutGui extends Composite {
         btnPubblica.getElement().getStyle().setProperty("fontSize", "14px");
         btnPubblica.getElement().getStyle().setProperty("cursor", "pointer");
         btnPubblica.getElement().getStyle().setProperty("fontWeight", "bold");
+        btnPubblica.getElement().getStyle().setProperty("backgroundImage", "none");
+        btnPubblica.getElement().getStyle().setProperty("backgroundColor", "#007BFF");
+        btnPubblica.getElement().getStyle().setProperty("color", "white");
+        btnPubblica.getElement().getStyle().setProperty("border", "none");
         btnPubblica.getElement().setId("btn-pubblica");
+
         btnPubblica.addClickHandler(event -> new CreateAdGui().mostra());
 
         searchBar.add(tendinaCategorie);
         searchBar.add(divisorio1);
         searchBar.add(searchBox);
-        searchBar.add(btnCerca);
         searchBar.add(divisorio2);
         searchBar.add(btnPubblica);
 
@@ -293,6 +373,7 @@ public class MainLayoutGui extends Composite {
         headerDettaglio.getElement().getStyle().setProperty("marginBottom", "30px");
 
         titoloDettaglio = new Label("Seleziona un annuncio");
+        titoloDettaglio.getElement().setId("lbl-titolo");
         titoloDettaglio.getElement().getStyle().setProperty("fontWeight", "bold");
         titoloDettaglio.getElement().getStyle().setProperty("fontSize", "28px");
 
@@ -306,12 +387,14 @@ public class MainLayoutGui extends Composite {
 
         // Label Dettaglio dei dettagli strutturali
         lblCategoria = new Label();
+        lblCategoria.getElement().setId("lbl-categoria");
         lblCategoria.getElement().getStyle().setProperty("fontSize", "16px");
         lblCategoria.getElement().getStyle().setProperty("marginBottom", "20px");
 
-        lblDettagli = new Label();
-        lblDettagli.getElement().getStyle().setProperty("fontSize", "16px");
-        lblDettagli.getElement().getStyle().setProperty("marginBottom", "20px");
+        lblDescrizione = new Label();
+        lblDescrizione.getElement().setId("lbl-descrizione");
+        lblDescrizione.getElement().getStyle().setProperty("fontSize", "16px");
+        lblDescrizione.getElement().getStyle().setProperty("marginBottom", "20px");
 
         lblDispo = new Label();
         lblDispo.getElement().getStyle().setProperty("fontSize", "16px");
@@ -363,7 +446,7 @@ public class MainLayoutGui extends Composite {
         // Asseblaggio Colonna Destra
         colonnaDestra.add(headerDettaglio);
         colonnaDestra.add(lblCategoria);
-        colonnaDestra.add(lblDettagli);
+        colonnaDestra.add(lblDescrizione);
         colonnaDestra.add(lblDispo);
         colonnaDestra.add(lblContro);
         colonnaDestra.add(btnContainer);
@@ -389,6 +472,7 @@ public class MainLayoutGui extends Composite {
 
     private FocusPanel creaCard(Annuncio a) {
         FocusPanel card = new FocusPanel();
+        card.getElement().setId("card-annuncio");
         card.setWidth("100%");
         card.getElement().getStyle().setProperty("border", "1px solid #666");
         card.getElement().getStyle().setProperty("marginBottom", "15px");
@@ -413,7 +497,7 @@ public class MainLayoutGui extends Composite {
     }
 
     private void caricaAnnunci() {
-        servizio.getAnnunci(new AsyncCallback<List<Annuncio>>() {
+        servizio.getAnnunci(utenteCorrente, new AsyncCallback<List<Annuncio>>() {
             @Override
             public void onFailure(Throwable caught) {
                 titoloDettaglio.setText("Errore nel caricamento degli annunci.");
@@ -421,27 +505,57 @@ public class MainLayoutGui extends Composite {
 
             @Override
             public void onSuccess(List<Annuncio> result) {
-                colonnaSinistra.clear();
-                if (result == null || result.isEmpty()) {
-                    colonnaSinistra.add(new Label("Nessun annuncio presente nel marketplace."));
-                    return;
-                }
-                for (Annuncio a : result) {
-                    colonnaSinistra.add(creaCard(a));
-                }
+                tuttiGliAnnunci = result; 
+
+                aggiornaVistaAnnunci(tuttiGliAnnunci);
             }
         });
+    }
+
+    private void aggiornaVistaAnnunci(List<Annuncio> annunciDaMostrare) {
+        colonnaSinistra.clear();
+        
+        if (annunciDaMostrare == null || annunciDaMostrare.isEmpty()) {
+            Label alert = new Label("Nessun annuncio trovato");
+            alert.getElement().setId("alert-filtraggio-categorie");
+            alert.getElement().getStyle().setProperty("fontSize", "22px");
+            colonnaSinistra.add(alert);
+            return;
+        }
+        
+        for (Annuncio a : annunciDaMostrare) {
+            colonnaSinistra.add(creaCard(a));
+        }
     }
 
     private void mostraDettaglio(Annuncio a) {
         titoloDettaglio.setText(a.getTitolo());
         votoDettaglio.setText("👤 4.9"); // voto fisso di mockup, da collegare a database
         lblCategoria.setText("CATEGORIA: " + a.getCategoria());
-        lblDettagli.setText("OFFERTA: " + a.getSkillOfferta()); 
+        lblDescrizione.setText("OFFERTA: " + a.getSkillOfferta()); 
         lblDispo.setText("DISPONIBILITÀ: " + a.getDisponibilita());
         lblContro.setText("CONTROPRESTAZIONE: " + a.getControprestazione());
 
         btnRichiedi.setVisible(true);
         btnChat.setVisible(true);
+    }
+
+    private void caricaImmagineProfilo(Image imgProfilo) {
+        servizio.getUtente(utenteCorrente, new AsyncCallback<Utente>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                imgProfilo.setUrl("images/utente.jpg"); // Fallback in caso di errore
+            }
+
+            @Override
+            public void onSuccess(Utente utenteCompleto) {
+                // Qui hai l'oggetto Utente vero e proprio, quindi puoi usare il metodo!
+                if (utenteCompleto != null && utenteCompleto.getFotoProfiloBase64() != null) {
+                    imgProfilo.setUrl(utenteCompleto.getFotoProfiloBase64());
+                } else {
+                    imgProfilo.setUrl("images/utente.jpg");
+                }
+            }
+        });
     }
 }

@@ -28,9 +28,10 @@ public class LoginGui {
         RootPanel.get().clear();
 
         // Inizializzazione Widget
-        HTML title = new HTML("<h1 style='color: #87CEEB;'>ACCESSO A SKILLSHARE</h1>");
+        HTML title = new HTML("<h1 style='color: #007BFF;'>ACCESSO A SKILLSHARE</h1>");
         final TextBox usernameField = new TextBox();
         final PasswordTextBox passwordField = new PasswordTextBox();
+
         // Aggiunte per mostra password
         final Button showPasswordButton = new Button("👀");
         final Label passwordVisibleLabel = new Label();
@@ -117,6 +118,8 @@ public class LoginGui {
                         } else {
                             Cookies.setCookie("username", username);
                             RootPanel.get().clear();
+
+                            SessionManager.setUtenteLoggato(result);
                             new MainLayoutGui().mostra();
                         }
                     }

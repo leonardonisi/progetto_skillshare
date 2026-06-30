@@ -32,30 +32,20 @@ class RegisterServiceImplTest {
     @Mock
     private HttpServletRequest request;
 
-    private RegisterServiceImpl service;
+    private RegisterServiceImpl registerService;
 
     @BeforeEach
     void setUp() throws Exception {
-        DatabaseCore.enableTestMode(); 
+        DatabaseCore.enableTestMode();
+        DatabaseCore.close(); 
 
-        when(servletConfig.getServletContext()).thenReturn(servletContext);
-        when(servletContext.getServerInfo()).thenReturn("MockServer/1.0");
-        when(request.getHeader("User-Agent")).thenReturn("MockBrowser/1.0");
-        service = new RegisterServiceImpl();
-        service.init(servletConfig);
-        // Crea un ThreadLocal con la request mock e iniettalo via reflection
-        ThreadLocal<HttpServletRequest> threadLocal = new ThreadLocal<>();
-        threadLocal.set(request);
-        Field field = AbstractRemoteServiceServlet.class
-                .getDeclaredField("perThreadRequest");
-        field.setAccessible(true);
-        field.set(service, threadLocal); // sostituiamo il campo con il nostro ThreadLocal
-
-        // Database e aggiunta di utente test
         DB db = DatabaseCore.getDB();
-        ConcurrentMap<String, String> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.STRING)
-                .createOrOpen();
+        ConcurrentMap<String, Utente> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
         dbUtenti.clear();
+        dbUtenti.put("admin", new Utente("admin", "password"));
+        DatabaseCore.commit();
+
+        registerService = new RegisterServiceImpl();
     }
 
     @Test
@@ -63,14 +53,14 @@ class RegisterServiceImplTest {
         String usernameTest = "nuovo_utente";
         String passwordTest = "password123";
         
-        String result = service.register(usernameTest, passwordTest, passwordTest);
+        String result = registerService.register(usernameTest, passwordTest, passwordTest);
 
         assertEquals("ok", result);
 
         DB db = DatabaseCore.getDB();
-        ConcurrentMap<String, String> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.STRING).createOrOpen();
+        ConcurrentMap<String, Utente> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
 
         assertTrue(dbUtenti.containsKey(usernameTest), "L'utente non è stato salvato nel Database");
-        assertEquals(passwordTest, dbUtenti.get(usernameTest), "La password salvata non corrisponde");
+        assertEquals(passwordTest, dbUtenti.get(usernameTest).getPassword(), "La password salvata non corrisponde");
     }
 }

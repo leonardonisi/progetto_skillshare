@@ -1,11 +1,27 @@
 package it.unibo;
 
-import java.util.List;
-import jakarta.servlet.ServletException;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import com.google.gwt.user.server.rpc.jakarta.AbstractRemoteServiceServlet;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
+import java.lang.reflect.Field;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.util.concurrent.ConcurrentMap;
+import org.mapdb.Serializer;
+import org.mapdb.DB;
+import java.util.List;
+import jakarta.servlet.ServletException;
 
 public class MarketServiceImplTest {
 
@@ -13,7 +29,27 @@ public class MarketServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        // Inizializza il servizio prima di ogni test
+        DatabaseCore.enableTestMode();
+        DatabaseCore.close(); 
+
+        DB db = DatabaseCore.getDB();
+        ConcurrentMap<String, Utente> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
+        dbUtenti.clear();
+        dbUtenti.put("admin", new Utente("admin", "password"));
+        DatabaseCore.commit();
+
+        ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+        Annuncio a = new Annuncio.Builder()
+                    .autore("admin")
+                    .titolo("Skill #1")
+                    .categoria("Sviluppo Software")
+                    .skillOfferta("Java GWT")
+                    .controprestazioneCercata("Grafica")
+                    .disponibilita("Weekend")
+                    .build();
+        dbAnnunci.put(1, a);
+        DatabaseCore.commit();
+
         marketService = new MarketServiceImpl();
     }
 
@@ -22,7 +58,7 @@ public class MarketServiceImplTest {
         MarketServiceImpl marketService = new MarketServiceImpl();
         marketService.init();
 
-        List<Annuncio> annunci = marketService.getAnnunci();
+        List<Annuncio> annunci = marketService.getAnnunci("testUser");
 
         assertNotNull(annunci, "La lista degli annunci non deve essere null");
         assertFalse(annunci.isEmpty(), "La lista deve contenere degli elementi di prova dopo l'init");
@@ -45,7 +81,7 @@ public class MarketServiceImplTest {
         assertNotNull(primoAnnuncio.getDisponibilita(), "La disponibilità non deve essere null");
         assertFalse(primoAnnuncio.getDisponibilita().trim().isEmpty(), "La disponibilità non deve essere vuota");
 
-        assertNotNull(primoAnnuncio.getUtente(), "L'ID utente non deve essere null");
-        assertFalse(primoAnnuncio.getUtente().trim().isEmpty(), "L'ID utente non deve essere vuoto");
+        assertNotNull(primoAnnuncio.getAutore(), "L'ID utente non deve essere null");
+        assertFalse(primoAnnuncio.getAutore().trim().isEmpty(), "L'ID utente non deve essere vuoto");
     }
 }

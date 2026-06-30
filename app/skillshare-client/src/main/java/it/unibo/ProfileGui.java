@@ -1,5 +1,6 @@
 package it.unibo;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.Window;
@@ -11,10 +12,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProfileGui {
+
+    private final ProfileServiceAsync profileService = GWT.create(ProfileService.class);
 
     // Lista per tenere traccia delle categorie scelte ed evitare i duplicati
     private List<String> categorieSelezionate = new ArrayList<>();
@@ -107,16 +111,26 @@ public class ProfileGui {
         final ListBox categorieDropdown = new ListBox();
         categorieDropdown.getElement().setId("select-categorie");
         categorieDropdown.setWidth("100%");
-        categorieDropdown.addItem("Seleziona una categoria...");
 
-        String[] tutteLeCategorie = {
-            "Sviluppo Software", "Lingue Straniere", "Cucina", "Musica", 
-            "Sport", "Fotografia", "Design", "Marketing", "Fai da te", 
-            "Matematica", "Yoga", "Scrittura"
-        };
-        for (String categoria : tutteLeCategorie) {
-            categorieDropdown.addItem(categoria);
-        }
+        // aggiunta delle categorie
+        profileService.getCategorie(new AsyncCallback<List<String>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                categorieDropdown.clear();
+                categorieDropdown.addItem("Errore caricamento");
+                Window.alert("Impossibile caricare le categorie: " + caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(List<String> result) {
+                categorieDropdown.clear();
+                categorieDropdown.addItem("Scegli categoria");
+                
+                for (String categoria : result) {
+                    categorieDropdown.addItem(categoria);
+                }
+            }
+        });
 
         // Pannello tag verticale 
         final VerticalPanel tagPanel = new VerticalPanel();

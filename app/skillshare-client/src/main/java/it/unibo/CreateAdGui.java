@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import java.util.List;
 
 public class CreateAdGui {
 
@@ -35,12 +36,25 @@ public class CreateAdGui {
         final Button btnPubblica = new Button("PUBBLICA");
         final Button btnAnnulla = new Button("ANNULLA");
 
-        // Aggiunta delle categorie
-        categoryList.addItem("Informatica");
-        categoryList.addItem("Cucina");
-        categoryList.addItem("Lingue");
-        categoryList.addItem("Economia");
-        categoryList.addItem("Altro");
+        // aggiunta delle categorie
+        createAdService.getCategorie(new AsyncCallback<List<String>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                categoryList.clear();
+                categoryList.addItem("Errore caricamento");
+                Window.alert("Impossibile caricare le categorie: " + caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(List<String> result) {
+                categoryList.clear();
+                categoryList.addItem("Scegli categoria");
+                
+                for (String categoria : result) {
+                    categoryList.addItem(categoria);
+                }
+            }
+        });
 
         // assegnazione id per identificazione con Selenium
         title.getElement().setId("titolo-create-ad");
@@ -89,7 +103,8 @@ public class CreateAdGui {
 
         RootPanel.get().add(mainPanel);
         titleField.setFocus(true);
-        // --- Logica Handler ---
+
+        // Logica Handler 
         class CreateAdHandler implements ClickHandler {
 
             @Override
@@ -98,12 +113,12 @@ public class CreateAdGui {
             }
 
             private void pubblica() {
+                String autore = SessionManager.getUtenteLoggato();
                 String titolo = titleField.getText().trim();
                 String categoria = categoryList.getSelectedItemText();
                 String offro = offertSkill.getText().trim();
                 String cerco = searchedSkill.getText().trim();
                 String disponibilita = disponibility.getText().trim();
-                String autore = Cookies.getCookie("username");
 
                 if (autore == null || autore.isEmpty()) {
                     autore = "test";
@@ -114,13 +129,14 @@ public class CreateAdGui {
                     Window.alert("Devi specificare sia cosa offri sia cosa cerchi sia la disponibilità");
                 } else {
                     Annuncio nuovoAnnuncio = new Annuncio.Builder()
+                            .autore(autore)
                             .titolo(titolo)
                             .categoria(categoria)
                             .skillOfferta(offro)
                             .controprestazioneCercata(cerco)
                             .disponibilita(disponibilita)
-                            .utenteId(autore)
                             .build();
+                            
                     createAdService.pubblicaAnnuncio(nuovoAnnuncio, new AsyncCallback<Boolean>() {
                         @Override
                         public void onFailure(Throwable caught) {
