@@ -50,6 +50,7 @@ public class RegisterSeleniumTest {
         } catch (Exception e) {
             // Non c'è alcun alert da accettare
         }
+
         driver.get(BASE_URL);
         WebElement vaiPaginaRegistrazione = new WebDriverWait(driver, Duration.ofSeconds(40))
                 .until(ExpectedConditions.elementToBeClickable(By.id("btn-register")));
@@ -62,7 +63,6 @@ public class RegisterSeleniumTest {
     // -------------------------------------------------------------------------
     // TEST
     // -------------------------------------------------------------------------
-
     @Test
     void pageLoadsWithCorrectTitle() {
         WebElement titleElement = driver.findElement(By.id("titolo-registrazione"));

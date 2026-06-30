@@ -9,13 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 public class RegisterServiceImpl extends RemoteServiceServlet implements RegisterService {
 
     private static final DB db = DatabaseCore.getDB();
-    private static final ConcurrentMap<String, String> dbUtenti = db
-            .hashMap("utenti", Serializer.STRING, Serializer.STRING).createOrOpen();
-
-    static {
-        dbUtenti.put("admin", "password");
-        DatabaseCore.commit();
-    }
+    private static final ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
 
     public String register(String username, String password, String confirm_password) {
         if ("nuovo".equals(username) || "login".equals(username)) {
@@ -35,7 +29,8 @@ public class RegisterServiceImpl extends RemoteServiceServlet implements Registe
         if (!password.equals(confirm_password)) {
             return "Password non conforme";
         } else {
-            dbUtenti.put(username, password);
+            Utente nuovoUtente = new Utente(username, password);
+            dbUtenti.put(username, nuovoUtente);
             DatabaseCore.commit();
             return "ok";
         }

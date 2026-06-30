@@ -23,6 +23,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.ui.Image;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class MainLayoutGui extends Composite {
     VerticalPanel colonnaDestra;
 
     // Elementi del dettaglio annuncio che cambieranno dinamicamente
+    private String utenteCorrente;
     private Label titoloDettaglio;
     private Button btnRichiedi;
     private Button btnChat;
@@ -45,6 +47,7 @@ public class MainLayoutGui extends Composite {
     private Label lblDescrizione;
     private Label lblDispo;
     private Label lblContro;
+    private Image imgProfilo;
     private List<Annuncio> tuttiGliAnnunci;
 
     public void mostra() {
@@ -53,6 +56,8 @@ public class MainLayoutGui extends Composite {
     }
 
     public MainLayoutGui() {
+        this.utenteCorrente = SessionManager.getUtenteLoggato();
+
         // inizializzazione layout principale (Header Fisso + Contenitore Dinamico)
         VerticalPanel mainContainer = new VerticalPanel();
         mainContainer.setWidth("100%");
@@ -62,24 +67,33 @@ public class MainLayoutGui extends Composite {
         // inizializzazione header
         HorizontalPanel header = new HorizontalPanel();
         header.setWidth("100%");
-        header.setHeight("60px");
+        header.setHeight("40px");
         header.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         header.getElement().getStyle().setProperty("borderBottom", "2px solid #ccc");
         header.getElement().getStyle().setProperty("marginBottom", "30px");
+
+        HorizontalPanel logoBenvenuto = new HorizontalPanel();
+        logoBenvenuto.setSpacing(30);
 
         // titolo pagina
         Label logoLabel = new com.google.gwt.user.client.ui.Label("SKILLSHARE");
         logoLabel.getElement().getStyle().setProperty("fontWeight", "bold");
         logoLabel.getElement().getStyle().setProperty("fontSize", "22px");
+        logoLabel.getElement().getStyle().setProperty("color", "#007BFF");
         logoLabel.getElement().setId("titolo-home");
+
+        Label lblBenvenuto = new Label("Ciao, " + utenteCorrente);
+        lblBenvenuto.getElement().getStyle().setProperty("fontSize", "22px");
+        lblBenvenuto.getElement().getStyle().setProperty("whiteSpace", "nowrap");
+        lblBenvenuto.getElement().setId("benvenuto-utente");
 
         // Link di navigazione
         HorizontalPanel navLinks = new HorizontalPanel();
-        navLinks.setSpacing(20);
 
         Label lblMarket = new Label("MARKET");
         lblMarket.getElement().getStyle().setProperty("cursor", "pointer");
         lblMarket.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblMarket.getElement().getStyle().setProperty("fontSize", "18px");
         lblMarket.getElement().setId("nav-market");
 
         lblMarket.addClickHandler(event -> cambiaVista(creaVistaMarketplace()));
@@ -87,6 +101,8 @@ public class MainLayoutGui extends Composite {
         Label lblPerTe = new Label("PER TE");
         lblPerTe.getElement().getStyle().setProperty("cursor", "pointer");
         lblPerTe.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblPerTe.getElement().getStyle().setProperty("fontSize", "18px");
+        lblPerTe.getElement().getStyle().setProperty("marginLeft", "60px");
         lblPerTe.getElement().setId("nav-perte");
 
         lblPerTe.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina PER TE in costruzione...")));
@@ -94,6 +110,8 @@ public class MainLayoutGui extends Composite {
         Label lblChat = new Label("CHAT");
         lblChat.getElement().getStyle().setProperty("cursor", "pointer");
         lblChat.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblChat.getElement().getStyle().setProperty("fontSize", "18px");
+        lblChat.getElement().getStyle().setProperty("marginLeft", "60px");
         lblChat.getElement().setId("nav-chat");
 
         lblChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
@@ -101,6 +119,8 @@ public class MainLayoutGui extends Composite {
         Label lblSkill = new Label("SKILL");
         lblSkill.getElement().getStyle().setProperty("cursor", "pointer");
         lblSkill.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblSkill.getElement().getStyle().setProperty("fontSize", "18px");
+        lblSkill.getElement().getStyle().setProperty("marginLeft", "60px");
         lblSkill.getElement().setId("nav-skill");
 
         // Menù a discesa
@@ -139,27 +159,36 @@ public class MainLayoutGui extends Composite {
         menuContent.add(itemRichieste);
         menuSkill.add(menuContent);
 
-        Label lblProfilo = new Label("👤 Profilo");
-        lblProfilo.getElement().getStyle().setProperty("cursor", "pointer");
-        lblProfilo.getElement().getStyle().setProperty("fontWeight", "bold");
-        lblProfilo.getElement().setId("nav-profilo");
+        imgProfilo = new Image();
 
-        lblProfilo.addClickHandler(event -> { new ProfileGui().mostra();});
+        caricaImmagineProfilo(imgProfilo);
+
+        imgProfilo.setPixelSize(40, 40);
+        imgProfilo.getElement().getStyle().setProperty("borderRadius", "50%");
+        imgProfilo.getElement().getStyle().setProperty("objectFit", "cover");
+        imgProfilo.getElement().getStyle().setProperty("cursor", "pointer");
+        imgProfilo.getElement().getStyle().setProperty("border", "2px solid #007BFF");
+        imgProfilo.getElement().setId("nav-profilo");
+
+        imgProfilo.addClickHandler(event -> {
+            new ProfileGui().mostra();
+        });
 
         navLinks.add(lblMarket);
         navLinks.add(lblPerTe);
         navLinks.add(lblChat);
         navLinks.add(lblSkill);
 
-        header.add(logoLabel);
-        header.add(navLinks);
-        header.add(lblProfilo);
+        logoBenvenuto.add(logoLabel);
+        logoBenvenuto.add(lblBenvenuto);
 
-        header.setCellWidth(logoLabel, "20%");
-        header.setCellWidth(navLinks, "60%");
+        header.add(logoBenvenuto);
+        header.add(navLinks);
+        header.add(imgProfilo);
+
+        header.setCellWidth(logoLabel, "30%");
+        header.setCellWidth(navLinks, "50%");
         header.setCellHorizontalAlignment(navLinks, HasHorizontalAlignment.ALIGN_CENTER);
-        header.setCellWidth(lblProfilo, "20%");
-        header.setCellHorizontalAlignment(lblProfilo, HasHorizontalAlignment.ALIGN_RIGHT);
 
         // inizializzazione contenitore dinamico
         contenitoreDinamico = new SimplePanel();
@@ -240,7 +269,7 @@ public class MainLayoutGui extends Composite {
             List<Annuncio> annunciFiltrati = new ArrayList<>();
 
             if (tuttiGliAnnunci != null) {
-                if (categoriaScelta.equals("tutte le Categorie") || categoriaScelta.equals("Errore caricamento")) {
+                if (categoriaScelta.equals("Tutte le Categorie") || categoriaScelta.equals("Errore caricamento")) {
                     annunciFiltrati.addAll(tuttiGliAnnunci);
                 } else {
                     for (Annuncio a : tuttiGliAnnunci) {
@@ -468,7 +497,7 @@ public class MainLayoutGui extends Composite {
     }
 
     private void caricaAnnunci() {
-        servizio.getAnnunci(new AsyncCallback<List<Annuncio>>() {
+        servizio.getAnnunci(utenteCorrente, new AsyncCallback<List<Annuncio>>() {
             @Override
             public void onFailure(Throwable caught) {
                 titoloDettaglio.setText("Errore nel caricamento degli annunci.");
@@ -509,5 +538,24 @@ public class MainLayoutGui extends Composite {
 
         btnRichiedi.setVisible(true);
         btnChat.setVisible(true);
+    }
+
+    private void caricaImmagineProfilo(Image imgProfilo) {
+        servizio.getUtente(utenteCorrente, new AsyncCallback<Utente>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                imgProfilo.setUrl("images/utente.jpg"); // Fallback in caso di errore
+            }
+
+            @Override
+            public void onSuccess(Utente utenteCompleto) {
+                // Qui hai l'oggetto Utente vero e proprio, quindi puoi usare il metodo!
+                if (utenteCompleto != null && utenteCompleto.getFotoProfiloBase64() != null) {
+                    imgProfilo.setUrl(utenteCompleto.getFotoProfiloBase64());
+                } else {
+                    imgProfilo.setUrl("images/utente.jpg");
+                }
+            }
+        });
     }
 }

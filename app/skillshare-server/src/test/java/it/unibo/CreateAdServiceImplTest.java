@@ -32,45 +32,39 @@ class CreateAdServiceImplTest {
     @Mock
     private HttpServletRequest request;
 
-    private CreateAdServiceImpl service;
+    private CreateAdServiceImpl createAdService;
 
     private ConcurrentMap<Integer, Annuncio> dbAnnunci;
 
     @BeforeEach
     void setUp() throws Exception {
         DatabaseCore.enableTestMode();
-
-        when(servletConfig.getServletContext()).thenReturn(servletContext);
-        when(servletContext.getServerInfo()).thenReturn("MockServer/1.0");
-        when(request.getHeader("User-Agent")).thenReturn("MockBrowser/1.0");
-        service = new CreateAdServiceImpl();
-        service.init(servletConfig);
-        // Crea un ThreadLocal con la request mock e iniettalo via reflection
-        ThreadLocal<HttpServletRequest> threadLocal = new ThreadLocal<>();
-        threadLocal.set(request);
-        Field field = AbstractRemoteServiceServlet.class
-                .getDeclaredField("perThreadRequest");
-        field.setAccessible(true);
-        field.set(service, threadLocal); // sostituiamo il campo con il nostro ThreadLocal
+        DatabaseCore.close(); 
 
         DB db = DatabaseCore.getDB();
-        dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA)
-                .createOrOpen();
+        ConcurrentMap<String, Utente> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
+        dbUtenti.clear();
+        dbUtenti.put("admin", new Utente("admin", "password"));
+
+        dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
         dbAnnunci.clear();
+
         DatabaseCore.commit();
+
+        createAdService = new CreateAdServiceImpl();
     }
 
     @Test
     void testPubblicaAnnuncioSuccess() {
         Annuncio annuncio = new Annuncio.Builder()
+                .autore("admin")
                 .titolo("Ripetizioni Java")
                 .categoria("Informatica")
                 .skillOfferta("Thread")
                 .controprestazioneCercata("Cucina")
                 .disponibilita("Sabato Mattina")
-                .utenteId("utente123")
                 .build();
-        boolean result = service.pubblicaAnnuncio(annuncio);
+        boolean result = createAdService.pubblicaAnnuncio(annuncio);
         assertTrue(result, "L'annuncio dovrebbe essere pubblicato con successo.");
 
         assertEquals(1, dbAnnunci.size(), "Dimensione non corrispode");
@@ -84,14 +78,14 @@ class CreateAdServiceImplTest {
     @Test
     void pubblicaAnnuncio_CampiObbligatoriVuoti_DeveRifiutareIlSalvataggio() {
         Annuncio annuncioInvalido = new Annuncio.Builder()
+                .autore("admin")
                 .titolo("Ripetizioni Java")
                 .categoria("Informatica")
                 .skillOfferta("")
                 .controprestazioneCercata("")
                 .disponibilita("Sabato Mattina")
-                .utenteId("utente123")
                 .build();
-        boolean result = service.pubblicaAnnuncio(annuncioInvalido);
+        boolean result = createAdService.pubblicaAnnuncio(annuncioInvalido);
 
         assertFalse(result, "Errore di salvataggio");
         assertEquals(0, dbAnnunci.size(), "Un annuncio invalido è stato comunque scritto nel database");

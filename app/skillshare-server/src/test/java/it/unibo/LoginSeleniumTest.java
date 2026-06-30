@@ -82,7 +82,7 @@ public class LoginSeleniumTest {
     }
 
     @Test
-    void clickingLoginNavigatesToHome() {
+    void clickingLoginNavigatesToHomeWithCorrectUsername() {
         WebElement usernameField = driver.findElement(By.id("input-username"));
         WebElement passwordField = driver.findElement(By.id("input-password"));
         WebElement loginButton = driver.findElement(By.id("btn-login"));
@@ -100,6 +100,9 @@ public class LoginSeleniumTest {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement homeTitle = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-home")));
         assertTrue(homeTitle.isDisplayed());
+
+        WebElement lblBenvenuto = driver.findElement(By.id("benvenuto-utente"));
+        assertTrue(lblBenvenuto.getText().equals("Ciao, admin"));
     }
 
     @Test
@@ -157,10 +160,7 @@ public class LoginSeleniumTest {
 
     }
 
-    // -------------------------------------------------------------------------
     // HELPER
-    // -------------------------------------------------------------------------
-    /** Waits until the GWT app has finished bootstrapping (input is clickable). */
     private WebElement waitForApp() {
         return new WebDriverWait(driver, TIMEOUT)
                 .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-login")));

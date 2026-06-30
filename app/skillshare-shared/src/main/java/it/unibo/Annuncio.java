@@ -4,26 +4,34 @@ import java.io.Serializable;
 
 public class Annuncio implements Serializable {
 
+    private String autore;
     private String titolo;
     private String categoria;
     private String skillOfferta;
     private String controprestazioneCercata;
     private String disponibilita;
-    private String utenteId;
 
     public Annuncio() {
     }
 
     private Annuncio(Builder builder) {
+        this.autore = builder.autore;
         this.titolo = builder.titolo;
         this.categoria = builder.categoria;
         this.skillOfferta = builder.skillOfferta;
         this.controprestazioneCercata = builder.controprestazioneCercata;
         this.disponibilita = builder.disponibilita;
-        this.utenteId = builder.utenteId;
     }
 
     // Getter e Setter
+    public String getAutore() {
+        return autore;
+    }
+
+    public void setAutore(String autore) {
+        this.autore = autore;
+    }
+
     public String getTitolo() {
         return titolo;
     }
@@ -64,24 +72,21 @@ public class Annuncio implements Serializable {
         this.disponibilita = disponibilita;
     }
 
-    public String getUtente() {
-        return utenteId;
-    }
-
-    public void setUtente(String utenteId) {
-        this.utenteId = utenteId;
-    }
-
     // Builder
     public static class Builder {
+        private String autore;
         private String titolo;
         private String categoria;
         private String skillOfferta;
         private String controprestazioneCercata;
         private String disponibilita;
-        private String utenteId;
 
         public Builder() {
+        }
+
+        public Builder autore(String autore) {
+            this.autore = autore;
+            return this;
         }
 
         public Builder titolo(String titolo) {
@@ -106,11 +111,6 @@ public class Annuncio implements Serializable {
 
         public Builder disponibilita(String disponibilita) {
             this.disponibilita = disponibilita;
-            return this;
-        }
-
-        public Builder utenteId(String utenteId) {
-            this.utenteId = utenteId;
             return this;
         }
 

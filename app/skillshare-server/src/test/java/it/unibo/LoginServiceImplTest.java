@@ -32,48 +32,37 @@ class LoginServiceImplTest {
     @Mock
     private HttpServletRequest request;
 
-    private LoginServiceImpl service;
+    private LoginServiceImpl loginService;
 
     @BeforeEach
     void setUp() throws Exception {
-        when(servletConfig.getServletContext()).thenReturn(servletContext);
-        when(servletContext.getServerInfo()).thenReturn("MockServer/1.0");
-        when(request.getHeader("User-Agent")).thenReturn("MockBrowser/1.0");
-        service = new LoginServiceImpl();
-        service.init(servletConfig);
-        // Crea un ThreadLocal con la request mock e iniettalo via reflection
-        ThreadLocal<HttpServletRequest> threadLocal = new ThreadLocal<>();
-        threadLocal.set(request);
-        Field field = AbstractRemoteServiceServlet.class
-                .getDeclaredField("perThreadRequest");
-        field.setAccessible(true);
-        field.set(service, threadLocal); // sostituiamo il campo con il nostro ThreadLocal
+        DatabaseCore.enableTestMode();
+        DatabaseCore.close(); 
 
-        // Database e aggiunta di utente test
         DB db = DatabaseCore.getDB();
-        ConcurrentMap<String, String> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.STRING)
-                .createOrOpen();
-        dbUtenti.remove("inesistente");
-        dbUtenti.put("admin", "password");
+        ConcurrentMap<String, Utente> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
+        dbUtenti.clear();
+        dbUtenti.put("admin", new Utente("admin", "password"));
         DatabaseCore.commit();
 
+        loginService = new LoginServiceImpl();
     }
 
     @Test
     void authenticate_validCredentials_shouldReturnUsername() {
-        String usernameRestituito = service.authenticate("admin", "password");
+        String usernameRestituito = loginService.authenticate("admin", "password");
         assertEquals("admin", usernameRestituito);
     }
 
     @Test
     void authenticate_ShouldReturnError_WhenUsernameDoesNotExist() {
-        String result = service.authenticate("inesistente", "password");
+        String result = loginService.authenticate("inesistente", "password");
         assertEquals("Username inesistente", result);
     }
 
     @Test
     void authenticate_ShouldReturnError_WhenPasswordIsIncorrect() {
-        String result = service.authenticate("admin", "password_sbagliata");
+        String result = loginService.authenticate("admin", "password_sbagliata");
         assertEquals("Password errata", result);
     }
 }

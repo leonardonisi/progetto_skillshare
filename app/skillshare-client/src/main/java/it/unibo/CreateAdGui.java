@@ -113,12 +113,12 @@ public class CreateAdGui {
             }
 
             private void pubblica() {
+                String autore = SessionManager.getUtenteLoggato();
                 String titolo = titleField.getText().trim();
                 String categoria = categoryList.getSelectedItemText();
                 String offro = offertSkill.getText().trim();
                 String cerco = searchedSkill.getText().trim();
                 String disponibilita = disponibility.getText().trim();
-                String autore = Cookies.getCookie("username");
 
                 if (autore == null || autore.isEmpty()) {
                     autore = "test";
@@ -129,13 +129,14 @@ public class CreateAdGui {
                     Window.alert("Devi specificare sia cosa offri sia cosa cerchi sia la disponibilità");
                 } else {
                     Annuncio nuovoAnnuncio = new Annuncio.Builder()
+                            .autore(autore)
                             .titolo(titolo)
                             .categoria(categoria)
                             .skillOfferta(offro)
                             .controprestazioneCercata(cerco)
                             .disponibilita(disponibilita)
-                            .utenteId(autore)
                             .build();
+                            
                     createAdService.pubblicaAnnuncio(nuovoAnnuncio, new AsyncCallback<Boolean>() {
                         @Override
                         public void onFailure(Throwable caught) {

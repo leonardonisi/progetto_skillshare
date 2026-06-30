@@ -37,20 +37,49 @@ public class DatabaseCore {
         close(); 
     }
 
+    public static ConcurrentMap<Integer, Annuncio> getMappaAnnunci() {
+        DB db = getDB();
+        return db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+    }
+
+    public static ConcurrentMap<String, Utente> getMappaUtenti() {
+        DB db = getDB();
+        return db.hashMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
+    }
+
+    public static synchronized java.util.concurrent.ConcurrentMap<Integer, RichiestaScambio> getMappaRichieste() {
+        DB db = getDB();
+        return db.hashMap("richieste", org.mapdb.Serializer.INTEGER, org.mapdb.Serializer.JAVA).createOrOpen();
+    }
+
+    public static synchronized int generaNuovoIdRichiesta() {
+        DB db = getDB();
+        org.mapdb.Atomic.Integer idCounter = db.atomicInteger("richiesta_id_counter", 0).createOrOpen();
+        return idCounter.incrementAndGet();
+    }
+
     // inizializza il database con annunci preimpostati
     public static void seedDatabase() {
         DB db = DatabaseCore.getDB();
         ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+
+        ConcurrentMap<String, Utente> dbUtenti = getMappaUtenti();
+        if (dbUtenti.isEmpty()) {
+            Utente admin = new Utente("admin", "password");
+            admin.setBio("Sono l'amministratore del sistema.");
+            dbUtenti.put(admin.getUsername(), admin);
+            DatabaseCore.commit();
+        }
         
         if (dbAnnunci.isEmpty()) {
             for (int i = 1; i <= 10; i++) {
                 Annuncio a = new Annuncio.Builder()
+                    .autore("Mario")
                     .titolo("Skill #" + i)
                     .categoria("Sviluppo Software")
                     .skillOfferta("Java GWT")
                     .controprestazioneCercata("Grafica")
                     .disponibilita("Weekend")
-                    .utenteId("User" + i)
                     .build();
                 dbAnnunci.put(i, a);
             }
