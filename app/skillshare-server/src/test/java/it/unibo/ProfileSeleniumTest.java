@@ -125,6 +125,9 @@ public class ProfileSeleniumTest {
 
         WebElement tagPanel = driver.findElement(By.id("panel-tag-categorie"));
         assertFalse(tagPanel.getText().isEmpty());
+
+        WebElement removeButton = driver.findElement(By.xpath("//div[@id='panel-tag-categorie']//button[text()='X']"));
+        org.junit.jupiter.api.Assertions.assertTrue(removeButton.isDisplayed());
     }
 
     // Verifica che l'etichetta della locazione sia presente con il testo iniziale corretto
