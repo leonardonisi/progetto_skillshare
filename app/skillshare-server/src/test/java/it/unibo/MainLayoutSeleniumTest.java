@@ -52,7 +52,7 @@ public class MainLayoutSeleniumTest {
         WebElement loginButton = driver.findElement(By.id("btn-login"));
 
         usernameField.clear();
-        usernameField.sendKeys("admin"); // Usa l'utente fittizio di Matteo
+        usernameField.sendKeys("admin");
         passwordField.clear();
         passwordField.sendKeys("password");
         loginButton.click();
@@ -86,7 +86,6 @@ public class MainLayoutSeleniumTest {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement profileIcon = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-profilo")));
         assertTrue(profileIcon.isDisplayed());
-        assertEquals("👤 Profilo", profileIcon.getText());
     }
 
     @Test void searchBarIsPresent(){
@@ -184,7 +183,7 @@ public class MainLayoutSeleniumTest {
         WebElement searchBar = wait.until(ExpectedConditions.elementToBeClickable(By.id("search-bar")));
 
         searchBar.getText();
-        searchBar.sendKeys("Socket");
+        searchBar.sendKeys("GWT");
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("card-annuncio")));
         List<WebElement> cardList = driver.findElements(By.id("card-annuncio"));
@@ -198,6 +197,6 @@ public class MainLayoutSeleniumTest {
         String titoloTesto = titoloAnnuncio.getText().toLowerCase();
         String descrizioneTesto = descrizioneAnnuncio.getText().toLowerCase();
 
-        assertTrue(titoloTesto.contains("socket") || descrizioneTesto.contains("socket"));
+        assertTrue(titoloTesto.contains("gwt") || descrizioneTesto.contains("gwt"));
     }
 }

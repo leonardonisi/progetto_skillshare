@@ -4,37 +4,29 @@ import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 import org.mapdb.DB;
 import org.mapdb.Serializer;
 import java.util.concurrent.ConcurrentMap;
+import jakarta.servlet.ServletException;
 
-/**
- * The server side implementation of the RPC service.
- */
 @SuppressWarnings("serial")
 public class LoginServiceImpl extends RemoteServiceServlet implements LoginService {
 
-    private static final DB db = DatabaseCore.getDB();
-    private static final ConcurrentMap<String, String> dbUtenti = db
-            .hashMap("utenti", Serializer.STRING, Serializer.STRING)
-            .createOrOpen();
-
-    static {
-        // Aggiunta di un utente admin di default
-        dbUtenti.put("admin", "password");
-        DatabaseCore.commit();
-    }
-
     public String authenticate(String username, String password) {
-        // Verify that the input is valid.
+        DB db = DatabaseCore.getDB();
+        ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
+
         if (!FieldVerifier.isValidName(username)) {
-            return ("Username non valido");
+            return "Username non valido";
         }
-        if (!dbUtenti.containsKey(username)) {
+
+        Utente utente = dbUtenti.get(username);
+
+        if (utente == null) {
             return "Username inesistente";
         }
-        String passwordCorretta = dbUtenti.get(username);
 
-        if (!passwordCorretta.equals(password)) {
+        if (!utente.getPassword().equals(password)) {
             return "Password errata";
         }
+
         return username;
     }
 }

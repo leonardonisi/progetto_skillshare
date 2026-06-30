@@ -9,20 +9,26 @@ import java.util.List;
 
 public class CreateAdServiceImpl extends RemoteServiceServlet implements CreateAdService {
     private static final DB db = DatabaseCore.getDB();
-    private static final ConcurrentMap<Integer, Annuncio> dbAnnunci = db
-            .hashMap("annunci", Serializer.INTEGER, Serializer.JAVA)
-            .createOrOpen();
+
+    private static final ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
+
+    private static final ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
 
     @Override
     public boolean pubblicaAnnuncio(Annuncio annuncio) {
         if (annuncio == null || annuncio.getTitolo() == null || annuncio.getSkillOfferta() == null
                 || annuncio.getControprestazione() == null || annuncio.getDisponibilita() == null
-                || annuncio.getUtente() == null) {
+                || annuncio.getAutore() == null) {
             return false;
         }
         try {
-            int id = dbAnnunci.size() + 1; // Genera un ID incrementale
-            dbAnnunci.put(id, annuncio); // Imposta l'ID nell'annuncio
+            int id = dbAnnunci.size() + 1;
+            dbAnnunci.put(id, annuncio);
+            Utente autore = dbUtenti.get(annuncio.getAutore());
+
+            autore.getAnnunciPubblicati().add(id);
+            dbUtenti.put(autore.getUsername(), autore);
+
             DatabaseCore.commit();
             return true;
         } catch (Exception e) {
