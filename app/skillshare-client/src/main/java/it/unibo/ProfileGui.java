@@ -208,6 +208,30 @@ public class ProfileGui {
         editButton.getElement().getStyle().setProperty("marginTop", "20px");
         editButton.getElement().getStyle().setProperty("padding", "10px 20px");
 
+        editButton.addClickHandler(event -> {
+            // come prova per ora mettiamo i dati prefissati
+            UserProfile profiloDaSalvare = new UserProfile(
+                "Filker67", 
+                "Biografia iniziale", 
+                "Località iniziale", 
+                "", 
+                categorieSelezionate 
+            );
+
+            // Salvataggio sul database tramite il server
+            profileService.saveProfile(profiloDaSalvare, new AsyncCallback<Void>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    Window.alert("Errore nel salvataggio: " + caught.getMessage());
+                }
+
+                @Override
+                public void onSuccess(Void result) {
+                    Window.alert("Categorie salvate con successo nel database!");
+                }
+            });
+        });
+
         cardPanel.add(title);
         cardPanel.add(avatar);
         cardPanel.add(usernameLabel);
