@@ -27,11 +27,11 @@ import com.google.gwt.user.client.ui.Image;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainLayoutGui extends Composite {
+public class ForYouGui extends Composite {
 
     // Servizi e Contenitori Principali
     private SimplePanel contenitoreDinamico;
-    private final MarketServiceAsync servizio = GWT.create(MarketService.class);
+    private final ForYouServiceAsync servizio = GWT.create(ForYouService.class);
 
     // Componenti della vista Marketplace
     VerticalPanel colonnaSinistra;
@@ -39,23 +39,22 @@ public class MainLayoutGui extends Composite {
 
     // Elementi del dettaglio annuncio che cambieranno dinamicamente
     private String utenteCorrente;
-    private Label titoloDettaglio;
-    private Button btnRichiedi;
-    private Button btnChat;
-    private Label votoDettaglio;
-    private Label lblCategoria;
-    private Label lblDescrizione;
-    private Label lblDispo;
-    private Label lblContro;
+    private Label usernameProfilo;
+    private Label votoProfilo;
     private Image imgProfilo;
-    private List<Annuncio> tuttiGliAnnunci;
+    private Label lblBiografia;
+    private Label lblLocazione;
+
+    //private Button btnRichiedi;
+    //private Button btnChat;
+    private List<Utente> tuttiGliUtenti;
 
     public void mostra() {
         RootPanel.get().clear();
         RootPanel.get().add(this);
     }
 
-    public MainLayoutGui() {
+    public ForYouGui() {
         this.utenteCorrente = SessionManager.getUtenteLoggato();
 
         // inizializzazione layout principale (Header Fisso + Contenitore Dinamico)
@@ -96,7 +95,7 @@ public class MainLayoutGui extends Composite {
         lblMarket.getElement().getStyle().setProperty("fontSize", "18px");
         lblMarket.getElement().setId("nav-market");
 
-        lblMarket.addClickHandler(event -> cambiaVista(creaVistaMarketplace()));
+        lblMarket.addClickHandler(event -> new MainLayoutGui().mostra());
 
         Label lblPerTe = new Label("PER TE");
         lblPerTe.getElement().getStyle().setProperty("cursor", "pointer");
@@ -161,7 +160,7 @@ public class MainLayoutGui extends Composite {
 
         imgProfilo = new Image();
 
-        caricaImmagineProfilo(imgProfilo);
+        caricaImmagineProfilo(imgProfilo, utenteCorrente);
 
         imgProfilo.setPixelSize(40, 40);
         imgProfilo.getElement().getStyle().setProperty("borderRadius", "50%");
@@ -197,7 +196,7 @@ public class MainLayoutGui extends Composite {
         mainContainer.add(header);
         mainContainer.add(contenitoreDinamico);
 
-        cambiaVista(creaVistaMarketplace());
+        cambiaVista(creaVistaForYou());
         initWidget(mainContainer);
     }
 
@@ -207,146 +206,10 @@ public class MainLayoutGui extends Composite {
         contenitoreDinamico.add(nuovaVista);
     }
 
-    // metodo per generare un pannello fittizio con un messaggio (usato per le pagine non ancora implementate)
-    private Widget creaVistaPlaceholder(String messaggio) {
-        VerticalPanel placeholder = new VerticalPanel();
-        placeholder.setWidth("100%");
-        placeholder.setHeight("300px");
-        placeholder.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        placeholder.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-
-        Label lblMessaggio = new Label(messaggio);
-        lblMessaggio.getElement().getStyle().setProperty("fontSize", "20px");
-        lblMessaggio.getElement().getStyle().setProperty("color", "gray");
-
-        placeholder.add(lblMessaggio);
-        return placeholder;
-    }
-
-    private Widget creaVistaMarketplace() {
-        VerticalPanel vistaMarket = new VerticalPanel();
-        vistaMarket.setWidth("80%");
-        vistaMarket.getElement().getStyle().setProperty("margin", "0 auto");
-
-        // Contenitore Filtraggio, Ricerca e Pubblica
-        HorizontalPanel searchBar = new HorizontalPanel();
-        searchBar.setWidth("100%");
-        searchBar.setSpacing(10);
-        searchBar.getElement().getStyle().setProperty("marginBottom", "40px");
-        searchBar.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-
-        // Elenco per filtrare Categorie
-        ListBox tendinaCategorie = new ListBox();
-        tendinaCategorie.setHeight("47px");
-        tendinaCategorie.getElement().setId("tendina-categorie");
-        tendinaCategorie.getElement().getStyle().setProperty("fontSize", "14px");
-        tendinaCategorie.getElement().getStyle().setProperty("padding", "5px");
-        tendinaCategorie.getElement().getStyle().setProperty("cursor", "pointer");
-
-        // aggiunta delle categorie
-        servizio.getCategorie(new AsyncCallback<List<String>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                tendinaCategorie.clear();
-                tendinaCategorie.addItem("Errore caricamento");
-                Window.alert("Impossibile caricare le categorie: " + caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(List<String> result) {
-                tendinaCategorie.clear();
-                tendinaCategorie.addItem("Tutte le Categorie");
-                
-                for (String categoria : result) {
-                    tendinaCategorie.addItem(categoria);
-                }
-            }
-        });
-
-        // logica di filtraggio
-        tendinaCategorie.addChangeHandler(event -> {
-            String categoriaScelta = tendinaCategorie.getSelectedItemText();
-            List<Annuncio> annunciFiltrati = new ArrayList<>();
-
-            if (tuttiGliAnnunci != null) {
-                if (categoriaScelta.equals("Tutte le Categorie") || categoriaScelta.equals("Errore caricamento")) {
-                    annunciFiltrati.addAll(tuttiGliAnnunci);
-                } else {
-                    for (Annuncio a : tuttiGliAnnunci) {
-                        if (a.getCategoria().equals(categoriaScelta)) {
-                            annunciFiltrati.add(a);
-                        }
-                    }
-                }
-                aggiornaVistaAnnunci(annunciFiltrati);
-            }
-        });
-
-        // Divisorio
-        SimplePanel divisorio1 = new SimplePanel();
-        divisorio1.setPixelSize(2, 47);
-        divisorio1.getElement().getStyle().setProperty("backgroundColor", "#000000");
-        divisorio1.getElement().getStyle().setProperty("marginLeft", "5px");
-        divisorio1.getElement().getStyle().setProperty("marginRight", "5px");
-
-        // Barra di Ricerca
-        TextBox searchBox = new TextBox();
-        searchBox.getElement().setPropertyString("placeholder", "Cerca...");
-        searchBox.setWidth("500px");
-        searchBox.setHeight("35px");
-        searchBox.getElement().setId("search-bar");
-        searchBox.getElement().getStyle().setProperty("fontSize", "16px");
-        searchBox.getElement().getStyle().setProperty("padding", "5px 15px");
-
-        // logica di riceca in tempo reale
-        searchBox.addKeyUpHandler(event -> {
-            String ricercaEffettuata = searchBox.getText().trim().toLowerCase();
-            List<Annuncio> annunciFiltrati = new ArrayList<>();
-
-            if (tuttiGliAnnunci != null) {
-                if (ricercaEffettuata.isEmpty()) {
-                    annunciFiltrati.addAll(tuttiGliAnnunci);
-                } else {
-                    for (Annuncio a : tuttiGliAnnunci) {
-                        String titolo = a.getTitolo().toLowerCase();
-                        String descrizione = a.getSkillOfferta().toLowerCase();
-
-                        if (titolo.contains(ricercaEffettuata)|| descrizione.contains(ricercaEffettuata)) {
-                            annunciFiltrati.add(a);
-                        }
-                    }
-                }
-                aggiornaVistaAnnunci(annunciFiltrati);
-            }
-        });
-
-        // Divisorio
-        SimplePanel divisorio2 = new SimplePanel();
-        divisorio2.setPixelSize(2, 47);
-        divisorio2.getElement().getStyle().setProperty("backgroundColor", "#000000");
-        divisorio2.getElement().getStyle().setProperty("marginLeft", "5px");
-        divisorio2.getElement().getStyle().setProperty("marginRight", "5px");
-
-        // Bottone Pubblica
-        Button btnPubblica = new Button("PUBBLICA");
-        btnPubblica.setHeight("47px");
-        btnPubblica.setWidth("180px");
-        btnPubblica.getElement().getStyle().setProperty("fontSize", "14px");
-        btnPubblica.getElement().getStyle().setProperty("cursor", "pointer");
-        btnPubblica.getElement().getStyle().setProperty("fontWeight", "bold");
-        btnPubblica.getElement().getStyle().setProperty("backgroundImage", "none");
-        btnPubblica.getElement().getStyle().setProperty("backgroundColor", "#007BFF");
-        btnPubblica.getElement().getStyle().setProperty("color", "white");
-        btnPubblica.getElement().getStyle().setProperty("border", "none");
-        btnPubblica.getElement().setId("btn-pubblica");
-
-        btnPubblica.addClickHandler(event -> new CreateAdGui().mostra());
-
-        searchBar.add(tendinaCategorie);
-        searchBar.add(divisorio1);
-        searchBar.add(searchBox);
-        searchBar.add(divisorio2);
-        searchBar.add(btnPubblica);
+    private Widget creaVistaForYou() {
+        VerticalPanel vistaForYou = new VerticalPanel();
+        vistaForYou.setWidth("80%");
+        vistaForYou.getElement().getStyle().setProperty("margin", "0 auto");
 
         // Area Contenuto Dinamico
         HorizontalPanel contentArea = new HorizontalPanel();
@@ -366,6 +229,208 @@ public class MainLayoutGui extends Composite {
         colonnaDestra.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
         colonnaDestra.getElement().getStyle().setProperty("minHeight", "380px");
 
+        // Dettaglio Utente
+        // Header dettaglio (Username + Voto)
+        HorizontalPanel headerDettaglioUtente = new HorizontalPanel();
+        headerDettaglioUtente.setWidth("100%");
+        headerDettaglioUtente.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+        headerDettaglioUtente.getElement().getStyle().setProperty("marginBottom", "30px");
+
+        usernameProfilo = new Label("Seleziona un profilo");
+        usernameProfilo.getElement().setId("username-profilo");
+        usernameProfilo.getElement().getStyle().setProperty("fontWeight", "bold");
+        usernameProfilo.getElement().getStyle().setProperty("fontSize", "28px");
+
+        votoProfilo = new Label("");
+        votoProfilo.getElement().getStyle().setProperty("fontSize", "22px");
+        votoProfilo.getElement().getStyle().setProperty("fontWeight", "bold");
+
+        imgProfilo = new Image();
+        imgProfilo.setPixelSize(40, 40);
+        imgProfilo.getElement().getStyle().setProperty("borderRadius", "50%");
+        imgProfilo.getElement().getStyle().setProperty("objectFit", "cover");
+        imgProfilo.getElement().getStyle().setProperty("cursor", "pointer");
+        imgProfilo.getElement().getStyle().setProperty("border", "2px solid #007BFF");
+        imgProfilo.getElement().setId("nav-profilo");
+
+        headerDettaglioUtente.add(usernameProfilo);
+        headerDettaglioUtente.add(votoProfilo);
+        headerDettaglioUtente.add(imgProfilo);
+        
+        // Dettagli Profilo
+        lblBiografia = new Label();
+        lblBiografia.getElement().setId("lbl-biografia");
+        lblBiografia.getElement().getStyle().setProperty("fontSize", "16px");
+        lblBiografia.getElement().getStyle().setProperty("marginBottom", "20px");
+
+        lblLocazione = new Label();
+        lblLocazione.getElement().setId("lbl-descrizione");
+        lblLocazione.getElement().getStyle().setProperty("fontSize", "16px");
+        lblLocazione.getElement().getStyle().setProperty("marginBottom", "20px");
+
+        colonnaDestra.add(headerDettaglioUtente);
+        colonnaDestra.add(lblBiografia);
+        colonnaDestra.add(lblLocazione);
+
+        // Assemblaggio finale dell'area contenuto
+        contentArea.add(colonnaSinistra);
+        contentArea.add(spacer);
+        contentArea.add(colonnaDestra);
+
+        contentArea.setCellWidth(colonnaSinistra, "45%");
+        contentArea.setCellWidth(spacer, "5%");
+        contentArea.setCellWidth(colonnaDestra, "50%");
+
+        // Assemblaggio Pagina Finale
+        vistaForYou.add(contentArea);
+
+        // Avvia il caricamento asincrono dei dati dal database
+        caricaUtentiConsigliati();
+
+        return vistaForYou;
+    }
+
+    private void caricaUtentiConsigliati() {
+        servizio.getUtentiConsigliati(utenteCorrente, new AsyncCallback<List<Utente>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                usernameProfilo.setText("Errore nel caricamento degli annunci.");
+            }
+
+            @Override
+            public void onSuccess(List<Utente> result) {
+                tuttiGliUtenti = result; 
+
+                aggiornaVistaUtenti(tuttiGliUtenti);
+            }
+        });
+    }
+
+    private void aggiornaVistaUtenti(List<Utente> utentiDaMostrare) {
+        colonnaSinistra.clear();
+        
+        if (utentiDaMostrare == null || utentiDaMostrare.isEmpty()) {
+            Label alert = new Label("Nessun utente trovato");
+            alert.getElement().setId("alert-utenti");
+            alert.getElement().getStyle().setProperty("fontSize", "22px");
+            colonnaSinistra.add(alert);
+            return;
+        }
+        
+        for (Utente a : utentiDaMostrare) {
+            colonnaSinistra.add(creaCard(a));
+        }
+    }
+
+    private FocusPanel creaCard(Utente a) {
+        FocusPanel card = new FocusPanel();
+        card.getElement().setId("card-utente");
+        card.setWidth("100%");
+        card.getElement().getStyle().setProperty("border", "1px solid #666");
+        card.getElement().getStyle().setProperty("marginBottom", "15px");
+        card.getElement().getStyle().setProperty("cursor", "pointer");
+        card.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
+        
+        HorizontalPanel cardContent = new HorizontalPanel();
+        cardContent.setWidth("100%");
+        cardContent.setHeight("80px");
+        cardContent.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+        cardContent.getElement().getStyle().setProperty("padding", "0 20px");
+
+        Label lblUsername = new Label(a.getUsername());
+        lblUsername.getElement().getStyle().setProperty("fontSize", "20px");
+
+        Label lblVoto = new Label("4.9");
+        lblVoto.getElement().getStyle().setProperty("fontSize", "22px");
+        lblVoto.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblVoto.getElement().getStyle().setProperty("marginLeft", "15px");
+
+        Image imgCard = new Image();
+        imgCard.setPixelSize(40, 40);
+        imgCard.getElement().getStyle().setProperty("borderRadius", "50%");
+        imgCard.getElement().getStyle().setProperty("objectFit", "cover");
+        imgCard.getElement().getStyle().setProperty("border", "2px solid #007BFF");
+        imgCard.getElement().setId("card-img-profilo");
+        imgCard.getElement().getStyle().setProperty("marginLeft", "15px");
+
+        caricaImmagineProfilo(imgCard, a.getUsername());
+
+        cardContent.add(lblUsername);
+        cardContent.add(lblVoto);
+        cardContent.add(imgCard);
+        
+        cardContent.setCellHorizontalAlignment(lblVoto, HasHorizontalAlignment.ALIGN_RIGHT);
+        cardContent.setCellHorizontalAlignment(imgCard, HasHorizontalAlignment.ALIGN_RIGHT);
+        cardContent.setCellWidth(lblUsername, "100%"); 
+
+        card.add(cardContent);
+
+        card.addClickHandler(event -> mostraDettaglio(a));
+        
+        return card;
+    }
+
+    private void mostraDettaglio(Utente a) {
+        usernameProfilo.setText(a.getUsername());
+        votoProfilo.setText("👤 4.9"); // voto fisso di mockup, da collegare a database
+        caricaImmagineProfilo(imgProfilo, a.getUsername());
+        lblBiografia.setText("BIOGRAFIA: " + a.getBio());
+        lblLocazione.setText("LOCAZIONE: " + a.getLocazione()); 
+
+        //mostraAnnunciUtente();
+    }
+
+    /*private void mostraAnnunciUtente(String username){
+        
+    }*/
+
+    private void caricaImmagineProfilo(Image imgProfilo, String username) {
+        servizio.getUtente(username, new AsyncCallback<Utente>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                imgProfilo.setUrl("images/utente.jpg"); // Fallback in caso di errore
+            }
+
+            @Override
+            public void onSuccess(Utente utenteCompleto) {
+                // Qui hai l'oggetto Utente vero e proprio, quindi puoi usare il metodo!
+                if (utenteCompleto != null && utenteCompleto.getFotoProfiloBase64() != null) {
+                    imgProfilo.setUrl(utenteCompleto.getFotoProfiloBase64());
+                } else {
+                    imgProfilo.setUrl("images/utente.jpg");
+                }
+            }
+        });
+    }
+
+    // metodo per generare un pannello fittizio con un messaggio (usato per le pagine non ancora implementate)
+    private Widget creaVistaPlaceholder(String messaggio) {
+        VerticalPanel placeholder = new VerticalPanel();
+        placeholder.setWidth("100%");
+        placeholder.setHeight("300px");
+        placeholder.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+        placeholder.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+
+        Label lblMessaggio = new Label(messaggio);
+        lblMessaggio.getElement().getStyle().setProperty("fontSize", "20px");
+        lblMessaggio.getElement().getStyle().setProperty("color", "gray");
+
+        placeholder.add(lblMessaggio);
+        return placeholder;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+    /*    // Dettaglio Annuncio
         // Header del dettaglio (Titolo + Voto)
         HorizontalPanel headerDettaglio = new HorizontalPanel();
         headerDettaglio.setWidth("100%");
@@ -377,13 +442,7 @@ public class MainLayoutGui extends Composite {
         titoloDettaglio.getElement().getStyle().setProperty("fontWeight", "bold");
         titoloDettaglio.getElement().getStyle().setProperty("fontSize", "28px");
 
-        votoDettaglio = new Label("");
-        votoDettaglio.getElement().getStyle().setProperty("fontSize", "22px");
-        votoDettaglio.getElement().getStyle().setProperty("fontWeight", "bold");
-
         headerDettaglio.add(titoloDettaglio);
-        headerDettaglio.add(votoDettaglio);
-        headerDettaglio.setCellHorizontalAlignment(votoDettaglio, HasHorizontalAlignment.ALIGN_RIGHT);
 
         // Label Dettaglio dei dettagli strutturali
         lblCategoria = new Label();
@@ -444,118 +503,11 @@ public class MainLayoutGui extends Composite {
         btnContainer.add(btnChat);
 
         // Asseblaggio Colonna Destra
+        colonnaDestra.add()
         colonnaDestra.add(headerDettaglio);
         colonnaDestra.add(lblCategoria);
         colonnaDestra.add(lblDescrizione);
         colonnaDestra.add(lblDispo);
         colonnaDestra.add(lblContro);
         colonnaDestra.add(btnContainer);
-
-        // Assemblaggio finale dell'area contenuto
-        contentArea.add(colonnaSinistra);
-        contentArea.add(spacer);
-        contentArea.add(colonnaDestra);
-
-        contentArea.setCellWidth(colonnaSinistra, "45%");
-        contentArea.setCellWidth(spacer, "5%");
-        contentArea.setCellWidth(colonnaDestra, "50%");
-
-        // Assemblaggio Pagina Finale
-        vistaMarket.add(searchBar);
-        vistaMarket.add(contentArea);
-
-        // Avvia il caricamento asincrono dei dati dal database
-        caricaAnnunci();
-
-        return vistaMarket;
-    }
-
-    private FocusPanel creaCard(Annuncio a) {
-        FocusPanel card = new FocusPanel();
-        card.getElement().setId("card-annuncio");
-        card.setWidth("100%");
-        card.getElement().getStyle().setProperty("border", "1px solid #666");
-        card.getElement().getStyle().setProperty("marginBottom", "15px");
-        card.getElement().getStyle().setProperty("cursor", "pointer");
-        card.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
-        
-        VerticalPanel cardContent = new VerticalPanel();
-        cardContent.setWidth("100%");
-        cardContent.setHeight("80px");
-        cardContent.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        cardContent.getElement().getStyle().setProperty("padding", "0 20px");
-
-        Label lblTitolo = new Label(a.getTitolo());
-        lblTitolo.getElement().getStyle().setProperty("fontSize", "20px");
-
-        cardContent.add(lblTitolo);
-        card.add(cardContent);
-
-        card.addClickHandler(event -> mostraDettaglio(a));
-        
-        return card;
-    }
-
-    private void caricaAnnunci() {
-        servizio.getAnnunci(utenteCorrente, new AsyncCallback<List<Annuncio>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                titoloDettaglio.setText("Errore nel caricamento degli annunci.");
-            }
-
-            @Override
-            public void onSuccess(List<Annuncio> result) {
-                tuttiGliAnnunci = result; 
-
-                aggiornaVistaAnnunci(tuttiGliAnnunci);
-            }
-        });
-    }
-
-    private void aggiornaVistaAnnunci(List<Annuncio> annunciDaMostrare) {
-        colonnaSinistra.clear();
-        
-        if (annunciDaMostrare == null || annunciDaMostrare.isEmpty()) {
-            Label alert = new Label("Nessun annuncio trovato");
-            alert.getElement().setId("alert-filtraggio-categorie");
-            alert.getElement().getStyle().setProperty("fontSize", "22px");
-            colonnaSinistra.add(alert);
-            return;
-        }
-        
-        for (Annuncio a : annunciDaMostrare) {
-            colonnaSinistra.add(creaCard(a));
-        }
-    }
-
-    private void mostraDettaglio(Annuncio a) {
-        titoloDettaglio.setText(a.getTitolo());
-        votoDettaglio.setText("👤 4.9"); // voto fisso di mockup, da collegare a database
-        lblCategoria.setText("CATEGORIA: " + a.getCategoria());
-        lblDescrizione.setText("OFFERTA: " + a.getSkillOfferta()); 
-        lblDispo.setText("DISPONIBILITÀ: " + a.getDisponibilita());
-        lblContro.setText("CONTROPRESTAZIONE: " + a.getControprestazione());
-
-        btnRichiedi.setVisible(true);
-        btnChat.setVisible(true);
-    }
-
-    private void caricaImmagineProfilo(Image imgProfilo) {
-        servizio.getUtente(utenteCorrente, new AsyncCallback<Utente>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                imgProfilo.setUrl("images/utente.jpg"); // Fallback in caso di errore
-            }
-
-            @Override
-            public void onSuccess(Utente utenteCompleto) {
-                // Qui hai l'oggetto Utente vero e proprio, quindi puoi usare il metodo!
-                if (utenteCompleto != null && utenteCompleto.getFotoProfiloBase64() != null) {
-                    imgProfilo.setUrl(utenteCompleto.getFotoProfiloBase64());
-                } else {
-                    imgProfilo.setUrl("images/utente.jpg");
-                }
-            }
-        });
-    }
-}
+    */
