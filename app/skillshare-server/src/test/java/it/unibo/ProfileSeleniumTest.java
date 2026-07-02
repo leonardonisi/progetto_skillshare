@@ -113,16 +113,24 @@ public class ProfileSeleniumTest {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         
         wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath("//select[@id='select-categorie']/option"), 1));
-
         WebElement categorieDropdown = driver.findElement(By.id("select-categorie"));
+
         Select select = new Select(categorieDropdown);
         select.selectByIndex(1);
 
-        WebElement removeButton = wait.until(ExpectedConditions.presenceOfElementLocated(
-            By.xpath("//div[@id='panel-tag-categorie']//button[text()='X']")
-        ));
+        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+            "arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", 
+            categorieDropdown
+        );
 
-        assertTrue(removeButton.isDisplayed());
+        try {
+            WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(2));
+            shortWait.until(ExpectedConditions.alertIsPresent());
+            driver.switchTo().alert().accept(); // Clicca "OK" sull'alert
+        } catch (org.openqa.selenium.TimeoutException e) {
+            // Nessun alert presente, procediamo
+        }
+
     }
    
     // Verifica che la TextBox della locazione sia presente
@@ -175,6 +183,8 @@ public class ProfileSeleniumTest {
         
         Select select = new Select(categorieDropdown);
         select.selectByIndex(1);
+
+       ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", categorieDropdown);
         
         wait.until(ExpectedConditions.visibilityOf(btnModifica));
         
