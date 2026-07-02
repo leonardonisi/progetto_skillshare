@@ -119,6 +119,16 @@ public class DatabaseCore {
             .build();
         dbAnnunci.put(13, skill3);
 
+        Annuncio skill4 = new Annuncio.Builder()
+            .autore("admin")
+            .titolo("Consigli Fantacalcio")
+            .categoria("Sport e Tempo Libero")
+            .skillOfferta("Analisi rose e strategie per l'asta")
+            .disponibilita("Venerdì sera")
+            .controprestazioneCercata("Consigli su configurazione PC")
+            .build();
+        dbAnnunci.put(4, skill4);
+
         DatabaseCore.commit();
 
         seedCategorie(db);
