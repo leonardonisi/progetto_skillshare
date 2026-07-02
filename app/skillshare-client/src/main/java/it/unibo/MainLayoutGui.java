@@ -141,9 +141,9 @@ public class MainLayoutGui extends Composite {
         // Voci del menu
         Label itemSkill = new Label("LE MIE SKILL");
         itemSkill.getElement().getStyle().setProperty("cursor", "pointer");
-
+        itemSkill.getElement().setId("menu-item-le-mie-skill");
         itemSkill.addClickHandler(event -> {
-            cambiaVista(creaVistaPlaceholder("Pagina LE MIE SKILL in costruzione..."));
+            cambiaVista(new SkillsGui());
             menuSkill.hide();
         });
 
