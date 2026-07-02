@@ -105,7 +105,9 @@ public class MainLayoutGui extends Composite {
         lblPerTe.getElement().getStyle().setProperty("marginLeft", "60px");
         lblPerTe.getElement().setId("nav-perte");
 
-        lblPerTe.addClickHandler(event -> new ForYouGui().mostra());
+        lblPerTe.addClickHandler(event -> {
+            cambiaVista(new ForYouGui());
+        });
 
         Label lblChat = new Label("CHAT");
         lblChat.getElement().getStyle().setProperty("cursor", "pointer");
