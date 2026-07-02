@@ -25,6 +25,27 @@
   </servlet-mapping>
 
   <servlet>
+        <servlet-name>skillServiceServlet</servlet-name>
+        <servlet-class>it.unibo.SkillServiceImpl</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>skillServiceServlet</servlet-name>
+        <url-pattern>/app/skillService</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>richiesteServlet</servlet-name>
+        <servlet-class>it.unibo.RichiesteServiceImpl</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>richiesteServlet</servlet-name>
+        <!-- L'URL deve corrispondere al RemoteServiceRelativePath -->
+        <url-pattern>/app/richieste</url-pattern>
+    </servlet-mapping>
+
+  <servlet>
     <servlet-name>marketServlet</servlet-name>
     <servlet-class>it.unibo.MarketServiceImpl</servlet-class>
   </servlet>
@@ -44,7 +65,7 @@
       <url-pattern>/app/createAd</url-pattern> 
     </servlet-mapping>
 
-    <servlet>
+  <servlet>
       <servlet-name>profileServlet</servlet-name>
       <servlet-class>it.unibo.ProfileServiceImpl</servlet-class>
   </servlet>
@@ -52,6 +73,16 @@
   <servlet-mapping>
       <servlet-name>profileServlet</servlet-name>
       <url-pattern>/app/profile</url-pattern> 
+  </servlet-mapping>
+
+  <servlet>
+      <servlet-name>forYouServlet</servlet-name>
+      <servlet-class>it.unibo.ForYouServiceImpl</servlet-class>
+  </servlet>
+    
+  <servlet-mapping>
+      <servlet-name>forYouServlet</servlet-name>
+      <url-pattern>/app/foryou</url-pattern> 
   </servlet-mapping>
 
 	<!-- Default page to serve -->

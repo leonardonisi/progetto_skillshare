@@ -1,18 +1,18 @@
 package it.unibo;
 
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
-
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
 
 /**
  * Gestore centralizzato del database MapDB.
@@ -85,6 +85,51 @@ public class DatabaseCore {
             }
             DatabaseCore.commit();
         }
+
+        // Skill ATTIVA
+        Annuncio skill1 = new Annuncio.Builder()
+            .autore("admin")
+            .titolo("Cucina Pollo")
+            .categoria("Cucina")
+            .skillOfferta("Preparazione ricetta base")
+            .controprestazioneCercata("Lezioni di chitarra")
+            .disponibilita("Sabato e Domenica")
+            .build();
+        dbAnnunci.put(11, skill1);
+
+        // Skill ACCETTATA
+        Annuncio skill2 = new Annuncio.Builder()
+            .autore("admin")
+            .titolo("Programmazione Java")
+            .categoria("Sviluppo Software")
+            .skillOfferta("Spiegazione concetti OOP")
+            .controprestazioneCercata("Ripetizioni di matematica")
+            .disponibilita("Lunedì pomeriggio")
+            .build();
+        dbAnnunci.put(12, skill2);
+
+        // Skill CONCLUSA
+        Annuncio skill3 = new Annuncio.Builder()
+            .autore("admin")
+            .titolo("Allenamento Tennis")
+            .categoria("Sport") 
+            .skillOfferta("Palleggio e tecnica")
+            .controprestazioneCercata("Preparazione atletica")
+            .disponibilita("Giovedì sera")
+            .build();
+        dbAnnunci.put(13, skill3);
+
+        Annuncio skill4 = new Annuncio.Builder()
+            .autore("admin")
+            .titolo("Consigli Fantacalcio")
+            .categoria("Sport e Tempo Libero")
+            .skillOfferta("Analisi rose e strategie per l'asta")
+            .disponibilita("Venerdì sera")
+            .controprestazioneCercata("Consigli su configurazione PC")
+            .build();
+        dbAnnunci.put(4, skill4);
+
+        DatabaseCore.commit();
 
         seedCategorie(db);
     }
