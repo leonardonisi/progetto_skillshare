@@ -105,7 +105,7 @@ public class MainLayoutGui extends Composite {
         lblPerTe.getElement().getStyle().setProperty("marginLeft", "60px");
         lblPerTe.getElement().setId("nav-perte");
 
-        lblPerTe.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina PER TE in costruzione...")));
+        lblPerTe.addClickHandler(event -> new ForYouGui().mostra());
 
         Label lblChat = new Label("CHAT");
         lblChat.getElement().getStyle().setProperty("cursor", "pointer");
@@ -186,7 +186,7 @@ public class MainLayoutGui extends Composite {
         header.add(navLinks);
         header.add(imgProfilo);
 
-        header.setCellWidth(logoLabel, "30%");
+        header.setCellWidth(logoBenvenuto, "30%");
         header.setCellWidth(navLinks, "50%");
         header.setCellHorizontalAlignment(navLinks, HasHorizontalAlignment.ALIGN_CENTER);
 
@@ -532,7 +532,7 @@ public class MainLayoutGui extends Composite {
         titoloDettaglio.setText(a.getTitolo());
         votoDettaglio.setText("👤 4.9"); // voto fisso di mockup, da collegare a database
         lblCategoria.setText("CATEGORIA: " + a.getCategoria());
-        lblDescrizione.setText("OFFERTA: " + a.getSkillOfferta()); 
+        lblDescrizione.setText("DESCRIZIONE: " + a.getSkillOfferta()); 
         lblDispo.setText("DISPONIBILITÀ: " + a.getDisponibilita());
         lblContro.setText("CONTROPRESTAZIONE: " + a.getControprestazione());
 

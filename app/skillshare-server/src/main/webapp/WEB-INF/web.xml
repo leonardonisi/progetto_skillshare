@@ -65,7 +65,7 @@
       <url-pattern>/app/createAd</url-pattern> 
     </servlet-mapping>
 
-    <servlet>
+  <servlet>
       <servlet-name>profileServlet</servlet-name>
       <servlet-class>it.unibo.ProfileServiceImpl</servlet-class>
   </servlet>
@@ -73,6 +73,16 @@
   <servlet-mapping>
       <servlet-name>profileServlet</servlet-name>
       <url-pattern>/app/profile</url-pattern> 
+  </servlet-mapping>
+
+  <servlet>
+      <servlet-name>forYouServlet</servlet-name>
+      <servlet-class>it.unibo.ForYouServiceImpl</servlet-class>
+  </servlet>
+    
+  <servlet-mapping>
+      <servlet-name>forYouServlet</servlet-name>
+      <url-pattern>/app/foryou</url-pattern> 
   </servlet-mapping>
 
 	<!-- Default page to serve -->
