@@ -11,6 +11,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.Select;
 
 import java.time.Duration;
 
@@ -69,14 +70,6 @@ public class ProfileSeleniumTest {
         assertEquals("IL MIO PROFILO", titleElement.getText());
     }
 
-    //verifica che il bottone "MODIFICA PROFILO" sia presente e visibile
-    @Test
-    void editButtonIsPresent() {
-        WebElement editButton = driver.findElement(By.id("btn-modifica"));
-        assertTrue(editButton.isDisplayed());
-        assertEquals("MODIFICA PROFILO", editButton.getText());
-    }
-
     //verifica che la sezione foto del profilo sia presente e visibile
     @Test
     void avatarIsPresent() {
@@ -84,17 +77,17 @@ public class ProfileSeleniumTest {
         assertTrue(avatar.isDisplayed());
     }
 
-    //verifica che le informazioni dell'utente (username e biografia) siano presenti e visibili
+    //verifica che le TextBox dell'utente siano presenti e visibili
     @Test
-    void userInfoIsPresent() {
-        WebElement username = driver.findElement(By.id("lbl-username"));
-        WebElement bio = driver.findElement(By.id("lbl-bio"));
+    void userInfoIsPresentAndEditable() {
+        WebElement usernameBox = driver.findElement(By.id("txt-username"));
+        WebElement bioArea = driver.findElement(By.id("txt-bio"));
         
-        assertTrue(username.isDisplayed());
-        assertTrue(bio.isDisplayed());
+        assertTrue(usernameBox.isDisplayed());
+        assertTrue(bioArea.isDisplayed());
         
-        assertTrue(username.getText().contains("Username:"));
-        assertTrue(bio.getText().contains("Biografia:"));
+        assertTrue(usernameBox.getAttribute("value").length() > 0);
+        assertTrue(bioArea.getAttribute("value").length() > 0);
     }
 
     // Controlla l'esistenza e la visibilità del menu a tendina per le categorie
@@ -118,24 +111,22 @@ public class ProfileSeleniumTest {
     @Test
     void selectingCategoryAddsTag() {
         WebElement categorieDropdown = driver.findElement(By.id("select-categorie"));
-        
-        org.openqa.selenium.support.ui.Select select = new org.openqa.selenium.support.ui.Select(categorieDropdown);
-        
+        Select select = new Select(categorieDropdown);
         select.selectByIndex(1);
 
         WebElement tagPanel = driver.findElement(By.id("panel-tag-categorie"));
         assertFalse(tagPanel.getText().isEmpty());
 
         WebElement removeButton = driver.findElement(By.xpath("//div[@id='panel-tag-categorie']//button[text()='X']"));
-        org.junit.jupiter.api.Assertions.assertTrue(removeButton.isDisplayed());
+        assertTrue(removeButton.isDisplayed());
     }
 
-    // Verifica che l'etichetta della locazione sia presente con il testo iniziale corretto
+    // Verifica che la TextBox della locazione sia presente
     @Test
-    void locationLabelIsPresent() {
-        WebElement locazioneLabel = driver.findElement(By.id("lbl-locazione"));
-        assertTrue(locazioneLabel.isDisplayed());
-        assertTrue(locazioneLabel.getText().contains("Locazione:"));
+    void locationBoxIsPresent() {
+        WebElement locazioneBox = driver.findElement(By.id("txt-locazione"));
+        assertTrue(locazioneBox.isDisplayed());
+        assertTrue(locazioneBox.getAttribute("value").length() > 0);
     }
 
     //verifica che il bottone "Torna alla Home" sia presente e funzioni correttamente
@@ -148,5 +139,35 @@ public class ProfileSeleniumTest {
         WebElement titoloHome = new WebDriverWait(driver, TIMEOUT)
                 .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-home")));
         assertTrue(titoloHome.isDisplayed());
+    }
+
+    // Verifica che il bottone Salva sia nascosto all'apertura del profilo
+    @Test
+    void saveButtonIsHiddenInitially() {
+        WebElement btnModifica = driver.findElement(By.id("btn-modifica"));
+        assertFalse(btnModifica.isDisplayed(), "Il bottone Salva deve essere invisibile finché non ci sono modifiche.");
+    }
+
+    // Verifica la comparsa del bottone Salva digitando testo
+    @Test
+    void saveButtonAppearsWhenTyping() {
+        WebElement btnModifica = driver.findElement(By.id("btn-modifica"));
+        WebElement txtBio = driver.findElement(By.id("txt-bio"));
+        
+        txtBio.sendKeys(" Test"); // Simula la digitazione
+        
+        assertTrue(btnModifica.isDisplayed(), "Il bottone Salva deve apparire dopo aver digitato qualcosa.");
+    }
+
+    // Verifica la comparsa del bottone Salva aggiungendo una categoria
+    @Test
+    void saveButtonAppearsWhenCategoryChanged() {
+        WebElement btnModifica = driver.findElement(By.id("btn-modifica"));
+        WebElement categorieDropdown = driver.findElement(By.id("select-categorie"));
+        
+        Select select = new Select(categorieDropdown);
+        select.selectByIndex(1);
+        
+        assertTrue(btnModifica.isDisplayed(), "Il bottone Salva deve apparire dopo aver aggiunto una categoria.");
     }
 }

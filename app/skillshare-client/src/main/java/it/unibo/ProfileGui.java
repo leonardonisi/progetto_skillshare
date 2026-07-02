@@ -3,6 +3,8 @@ package it.unibo;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
@@ -13,6 +15,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TextArea;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +29,13 @@ public class ProfileGui {
 
     public void mostra() {
         RootPanel.get().clear();
+
+         // Bottone salva modifiche
+        final Button editButton = new Button("SALVA MODIFICHE");
+        editButton.getElement().setId("btn-modifica");
+        editButton.getElement().getStyle().setProperty("marginTop", "20px");
+        editButton.getElement().getStyle().setProperty("padding", "10px 20px");
+        editButton.setVisible(false);//finchè non ci sono modifiche non è visibile
 
         // Sfondo generale della pagina
         VerticalPanel pageBackground = new VerticalPanel();
@@ -39,9 +50,8 @@ public class ProfileGui {
         btnHome.getElement().getStyle().setProperty("padding", "6px 12px");
         btnHome.getElement().getStyle().setProperty("cursor", "pointer");
 
-        btnHome.addClickHandler(event -> {
-            new MainLayoutGui().mostra();
-        });
+        btnHome.addClickHandler(event -> {new MainLayoutGui().mostra();});
+
         pageBackground.add(btnHome);
         pageBackground.setCellHorizontalAlignment(btnHome, HasHorizontalAlignment.ALIGN_LEFT);
 
@@ -75,33 +85,52 @@ public class ProfileGui {
         avatar.getElement().getStyle().setProperty("margin", "0 auto");
 
         // Username
-        Label usernameLabel = new Label("Username: Filker67");
-        usernameLabel.getElement().setId("lbl-username");
-        usernameLabel.getElement().getStyle().setProperty("fontWeight", "bold");
-        usernameLabel.getElement().getStyle().setProperty("fontSize", "18px");
+        Label usernameTitle = new Label("Nome Utente:");
+        usernameTitle.getElement().getStyle().setProperty("fontWeight", "bold");
+
+        final TextBox usernameBox = new TextBox();
+        usernameBox.getElement().setId("txt-username");
+        usernameBox.setText("Filker67"); // Nome provissorio, verrò rimosso più tardi
+        usernameBox.setWidth("200px");
+        usernameBox.getElement().getStyle().setProperty("textAlign", "center");
+
+        usernameBox.addKeyUpHandler(event -> editButton.setVisible(true));
 
         HorizontalPanel bodyPanel = new HorizontalPanel();
         bodyPanel.setWidth("100%");
         bodyPanel.setSpacing(15);
-        bodyPanel.getElement().getStyle().setProperty("marginTop", "20px");
+        bodyPanel.getElement().getStyle().setProperty("marginTop", "0px");
 
         // Bio e Locazione
         VerticalPanel leftPanel = new VerticalPanel();
         leftPanel.setWidth("280px");
         leftPanel.setSpacing(10);
 
-        Label bioLabel = new Label(
-                "Biografia: Ciao, sono un nuovo utente di SkillShare e voglio imparare a programmare in Python e cucinare il pollo!");
-        bioLabel.getElement().setId("lbl-bio");
-        bioLabel.getElement().getStyle().setProperty("fontStyle", "italic");
-        bioLabel.getElement().getStyle().setColor("#555");
+        Label bioTitle = new Label("Biografia:");
+        bioTitle.getElement().getStyle().setProperty("fontWeight", "bold");
+        
+        final TextArea bioArea = new TextArea();
+        bioArea.getElement().setId("txt-bio");
+        bioArea.setText("Ciao, sono un nuovo utente di SkillShare e voglio imparare a programmare in Python e cucinare il pollo!");
+        bioArea.setWidth("100%");
+        bioArea.setVisibleLines(5);
 
-        Label locazioneLabel = new Label("Locazione: Cesena, FC (Italia)");
-        locazioneLabel.getElement().setId("lbl-locazione");
-        locazioneLabel.getElement().getStyle().setColor("#777");
+        bioArea.addKeyUpHandler(event -> editButton.setVisible(true));
 
-        leftPanel.add(bioLabel);
-        leftPanel.add(locazioneLabel);
+        Label locazioneTitle = new Label("Località:");
+        locazioneTitle.getElement().getStyle().setProperty("fontWeight", "bold");
+        
+        final TextBox locazioneBox = new TextBox();
+        locazioneBox.getElement().setId("txt-locazione");
+        locazioneBox.setText("Cesena, FC (Italia)");
+        locazioneBox.setWidth("100%");
+
+        locazioneBox.addKeyUpHandler(event -> editButton.setVisible(true));
+
+        leftPanel.add(bioTitle);
+        leftPanel.add(bioArea);
+        leftPanel.add(locazioneTitle);
+        leftPanel.add(locazioneBox);
 
         // Categorie a lato
         VerticalPanel rightPanel = new VerticalPanel();
@@ -157,6 +186,8 @@ public class ProfileGui {
                         // Aggiunge alla lista di controllo
                         categorieSelezionate.add(scelta);
 
+                        editButton.setVisible(true);
+
                         // Creiamo un pannello orizzontale per tenere insieme il testo e la 'X'
                         final HorizontalPanel tagContainer = new HorizontalPanel();
                         tagContainer.setWidth("100%");
@@ -180,7 +211,10 @@ public class ProfileGui {
                         removeBtn.getElement().getStyle().setProperty("fontWeight", "bold");
 
                         // Rimozione
-                        removeBtn.addClickHandler(e -> {categorieSelezionate.remove(scelta); tagPanel.remove(tagContainer);});
+                        removeBtn.addClickHandler(e -> {categorieSelezionate.remove(scelta); 
+                            tagPanel.remove(tagContainer);
+                            editButton.setVisible(true);
+                        });
 
                         // Assembliamo il tag visivo
                         tagContainer.add(tagTesto);
@@ -202,20 +236,13 @@ public class ProfileGui {
         bodyPanel.add(leftPanel);
         bodyPanel.add(rightPanel);
 
-        // Bottone Modifica
-        final Button editButton = new Button("MODIFICA PROFILO");
-        editButton.getElement().setId("btn-modifica");
-        editButton.getElement().getStyle().setProperty("marginTop", "20px");
-        editButton.getElement().getStyle().setProperty("padding", "10px 20px");
-
         editButton.addClickHandler(event -> {
-            // come prova per ora mettiamo i dati prefissati
             UserProfile profiloDaSalvare = new UserProfile(
-                "Filker67", 
-                "Biografia iniziale", 
-                "Località iniziale", 
-                "", 
-                categorieSelezionate 
+                usernameBox.getText(),       // Legge l'username modificato
+                bioArea.getText(),           // Legge la nuova biografia
+                locazioneBox.getText(),      // Legge la nuova località
+                "",                          // Foto (da implementare in futuro)
+                categorieSelezionate         // Lista aggiornata dei tag scelti
             );
 
             // Salvataggio sul database tramite il server
@@ -228,13 +255,16 @@ public class ProfileGui {
                 @Override
                 public void onSuccess(Void result) {
                     Window.alert("Categorie salvate con successo nel database!");
+
+                    editButton.setVisible(false);
                 }
             });
         });
 
         cardPanel.add(title);
         cardPanel.add(avatar);
-        cardPanel.add(usernameLabel);
+        cardPanel.add(usernameTitle);
+        cardPanel.add(usernameBox);
         cardPanel.add(bodyPanel);
         cardPanel.add(editButton);
 
