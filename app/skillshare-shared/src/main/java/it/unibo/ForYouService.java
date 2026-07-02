@@ -9,5 +9,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface ForYouService extends RemoteService {
     List<Utente> getUtentiConsigliati(String usernameCorrente) throws IllegalArgumentException;
 
+    List<Annuncio> getAnnunciOrdinati(String utenteCorrente, String utenteAnnunci);
+
     Utente getUtente(String username);
 }

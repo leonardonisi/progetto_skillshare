@@ -532,7 +532,7 @@ public class MainLayoutGui extends Composite {
         titoloDettaglio.setText(a.getTitolo());
         votoDettaglio.setText("👤 4.9"); // voto fisso di mockup, da collegare a database
         lblCategoria.setText("CATEGORIA: " + a.getCategoria());
-        lblDescrizione.setText("OFFERTA: " + a.getSkillOfferta()); 
+        lblDescrizione.setText("DESCRIZIONE: " + a.getSkillOfferta()); 
         lblDispo.setText("DISPONIBILITÀ: " + a.getDisponibilita());
         lblContro.setText("CONTROPRESTAZIONE: " + a.getControprestazione());
 

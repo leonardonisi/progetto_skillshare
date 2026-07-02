@@ -36,6 +36,8 @@ public class ForYouGui extends Composite {
     // Componenti della vista Marketplace
     VerticalPanel colonnaSinistra;
     VerticalPanel colonnaDestra;
+    VerticalPanel dettaglioUtente;
+    VerticalPanel dettaglioAnnunciUtente;
 
     // Elementi del dettaglio annuncio che cambieranno dinamicamente
     private String utenteCorrente;
@@ -44,10 +46,12 @@ public class ForYouGui extends Composite {
     private Image imgProfilo;
     private Label lblBiografia;
     private Label lblLocazione;
+    private Label alertAnnunci;
 
     //private Button btnRichiedi;
     //private Button btnChat;
     private List<Utente> tuttiGliUtenti;
+    private List<Annuncio> annunciUtenteOrdinati;
 
     public void mostra() {
         RootPanel.get().clear();
@@ -224,10 +228,13 @@ public class ForYouGui extends Composite {
 
         colonnaDestra = new VerticalPanel();
         colonnaDestra.setWidth("100%");
-        colonnaDestra.getElement().getStyle().setProperty("border", "1px solid #666");
-        colonnaDestra.getElement().getStyle().setProperty("padding", "30px");
-        colonnaDestra.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
-        colonnaDestra.getElement().getStyle().setProperty("minHeight", "380px");
+
+        dettaglioUtente = new VerticalPanel();
+        dettaglioUtente.setWidth("100%");
+        dettaglioUtente.getElement().getStyle().setProperty("border", "1px solid #666");
+        dettaglioUtente.getElement().getStyle().setProperty("padding", "30px");
+        dettaglioUtente.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
+        dettaglioUtente.getElement().getStyle().setProperty("minHeight", "200px");
 
         // Dettaglio Utente
         // Header dettaglio (Username + Voto)
@@ -249,13 +256,18 @@ public class ForYouGui extends Composite {
         imgProfilo.setPixelSize(40, 40);
         imgProfilo.getElement().getStyle().setProperty("borderRadius", "50%");
         imgProfilo.getElement().getStyle().setProperty("objectFit", "cover");
-        imgProfilo.getElement().getStyle().setProperty("cursor", "pointer");
         imgProfilo.getElement().getStyle().setProperty("border", "2px solid #007BFF");
+        imgProfilo.getElement().getStyle().setProperty("marginLeft", "15px");
         imgProfilo.getElement().setId("nav-profilo");
+        imgProfilo.setVisible(false);
 
         headerDettaglioUtente.add(usernameProfilo);
         headerDettaglioUtente.add(votoProfilo);
         headerDettaglioUtente.add(imgProfilo);
+
+        headerDettaglioUtente.setCellHorizontalAlignment(votoProfilo, HasHorizontalAlignment.ALIGN_RIGHT);
+        headerDettaglioUtente.setCellHorizontalAlignment(imgProfilo, HasHorizontalAlignment.ALIGN_RIGHT);
+        headerDettaglioUtente.setCellWidth(usernameProfilo, "100%");
         
         // Dettagli Profilo
         lblBiografia = new Label();
@@ -268,9 +280,25 @@ public class ForYouGui extends Composite {
         lblLocazione.getElement().getStyle().setProperty("fontSize", "16px");
         lblLocazione.getElement().getStyle().setProperty("marginBottom", "20px");
 
-        colonnaDestra.add(headerDettaglioUtente);
-        colonnaDestra.add(lblBiografia);
-        colonnaDestra.add(lblLocazione);
+        dettaglioUtente.add(headerDettaglioUtente);
+        dettaglioUtente.add(lblBiografia);
+        dettaglioUtente.add(lblLocazione);
+
+        dettaglioAnnunciUtente = new VerticalPanel();
+        dettaglioAnnunciUtente.setWidth("100%");
+        dettaglioAnnunciUtente.getElement().getStyle().setProperty("minHeight", "200px");
+
+        dettaglioAnnunciUtente.setVisible(false);
+
+        alertAnnunci = new Label();
+        alertAnnunci.getElement().setId("alert-annunci");
+        alertAnnunci.getElement().getStyle().setProperty("marginTop", "15px");
+        alertAnnunci.getElement().getStyle().setProperty("marginLeft", "20px");
+        alertAnnunci.getElement().getStyle().setProperty("fontWeight", "bold");
+        alertAnnunci.getElement().getStyle().setProperty("fontSize", "28px");
+
+        colonnaDestra.add(dettaglioUtente);
+        colonnaDestra.add(dettaglioAnnunciUtente);
 
         // Assemblaggio finale dell'area contenuto
         contentArea.add(colonnaSinistra);
@@ -294,7 +322,7 @@ public class ForYouGui extends Composite {
         servizio.getUtentiConsigliati(utenteCorrente, new AsyncCallback<List<Utente>>() {
             @Override
             public void onFailure(Throwable caught) {
-                usernameProfilo.setText("Errore nel caricamento degli annunci.");
+                usernameProfilo.setText("Errore nel caricamento degli utenti.");
             }
 
             @Override
@@ -308,6 +336,13 @@ public class ForYouGui extends Composite {
 
     private void aggiornaVistaUtenti(List<Utente> utentiDaMostrare) {
         colonnaSinistra.clear();
+
+        Label messaggio = new Label("Utenti Consigliati:");
+        messaggio.getElement().getStyle().setProperty("fontWeight", "bold");
+        messaggio.getElement().getStyle().setProperty("fontSize", "28px");
+        messaggio.getElement().getStyle().setProperty("marginBottom", "15px");
+
+        colonnaSinistra.add(messaggio);
         
         if (utentiDaMostrare == null || utentiDaMostrare.isEmpty()) {
             Label alert = new Label("Nessun utente trovato");
@@ -318,17 +353,16 @@ public class ForYouGui extends Composite {
         }
         
         for (Utente a : utentiDaMostrare) {
-            colonnaSinistra.add(creaCard(a));
+            colonnaSinistra.add(creaCardUtente(a));
         }
     }
 
-    private FocusPanel creaCard(Utente a) {
+    private FocusPanel creaCardUtente(Utente a) {
         FocusPanel card = new FocusPanel();
         card.getElement().setId("card-utente");
         card.setWidth("100%");
         card.getElement().getStyle().setProperty("border", "1px solid #666");
         card.getElement().getStyle().setProperty("marginBottom", "15px");
-        card.getElement().getStyle().setProperty("cursor", "pointer");
         card.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
         
         HorizontalPanel cardContent = new HorizontalPanel();
@@ -338,6 +372,7 @@ public class ForYouGui extends Composite {
         cardContent.getElement().getStyle().setProperty("padding", "0 20px");
 
         Label lblUsername = new Label(a.getUsername());
+        lblUsername.getElement().setId("username-card-utente");
         lblUsername.getElement().getStyle().setProperty("fontSize", "20px");
 
         Label lblVoto = new Label("4.9");
@@ -365,24 +400,136 @@ public class ForYouGui extends Composite {
 
         card.add(cardContent);
 
-        card.addClickHandler(event -> mostraDettaglio(a));
+        card.addClickHandler(event -> {
+            mostraDettaglio(a);
+            caricaAnnunciOrdinati(a.getUsername());
+        });
         
         return card;
     }
 
     private void mostraDettaglio(Utente a) {
+        dettaglioAnnunciUtente.clear();
+
         usernameProfilo.setText(a.getUsername());
-        votoProfilo.setText("👤 4.9"); // voto fisso di mockup, da collegare a database
+        votoProfilo.setText("4.9"); // voto fisso di mockup, da collegare a database
         caricaImmagineProfilo(imgProfilo, a.getUsername());
+        imgProfilo.setVisible(true);
         lblBiografia.setText("BIOGRAFIA: " + a.getBio());
         lblLocazione.setText("LOCAZIONE: " + a.getLocazione()); 
-
-        //mostraAnnunciUtente();
     }
 
-    /*private void mostraAnnunciUtente(String username){
+    private void caricaAnnunciOrdinati(String username){
+        dettaglioAnnunciUtente.setVisible(true);
+
+        servizio.getAnnunciOrdinati(utenteCorrente, username, new AsyncCallback<List<Annuncio>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                alertAnnunci.setText("Errore nel caricamento degli annunci.");
+            }
+
+            @Override
+            public void onSuccess(List<Annuncio> result) {
+                annunciUtenteOrdinati = result; 
+
+                aggiornaVistaAnnunci(annunciUtenteOrdinati);
+            }
+        });
+    }
+
+    private void aggiornaVistaAnnunci(List<Annuncio> annunci){
+        if (annunci == null || annunci.isEmpty()) {
+            alertAnnunci.setText("Nessun annuncio trovato");
+            dettaglioAnnunciUtente.add(alertAnnunci);
+            return;
+        }
         
-    }*/
+        for (Annuncio a : annunci) {
+            dettaglioAnnunciUtente.add(creaCardAnnuncio(a));
+        }
+    }
+
+    private VerticalPanel creaCardAnnuncio(Annuncio a) {
+        // Dettaglio Annuncio
+        VerticalPanel cardAnnuncio = new VerticalPanel();
+        cardAnnuncio.getElement().setId("card-utente");
+        cardAnnuncio.setWidth("100%");
+        cardAnnuncio.getElement().getStyle().setProperty("border", "1px solid #666");
+        cardAnnuncio.getElement().getStyle().setProperty("marginTop", "15px");
+        cardAnnuncio.getElement().getStyle().setProperty("cursor", "pointer");
+        cardAnnuncio.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
+
+        Label titoloDettaglio = new Label(a.getTitolo());
+        titoloDettaglio.getElement().setId("lbl-titolo");
+        titoloDettaglio.getElement().getStyle().setProperty("fontWeight", "bold");
+        titoloDettaglio.getElement().getStyle().setProperty("fontSize", "28px");
+
+        // Label Dettaglio dei dettagli strutturali
+        Label lblCategoria = new Label("CATEGORIA: " + a.getCategoria());
+        lblCategoria.getElement().setId("lbl-categoria");
+        lblCategoria.getElement().getStyle().setProperty("fontSize", "16px");
+        lblCategoria.getElement().getStyle().setProperty("marginBottom", "20px");
+
+        Label lblDescrizione = new Label("DESCRIZIONE: " + a.getSkillOfferta());
+        lblDescrizione.getElement().setId("lbl-descrizione");
+        lblDescrizione.getElement().getStyle().setProperty("fontSize", "16px");
+        lblDescrizione.getElement().getStyle().setProperty("marginBottom", "20px");
+
+        Label lblDispo = new Label("DISPONIBILITÀ: " + a.getDisponibilita());
+        lblDispo.getElement().getStyle().setProperty("fontSize", "16px");
+        lblDispo.getElement().getStyle().setProperty("marginBottom", "20px");
+
+        Label lblContro = new Label("CONTROPRESTAZIONE: " + a.getControprestazione());
+        lblContro.getElement().getStyle().setProperty("fontSize", "16px");
+        lblContro.getElement().getStyle().setProperty("marginBottom", "40px");
+
+        //Contenitore Bottoni Richiedi e Chat
+        FlowPanel btnContainer = new FlowPanel();
+        btnContainer.setWidth("100%");
+        btnContainer.getElement().getStyle().setProperty("display", "flex");
+        btnContainer.getElement().getStyle().setProperty("justifyContent", "flex-end");
+
+        // Bottone Dettaglio Richiedi
+        Button btnRichiedi = new Button("RICHIEDI");
+        btnRichiedi.setHeight("40px");
+        btnRichiedi.setWidth("130px");
+        btnRichiedi.getElement().getStyle().setProperty("fontSize", "14px");
+        btnRichiedi.getElement().getStyle().setProperty("cursor", "pointer");
+        btnRichiedi.getElement().getStyle().setProperty("fontWeight", "bold");
+        btnRichiedi.getElement().getStyle().setProperty("background", "#333333");
+        btnRichiedi.getElement().getStyle().setProperty("color", "white");
+        btnRichiedi.getElement().getStyle().setProperty("border", "none");
+        btnRichiedi.getElement().getStyle().setProperty("marginRight", "10px");
+
+        btnRichiedi.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina RICHIESTA SCAMBIO in costruzione...")));
+
+        // Bottone Dettaglio Chat
+        Button btnChat = new Button("💬");
+        btnChat.setHeight("40px");
+        btnChat.setWidth("40px");
+        btnChat.getElement().getStyle().setProperty("backgroundImage", "none");
+        btnChat.getElement().getStyle().setProperty("backgroundColor", "#007BFF");
+        btnChat.getElement().getStyle().setProperty("color", "white");
+        btnChat.getElement().getStyle().setProperty("border", "none");
+        btnChat.getElement().getStyle().setProperty("cursor", "pointer");
+        btnChat.getElement().getStyle().setProperty("fontSize", "20px");
+
+        btnChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
+
+        // Assemblaggio Contenitore Bottoni
+        btnContainer.add(btnRichiedi);
+        btnContainer.add(btnChat);
+
+        // Asseblaggio Colonna Destra
+        cardAnnuncio.add(titoloDettaglio);
+        cardAnnuncio.add(lblCategoria);
+        cardAnnuncio.add(lblDescrizione);
+        cardAnnuncio.add(lblDispo);
+        cardAnnuncio.add(lblContro);
+        cardAnnuncio.add(btnContainer);
+
+        return cardAnnuncio;
+    }
 
     private void caricaImmagineProfilo(Image imgProfilo, String username) {
         servizio.getUtente(username, new AsyncCallback<Utente>() {
@@ -419,95 +566,3 @@ public class ForYouGui extends Composite {
         return placeholder;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-    /*    // Dettaglio Annuncio
-        // Header del dettaglio (Titolo + Voto)
-        HorizontalPanel headerDettaglio = new HorizontalPanel();
-        headerDettaglio.setWidth("100%");
-        headerDettaglio.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        headerDettaglio.getElement().getStyle().setProperty("marginBottom", "30px");
-
-        titoloDettaglio = new Label("Seleziona un annuncio");
-        titoloDettaglio.getElement().setId("lbl-titolo");
-        titoloDettaglio.getElement().getStyle().setProperty("fontWeight", "bold");
-        titoloDettaglio.getElement().getStyle().setProperty("fontSize", "28px");
-
-        headerDettaglio.add(titoloDettaglio);
-
-        // Label Dettaglio dei dettagli strutturali
-        lblCategoria = new Label();
-        lblCategoria.getElement().setId("lbl-categoria");
-        lblCategoria.getElement().getStyle().setProperty("fontSize", "16px");
-        lblCategoria.getElement().getStyle().setProperty("marginBottom", "20px");
-
-        lblDescrizione = new Label();
-        lblDescrizione.getElement().setId("lbl-descrizione");
-        lblDescrizione.getElement().getStyle().setProperty("fontSize", "16px");
-        lblDescrizione.getElement().getStyle().setProperty("marginBottom", "20px");
-
-        lblDispo = new Label();
-        lblDispo.getElement().getStyle().setProperty("fontSize", "16px");
-        lblDispo.getElement().getStyle().setProperty("marginBottom", "20px");
-
-        lblContro = new Label();
-        lblContro.getElement().getStyle().setProperty("fontSize", "16px");
-        lblContro.getElement().getStyle().setProperty("marginBottom", "40px");
-
-        //Contenitore Bottoni Richiedi e Chat
-        FlowPanel btnContainer = new FlowPanel();
-        btnContainer.setWidth("100%");
-        btnContainer.getElement().getStyle().setProperty("display", "flex");
-        btnContainer.getElement().getStyle().setProperty("justifyContent", "flex-end");
-
-        // Bottone Dettaglio Richiedi
-        btnRichiedi = new Button("RICHIEDI");
-        btnRichiedi.setHeight("40px");
-        btnRichiedi.setWidth("130px");
-        btnRichiedi.getElement().getStyle().setProperty("fontSize", "14px");
-        btnRichiedi.getElement().getStyle().setProperty("cursor", "pointer");
-        btnRichiedi.getElement().getStyle().setProperty("fontWeight", "bold");
-        btnRichiedi.getElement().getStyle().setProperty("background", "#333333");
-        btnRichiedi.getElement().getStyle().setProperty("color", "white");
-        btnRichiedi.getElement().getStyle().setProperty("border", "none");
-        btnRichiedi.getElement().getStyle().setProperty("marginRight", "10px");
-        btnRichiedi.setVisible(false);
-
-        btnRichiedi.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina RICHIESTA SCAMBIO in costruzione...")));
-
-        // Bottone Dettaglio Chat
-        btnChat = new Button("💬");
-        btnChat.setHeight("40px");
-        btnChat.setWidth("40px");
-        btnChat.getElement().getStyle().setProperty("backgroundImage", "none");
-        btnChat.getElement().getStyle().setProperty("backgroundColor", "#007BFF");
-        btnChat.getElement().getStyle().setProperty("color", "white");
-        btnChat.getElement().getStyle().setProperty("border", "none");
-        btnChat.getElement().getStyle().setProperty("cursor", "pointer");
-        btnChat.getElement().getStyle().setProperty("fontSize", "20px");
-        btnChat.setVisible(false);
-
-        btnChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
-
-        // Assemblaggio Contenitore Bottoni
-        btnContainer.add(btnRichiedi);
-        btnContainer.add(btnChat);
-
-        // Asseblaggio Colonna Destra
-        colonnaDestra.add()
-        colonnaDestra.add(headerDettaglio);
-        colonnaDestra.add(lblCategoria);
-        colonnaDestra.add(lblDescrizione);
-        colonnaDestra.add(lblDispo);
-        colonnaDestra.add(lblContro);
-        colonnaDestra.add(btnContainer);
-    */

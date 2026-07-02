@@ -67,6 +67,41 @@ public class ForYouServiceImpl extends RemoteServiceServlet implements ForYouSer
     }
 
     @Override
+    public List<Annuncio> getAnnunciOrdinati(String utenteCorrente, String utenteAnnunci){
+        DB db = DatabaseCore.getDB();
+        ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
+        ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
+
+        List<Annuncio> annunciOrdinati = new ArrayList<>();
+
+        Utente richiedente = dbUtenti.get(utenteCorrente);
+        List<String> categoriePreferite = richiedente.getCompetenzePreferite();
+
+        List<Annuncio> annunciUtenteScelto = new ArrayList<>();
+        List<Annuncio> cacheSupporto = new ArrayList<>();
+
+        for (Annuncio a : dbAnnunci.values()){
+            String autore = a.getAutore();
+            if (autore == null) continue;
+            else if (autore.equals(utenteAnnunci))
+                annunciUtenteScelto.add(a);
+        }
+
+        for (Annuncio a : annunciUtenteScelto){
+            String categoria = a.getCategoria();
+            if (categoria == null) continue;
+            else if (categoriePreferite.contains(categoria))
+                annunciOrdinati.add(a);
+            else
+                cacheSupporto.add(a);
+        }
+
+        annunciOrdinati.addAll(cacheSupporto);
+
+        return annunciOrdinati;
+    }
+
+    @Override
     public Utente getUtente(String username){
         DB db = DatabaseCore.getDB();
         ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
