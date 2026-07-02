@@ -3,8 +3,6 @@ package it.unibo;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
@@ -17,6 +15,8 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.FileUpload;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,10 +27,14 @@ public class ProfileGui {
     // Lista per tenere traccia delle categorie scelte ed evitare i duplicati
     private List<String> categorieSelezionate = new ArrayList<>();
 
+    private String fotoBase = ""; 
+    private Image photoImg;
+    private Button editButton;
+
     public void mostra() {
         RootPanel.get().clear();
 
-         // Bottone salva modifiche
+        // Bottone salva modifiche
         final Button editButton = new Button("SALVA MODIFICHE");
         editButton.getElement().setId("btn-modifica");
         editButton.getElement().getStyle().setProperty("marginTop", "20px");
@@ -69,20 +73,39 @@ public class ProfileGui {
         HTML title = new HTML("<h2 style='color: #8b2e71; margin-bottom: 0;'>IL MIO PROFILO</h2>");
         title.getElement().setId("titolo-profilo");
 
-        // Foto/avatar arrotondata
-        Label avatar = new Label("👤");
-        avatar.getElement().setId("img-avatar");
+        // Foto
+        VerticalPanel photoPanel = new VerticalPanel();
+        photoPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        photoPanel.setSpacing(10);
 
-        avatar.getElement().getStyle().setProperty("width", "120px");
-        avatar.getElement().getStyle().setProperty("height", "120px");
-        avatar.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
-        avatar.getElement().getStyle().setProperty("border", "2px solid #dbdbdb");
-        avatar.getElement().getStyle().setProperty("borderRadius", "50%");
+        // Immagine Tonda
+        photoImg = new Image("images/utente.jpg");
+        photoImg.getElement().setId("img-photo");
+        photoImg.setPixelSize(120, 120);
+        photoImg.getElement().getStyle().setProperty("borderRadius", "50%");
+        photoImg.getElement().getStyle().setProperty("objectFit", "cover");
+        photoImg.getElement().getStyle().setProperty("border", "2px solid #dbdbdb");
 
-        avatar.getElement().getStyle().setProperty("fontSize", "80px");
-        avatar.getElement().getStyle().setProperty("lineHeight", "120px");
-        avatar.getElement().getStyle().setProperty("textAlign", "center");
-        avatar.getElement().getStyle().setProperty("margin", "0 auto");
+        // Bottone standard "Scegli File"
+        FileUpload uploadFoto = new FileUpload();
+        uploadFoto.getElement().setAttribute("accept", "image/*");
+        uploadFoto.setVisible(false);
+        uploadFoto.addChangeHandler(event -> {
+            editButton.setVisible(true);
+            leggiImmagineBase(uploadFoto.getElement(), this);
+        });
+
+        Button btnScegliFoto = new Button("Cambia Foto Profilo");
+        btnScegliFoto.getElement().getStyle().setProperty("padding", "5px 10px");
+        btnScegliFoto.getElement().getStyle().setProperty("cursor", "pointer");
+
+        btnScegliFoto.addClickHandler(event -> {
+            uploadFoto.getElement().<com.google.gwt.dom.client.InputElement>cast().click();
+        });
+
+        photoPanel.add(photoImg);
+        photoPanel.add(uploadFoto);
+        photoPanel.add(btnScegliFoto);
 
         // Username
         Label usernameTitle = new Label("Nome Utente:");
@@ -90,7 +113,11 @@ public class ProfileGui {
 
         final TextBox usernameBox = new TextBox();
         usernameBox.getElement().setId("txt-username");
-        usernameBox.setText("Filker67"); // Nome provissorio, verrò rimosso più tardi
+        
+        final String utenteLoggato = SessionManager.getUtenteLoggato();
+        usernameBox.setText(utenteLoggato);
+        usernameBox.setReadOnly(true); // Evita che l'utente si cambi il nome da solo
+        
         usernameBox.setWidth("200px");
         usernameBox.getElement().getStyle().setProperty("textAlign", "center");
 
@@ -111,7 +138,6 @@ public class ProfileGui {
         
         final TextArea bioArea = new TextArea();
         bioArea.getElement().setId("txt-bio");
-        bioArea.setText("Ciao, sono un nuovo utente di SkillShare e voglio imparare a programmare in Python e cucinare il pollo!");
         bioArea.setWidth("100%");
         bioArea.setVisibleLines(5);
 
@@ -122,7 +148,6 @@ public class ProfileGui {
         
         final TextBox locazioneBox = new TextBox();
         locazioneBox.getElement().setId("txt-locazione");
-        locazioneBox.setText("Cesena, FC (Italia)");
         locazioneBox.setWidth("100%");
 
         locazioneBox.addKeyUpHandler(event -> editButton.setVisible(true));
@@ -131,6 +156,32 @@ public class ProfileGui {
         leftPanel.add(bioArea);
         leftPanel.add(locazioneTitle);
         leftPanel.add(locazioneBox);
+
+        // Chiamata al server per caricare i dati reali
+        profileService.getProfile(utenteLoggato, new AsyncCallback<UserProfile>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                Window.alert("Errore nel caricamento dei dati del profilo: " + caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(UserProfile profiloSalvato) {
+                if (profiloSalvato != null) {
+                    bioArea.setText(profiloSalvato.getBio() != null ? profiloSalvato.getBio() : "");
+                    locazioneBox.setText(profiloSalvato.getLocation() != null ? profiloSalvato.getLocation() : "");
+                    
+                    if (profiloSalvato.getPhoto() != null && !profiloSalvato.getPhoto().isEmpty()) {
+                        fotoBase = profiloSalvato.getPhoto();
+                        photoImg.setUrl(fotoBase);
+                    }
+
+                    // Se vuoi ricaricare anche le categorie precedentemente salvate
+                    if (profiloSalvato.getCategories() != null) {
+                        categorieSelezionate.addAll(profiloSalvato.getCategories());
+                    }
+                }
+            }
+        });
 
         // Categorie a lato
         VerticalPanel rightPanel = new VerticalPanel();
@@ -241,7 +292,7 @@ public class ProfileGui {
                 usernameBox.getText(),       // Legge l'username modificato
                 bioArea.getText(),           // Legge la nuova biografia
                 locazioneBox.getText(),      // Legge la nuova località
-                "",                          // Foto (da implementare in futuro)
+                fotoBase,                          // Foto 
                 categorieSelezionate         // Lista aggiornata dei tag scelti
             );
 
@@ -262,7 +313,7 @@ public class ProfileGui {
         });
 
         cardPanel.add(title);
-        cardPanel.add(avatar);
+        cardPanel.add(photoPanel);
         cardPanel.add(usernameTitle);
         cardPanel.add(usernameBox);
         cardPanel.add(bodyPanel);
@@ -271,5 +322,22 @@ public class ProfileGui {
         pageBackground.add(cardPanel);
         RootPanel.get().add(pageBackground);
 
+    }
+
+    // Legge il file e lo trasforma in testo Base64
+    private native void leggiImmagineBase(com.google.gwt.dom.client.Element input, ProfileGui gui) /*-{
+        var file = input.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            gui.@it.unibo.ProfileGui::aggiornaFotoCaricata(Ljava/lang/String;)(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }-*/;
+
+    public void aggiornaFotoCaricata(String base) {
+        this.fotoBase = base;          // Salva la stringa per il database
+        this.photoImg.setUrl(base);     // Aggiorna l'immagine sullo schermo istantaneamente
+        this.editButton.setVisible(true);  // Mostra il bottone "SALVA"
     }
 }

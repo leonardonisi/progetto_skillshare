@@ -38,7 +38,7 @@ public class ProfileServiceImpl extends RemoteServiceServlet implements ProfileS
         // Se è la prima volta che l'utente accede e non ha un profilo salvato, 
         // gliene restituiamo uno vuoto per evitare crash
         if (profile == null) {
-            profile = new UserProfile(username, "Scrivi qui la tua bio...", "Località sconosciuta", "", new ArrayList<>());
+            profile = new UserProfile(username, "Scrivi qui la tua bio...", "Inserisci la tua località di provenienza", "", new ArrayList<>());
         }
         
         return profile;

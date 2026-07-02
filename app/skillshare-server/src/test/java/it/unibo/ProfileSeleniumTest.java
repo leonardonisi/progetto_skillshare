@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -14,6 +16,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.Select;
 
 import java.time.Duration;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -72,9 +75,9 @@ public class ProfileSeleniumTest {
 
     //verifica che la sezione foto del profilo sia presente e visibile
     @Test
-    void avatarIsPresent() {
-        WebElement avatar = driver.findElement(By.id("img-avatar"));
-        assertTrue(avatar.isDisplayed());
+    void photoIsPresent() {
+        WebElement photo = driver.findElement(By.id("img-photo"));
+        assertTrue(photo.isDisplayed());
     }
 
     //verifica che le TextBox dell'utente siano presenti e visibili
@@ -110,28 +113,23 @@ public class ProfileSeleniumTest {
     // Verifica che selezionando una categoria dal menu a tendina, venga aggiunta un'etichetta nel pannello delle categorie selezionate
     @Test
     void selectingCategoryAddsTag() {
-        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-        
-        wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath("//select[@id='select-categorie']/option"), 1));
-        WebElement categorieDropdown = driver.findElement(By.id("select-categorie"));
+         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
-        Select select = new Select(categorieDropdown);
-        select.selectByIndex(1);
+        wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(
+                By.xpath("//select[@id='select-categorie']/option"), 1));
 
-        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
-            "arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", 
-            categorieDropdown
-        );
+        int tagPrima = driver.findElements(By.cssSelector("#panel-tag-categorie .tag-categoria")).size();
 
-        try {
-            WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(2));
-            shortWait.until(ExpectedConditions.alertIsPresent());
-            driver.switchTo().alert().accept(); // Clicca "OK" sull'alert
-        } catch (org.openqa.selenium.TimeoutException e) {
-            // Nessun alert presente, procediamo
-        }
+        boolean selezionata = selezionaPrimaCategoriaDisponibile();
+        assertTrue(selezionata, "Nessuna categoria disponibile: tutte risultano già selezionate.");
 
-    }
+        wait.until(ExpectedConditions.numberOfElementsToBe(
+                By.cssSelector("#panel-tag-categorie .tag-categoria"), tagPrima + 1));
+
+        assertEquals(tagPrima + 1,
+                driver.findElements(By.cssSelector("#panel-tag-categorie .tag-categoria")).size());
+    } 
+
    
     // Verifica che la TextBox della locazione sia presente
     @Test
@@ -190,4 +188,5 @@ public class ProfileSeleniumTest {
         
         assertTrue(btnModifica.isDisplayed(), "Il bottone Salva deve apparire dopo aver aggiunto una categoria.");
     }
+
 }

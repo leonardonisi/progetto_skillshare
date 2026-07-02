@@ -10,7 +10,7 @@ public class UserProfile implements Serializable {
     private String username;
     private String bio;
     private String location;
-    private String photoUrl;
+    private String photo;
     private List<String> categories; // La lista per i famosi Tag!
 
     // Costruttore vuoto obbligatorio per far viaggiare i dati sulla rete
@@ -19,11 +19,11 @@ public class UserProfile implements Serializable {
     }
 
     // Costruttore completo
-    public UserProfile(String username, String bio, String location, String photoUrl, List<String> categories) {
+    public UserProfile(String username, String bio, String location, String photo, List<String> categories) {
         this.username = username;
         this.bio = bio;
         this.location = location;
-        this.photoUrl = photoUrl;
+        this.photo = photo;
         this.categories = categories != null ? categories : new ArrayList<>();
     }
 
@@ -37,8 +37,8 @@ public class UserProfile implements Serializable {
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
 
-    public String getPhotoUrl() { return photoUrl; }
-    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+    public String getPhoto() { return photo; }
+    public void setPhoto(String photo) { this.photo = photo; }
 
     public List<String> getCategories() { return categories; }
     public void setCategories(List<String> categories) { this.categories = categories; }
