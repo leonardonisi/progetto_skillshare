@@ -110,17 +110,21 @@ public class ProfileSeleniumTest {
     // Verifica che selezionando una categoria dal menu a tendina, venga aggiunta un'etichetta nel pannello delle categorie selezionate
     @Test
     void selectingCategoryAddsTag() {
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        
+        wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath("//select[@id='select-categorie']/option"), 1));
+
         WebElement categorieDropdown = driver.findElement(By.id("select-categorie"));
         Select select = new Select(categorieDropdown);
         select.selectByIndex(1);
 
-        WebElement tagPanel = driver.findElement(By.id("panel-tag-categorie"));
-        assertFalse(tagPanel.getText().isEmpty());
+        WebElement removeButton = wait.until(ExpectedConditions.presenceOfElementLocated(
+            By.xpath("//div[@id='panel-tag-categorie']//button[text()='X']")
+        ));
 
-        WebElement removeButton = driver.findElement(By.xpath("//div[@id='panel-tag-categorie']//button[text()='X']"));
         assertTrue(removeButton.isDisplayed());
     }
-
+   
     // Verifica che la TextBox della locazione sia presente
     @Test
     void locationBoxIsPresent() {
@@ -162,11 +166,17 @@ public class ProfileSeleniumTest {
     // Verifica la comparsa del bottone Salva aggiungendo una categoria
     @Test
     void saveButtonAppearsWhenCategoryChanged() {
+       WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        
+        wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath("//select[@id='select-categorie']/option"), 1));
+        
         WebElement btnModifica = driver.findElement(By.id("btn-modifica"));
         WebElement categorieDropdown = driver.findElement(By.id("select-categorie"));
         
         Select select = new Select(categorieDropdown);
         select.selectByIndex(1);
+        
+        wait.until(ExpectedConditions.visibilityOf(btnModifica));
         
         assertTrue(btnModifica.isDisplayed(), "Il bottone Salva deve apparire dopo aver aggiunto una categoria.");
     }
