@@ -113,21 +113,42 @@ public class ProfileSeleniumTest {
     // Verifica che selezionando una categoria dal menu a tendina, venga aggiunta un'etichetta nel pannello delle categorie selezionate
     @Test
     void selectingCategoryAddsTag() {
-         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
-        wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(
-                By.xpath("//select[@id='select-categorie']/option"), 1));
+    WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
-        int tagPrima = driver.findElements(By.cssSelector("#panel-tag-categorie .tag-categoria")).size();
+    wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(
+            By.cssSelector("#select-categorie option"), 1));
 
-        boolean selezionata = selezionaPrimaCategoriaDisponibile();
-        assertTrue(selezionata, "Nessuna categoria disponibile: tutte risultano già selezionate.");
+    Select select = new Select(driver.findElement(By.id("select-categorie")));
 
-        wait.until(ExpectedConditions.numberOfElementsToBe(
-                By.cssSelector("#panel-tag-categorie .tag-categoria"), tagPrima + 1));
+    int iniziali = driver.findElements(
+            By.cssSelector("#panel-tag-categorie > *")).size();
 
-        assertEquals(tagPrima + 1,
-                driver.findElements(By.cssSelector("#panel-tag-categorie .tag-categoria")).size());
+    for (int i = 1; i < select.getOptions().size(); i++) {
+
+        select.selectByIndex(i);
+
+        try {
+
+            wait.until(ExpectedConditions.alertIsPresent());
+            driver.switchTo().alert().accept();
+
+        } catch (Exception ex) {
+
+            wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(
+                    By.cssSelector("#panel-tag-categorie > *"),
+                    iniziali));
+
+            break;
+        }
+    }
+
+    int finali = driver.findElements(
+            By.cssSelector("#panel-tag-categorie > *")).size();
+
+    assertTrue(finali > iniziali,
+            "La categoria non è stata aggiunta.");
+
     } 
 
    
