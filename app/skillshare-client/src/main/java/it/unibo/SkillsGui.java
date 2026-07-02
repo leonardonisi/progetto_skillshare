@@ -158,6 +158,10 @@ public class SkillsGui extends Composite{
         lblDisp.getElement().getStyle().setProperty("marginBottom", "10px");
         card.add(lblDisp);
 
+        Label lblContro = new Label("CONTROPRESTAZIONE OFFERTA: " + skill.getControprestazione());
+        lblContro.getElement().getStyle().setProperty("marginBottom", "20px");
+        card.add(lblContro);
+
         // Bottoni allineati a destra
         HorizontalPanel buttonWrapper = new HorizontalPanel();
         buttonWrapper.setWidth("100%");
