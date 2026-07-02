@@ -149,9 +149,9 @@ public class MainLayoutGui extends Composite {
 
         Label itemRichieste = new Label("LE MIE RICHIESTE");        
         itemRichieste.getElement().getStyle().setProperty("cursor", "pointer");
-        
+        itemRichieste.getElement().setId("menu-item-le-mie-richieste");
         itemRichieste.addClickHandler(event -> {
-            cambiaVista(creaVistaPlaceholder("Pagina LE MIE RICHIESTE in costruzione..."));
+            cambiaVista(new RichiesteGui());
             menuSkill.hide();
         });
 
