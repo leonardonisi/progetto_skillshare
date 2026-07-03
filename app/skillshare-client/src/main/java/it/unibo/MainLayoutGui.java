@@ -113,8 +113,9 @@ public class MainLayoutGui extends Composite {
         lblChat.getElement().getStyle().setProperty("fontSize", "18px");
         lblChat.getElement().getStyle().setProperty("marginLeft", "60px");
         lblChat.getElement().setId("nav-chat");
-
-        lblChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
+        lblChat.addClickHandler(event -> {
+            new ChatGui().mostra();
+        });
 
         Label lblSkill = new Label("SKILL");
         lblSkill.getElement().getStyle().setProperty("cursor", "pointer");
