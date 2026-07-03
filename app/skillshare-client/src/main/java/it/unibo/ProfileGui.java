@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.FileUpload;
+import com.google.gwt.dom.client.Element;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,16 +31,10 @@ public class ProfileGui {
     private String fotoBase = ""; 
     private Image photoImg;
     private Button editButton;
+    private Utente utenteAttuale;
 
     public void mostra() {
         RootPanel.get().clear();
-
-        // Bottone salva modifiche
-        final Button editButton = new Button("SALVA MODIFICHE");
-        editButton.getElement().setId("btn-modifica");
-        editButton.getElement().getStyle().setProperty("marginTop", "20px");
-        editButton.getElement().getStyle().setProperty("padding", "10px 20px");
-        editButton.setVisible(false);//finchè non ci sono modifiche non è visibile
 
         // Sfondo generale della pagina
         VerticalPanel pageBackground = new VerticalPanel();
@@ -111,17 +106,15 @@ public class ProfileGui {
         Label usernameTitle = new Label("Nome Utente:");
         usernameTitle.getElement().getStyle().setProperty("fontWeight", "bold");
 
-        final TextBox usernameBox = new TextBox();
-        usernameBox.getElement().setId("txt-username");
+        final Label usernameLabel = new Label();
+        usernameLabel.getElement().setId("txt-username");
         
         final String utenteLoggato = SessionManager.getUtenteLoggato();
-        usernameBox.setText(utenteLoggato);
-        usernameBox.setReadOnly(true); // Evita che l'utente si cambi il nome da solo
+        usernameLabel.setText(utenteLoggato);
         
-        usernameBox.setWidth("200px");
-        usernameBox.getElement().getStyle().setProperty("textAlign", "center");
-
-        usernameBox.addKeyUpHandler(event -> editButton.setVisible(true));
+        usernameLabel.setWidth("200px");
+        usernameLabel.getElement().getStyle().setProperty("textAlign", "center");
+        usernameLabel.getElement().getStyle().setProperty("padding", "5px");
 
         HorizontalPanel bodyPanel = new HorizontalPanel();
         bodyPanel.setWidth("100%");
@@ -157,27 +150,36 @@ public class ProfileGui {
         leftPanel.add(locazioneTitle);
         leftPanel.add(locazioneBox);
 
+        // Bottone salva modifiche
+        editButton = new Button("SALVA MODIFICHE");
+        editButton.getElement().setId("btn-modifica");
+        editButton.getElement().getStyle().setProperty("marginTop", "20px");
+        editButton.getElement().getStyle().setProperty("padding", "10px 20px");
+        editButton.setVisible(false);//finchè non ci sono modifiche non è visibile
+
         // Chiamata al server per caricare i dati reali
-        profileService.getProfile(utenteLoggato, new AsyncCallback<UserProfile>() {
+        profileService.getUtente(utenteLoggato, new AsyncCallback<Utente>() {
             @Override
             public void onFailure(Throwable caught) {
                 Window.alert("Errore nel caricamento dei dati del profilo: " + caught.getMessage());
             }
 
             @Override
-            public void onSuccess(UserProfile profiloSalvato) {
+            public void onSuccess(Utente profiloSalvato) {
                 if (profiloSalvato != null) {
+                    utenteAttuale = profiloSalvato;
+
                     bioArea.setText(profiloSalvato.getBio() != null ? profiloSalvato.getBio() : "");
-                    locazioneBox.setText(profiloSalvato.getLocation() != null ? profiloSalvato.getLocation() : "");
+                    locazioneBox.setText(profiloSalvato.getLocazione() != null ? profiloSalvato.getLocazione() : "");
                     
-                    if (profiloSalvato.getPhoto() != null && !profiloSalvato.getPhoto().isEmpty()) {
-                        fotoBase = profiloSalvato.getPhoto();
+                    if (profiloSalvato.getFotoProfiloBase64() != null && !profiloSalvato.getFotoProfiloBase64().isEmpty()) {
+                        fotoBase = profiloSalvato.getFotoProfiloBase64();
                         photoImg.setUrl(fotoBase);
                     }
 
                     // Se vuoi ricaricare anche le categorie precedentemente salvate
-                    if (profiloSalvato.getCategories() != null) {
-                        categorieSelezionate.addAll(profiloSalvato.getCategories());
+                    if (profiloSalvato.getCompetenzePreferite() != null) {
+                        categorieSelezionate.addAll(profiloSalvato.getCompetenzePreferite());
                     }
                 }
             }
@@ -288,16 +290,16 @@ public class ProfileGui {
         bodyPanel.add(rightPanel);
 
         editButton.addClickHandler(event -> {
-            UserProfile profiloDaSalvare = new UserProfile(
-                usernameBox.getText(),       // Legge l'username modificato
-                bioArea.getText(),           // Legge la nuova biografia
-                locazioneBox.getText(),      // Legge la nuova località
-                fotoBase,                          // Foto 
-                categorieSelezionate         // Lista aggiornata dei tag scelti
-            );
+           if (utenteAttuale != null) {
+                utenteAttuale.setBio(bioArea.getText());
+                utenteAttuale.setLocazione(locazioneBox.getText());
+                utenteAttuale.setFotoProfiloBase64(fotoBase);
+                
+                utenteAttuale.setCompetenzePreferite(new ArrayList<>(categorieSelezionate));
+           }
 
             // Salvataggio sul database tramite il server
-            profileService.saveProfile(profiloDaSalvare, new AsyncCallback<Void>() {
+            profileService.saveUtente(utenteAttuale, new AsyncCallback<Void>() {
                 @Override
                 public void onFailure(Throwable caught) {
                     Window.alert("Errore nel salvataggio: " + caught.getMessage());
@@ -305,7 +307,7 @@ public class ProfileGui {
 
                 @Override
                 public void onSuccess(Void result) {
-                    Window.alert("Categorie salvate con successo nel database!");
+                    Window.alert("Modifiche salvate con successo");
 
                     editButton.setVisible(false);
                 }
@@ -315,7 +317,7 @@ public class ProfileGui {
         cardPanel.add(title);
         cardPanel.add(photoPanel);
         cardPanel.add(usernameTitle);
-        cardPanel.add(usernameBox);
+        cardPanel.add(usernameLabel);
         cardPanel.add(bodyPanel);
         cardPanel.add(editButton);
 
@@ -325,7 +327,7 @@ public class ProfileGui {
     }
 
     // Legge il file e lo trasforma in testo Base64
-    private native void leggiImmagineBase(com.google.gwt.dom.client.Element input, ProfileGui gui) /*-{
+    private native void leggiImmagineBase(Element input, ProfileGui gui) /*-{
         var file = input.files[0];
         if (!file) return;
         var reader = new FileReader();

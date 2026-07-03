@@ -8,7 +8,7 @@ import java.util.List;
 public interface ProfileService extends RemoteService {
     List<String> getCategorie();
 
-    UserProfile getProfile(String username) throws IllegalArgumentException;
+    Utente getUtente(String username) throws IllegalArgumentException;
 
-    void saveProfile(UserProfile profile) throws IllegalArgumentException;
+    void saveUtente(Utente profile) throws IllegalArgumentException;
 }
