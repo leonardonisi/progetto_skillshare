@@ -6,7 +6,7 @@ import java.util.List;
 public interface ProfileServiceAsync {
     void getCategorie(AsyncCallback<List<String>> callback);
 
-    void getProfile(String username, AsyncCallback<UserProfile> callback);
+    void getUtente(String username, AsyncCallback<Utente> callback);
     
-    void saveProfile(UserProfile profile, AsyncCallback<Void> callback);
+    void saveUtente(Utente profile, AsyncCallback<Void> callback);
 }

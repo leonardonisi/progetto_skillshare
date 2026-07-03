@@ -16,9 +16,7 @@ public class ProfileServiceImpl extends RemoteServiceServlet implements ProfileS
             .createOrOpen();
 
     //Mappa per salvare i profili utente su MapDB
-    private static final ConcurrentMap<String, UserProfile> dbProfili = db
-            .hashMap("profili_utenti", Serializer.STRING, Serializer.JAVA)
-            .createOrOpen();
+    private static final ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
 
     @Override
     public List<String> getCategorie() {
@@ -27,31 +25,25 @@ public class ProfileServiceImpl extends RemoteServiceServlet implements ProfileS
     }
 
     @Override
-    public UserProfile getProfile(String username) throws IllegalArgumentException {
+    public Utente getUtente(String username) throws IllegalArgumentException {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username non valido");
         }
         
         // Cerca l'utente nel database MapDB
-        UserProfile profile = dbProfili.get(username);
-        
-        // Se è la prima volta che l'utente accede e non ha un profilo salvato, 
-        // gliene restituiamo uno vuoto per evitare crash
-        if (profile == null) {
-            profile = new UserProfile(username, "Scrivi qui la tua bio...", "Inserisci la tua località di provenienza", "", new ArrayList<>());
-        }
-        
+        Utente profile = dbUtenti.get(username);
+
         return profile;
     }
 
     //salva il profilo dell'utente nel database MapDB
     @Override
-    public void saveProfile(UserProfile profile) throws IllegalArgumentException {
+    public void saveUtente(Utente profile) throws IllegalArgumentException {
         if (profile == null || profile.getUsername() == null) {
             throw new IllegalArgumentException("Profilo non valido o username mancante");
         }
         
-        dbProfili.put(profile.getUsername(), profile);
+        dbUtenti.put(profile.getUsername(), profile);
         
         //commit per salvare i cambiamenti su disco
         DatabaseCore.commit(); 

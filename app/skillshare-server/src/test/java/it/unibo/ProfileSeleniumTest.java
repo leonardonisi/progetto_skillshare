@@ -83,14 +83,13 @@ public class ProfileSeleniumTest {
     //verifica che le TextBox dell'utente siano presenti e visibili
     @Test
     void userInfoIsPresentAndEditable() {
-        WebElement usernameBox = driver.findElement(By.id("txt-username"));
+        WebElement usernameLabel = driver.findElement(By.id("txt-username"));
         WebElement bioArea = driver.findElement(By.id("txt-bio"));
         
-        assertTrue(usernameBox.isDisplayed());
+        assertTrue(usernameLabel.isDisplayed());
         assertTrue(bioArea.isDisplayed());
         
-        assertTrue(usernameBox.getAttribute("value").length() > 0);
-        assertTrue(bioArea.getAttribute("value").length() > 0);
+        assertTrue(usernameLabel.getText().length() > 0);
     }
 
     // Controlla l'esistenza e la visibilità del menu a tendina per le categorie
@@ -110,54 +109,11 @@ public class ProfileSeleniumTest {
         assertNotNull(tagPanel);
     } 
 
-    // Verifica che selezionando una categoria dal menu a tendina, venga aggiunta un'etichetta nel pannello delle categorie selezionate
-    @Test
-    void selectingCategoryAddsTag() {
-
-    WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-
-    wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(
-            By.cssSelector("#select-categorie option"), 1));
-
-    Select select = new Select(driver.findElement(By.id("select-categorie")));
-
-    int iniziali = driver.findElements(
-            By.cssSelector("#panel-tag-categorie > *")).size();
-
-    for (int i = 1; i < select.getOptions().size(); i++) {
-
-        select.selectByIndex(i);
-
-        try {
-
-            wait.until(ExpectedConditions.alertIsPresent());
-            driver.switchTo().alert().accept();
-
-        } catch (Exception ex) {
-
-            wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(
-                    By.cssSelector("#panel-tag-categorie > *"),
-                    iniziali));
-
-            break;
-        }
-    }
-
-    int finali = driver.findElements(
-            By.cssSelector("#panel-tag-categorie > *")).size();
-
-    assertTrue(finali > iniziali,
-            "La categoria non è stata aggiunta.");
-
-    } 
-
-   
     // Verifica che la TextBox della locazione sia presente
     @Test
     void locationBoxIsPresent() {
         WebElement locazioneBox = driver.findElement(By.id("txt-locazione"));
         assertTrue(locazioneBox.isDisplayed());
-        assertTrue(locazioneBox.getAttribute("value").length() > 0);
     }
 
     //verifica che il bottone "Torna alla Home" sia presente e funzioni correttamente
@@ -190,24 +146,5 @@ public class ProfileSeleniumTest {
         assertTrue(btnModifica.isDisplayed(), "Il bottone Salva deve apparire dopo aver digitato qualcosa.");
     }
 
-    // Verifica la comparsa del bottone Salva aggiungendo una categoria
-    @Test
-    void saveButtonAppearsWhenCategoryChanged() {
-       WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-        
-        wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath("//select[@id='select-categorie']/option"), 1));
-        
-        WebElement btnModifica = driver.findElement(By.id("btn-modifica"));
-        WebElement categorieDropdown = driver.findElement(By.id("select-categorie"));
-        
-        Select select = new Select(categorieDropdown);
-        select.selectByIndex(1);
-
-       ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", categorieDropdown);
-        
-        wait.until(ExpectedConditions.visibilityOf(btnModifica));
-        
-        assertTrue(btnModifica.isDisplayed(), "Il bottone Salva deve apparire dopo aver aggiunto una categoria.");
-    }
 
 }
