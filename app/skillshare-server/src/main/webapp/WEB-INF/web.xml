@@ -85,6 +85,16 @@
       <url-pattern>/app/foryou</url-pattern> 
   </servlet-mapping>
 
+<servlet>
+    <servlet-name>chatServiceImpl</servlet-name>
+    <servlet-class>it.unibo.ChatServiceImpl</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>chatServiceImpl</servlet-name>
+    <url-pattern>/app/chat</url-pattern>
+</servlet-mapping>
+
 	<!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>

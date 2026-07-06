@@ -24,17 +24,16 @@ public class DatabaseCore {
     private static DB db;
     private static boolean testMode = false;
 
-    
     // Attiva la modalità test (Database in memoria RAM).
     public static void enableTestMode() {
         testMode = true;
-        close(); 
+        close();
     }
 
     // Disattiva la modalità test e torna al database su file.
     public static void disableTestMode() {
         testMode = false;
-        close(); 
+        close();
     }
 
     public static ConcurrentMap<Integer, Annuncio> getMappaAnnunci() {
@@ -52,6 +51,11 @@ public class DatabaseCore {
         return db.hashMap("richieste", org.mapdb.Serializer.INTEGER, org.mapdb.Serializer.JAVA).createOrOpen();
     }
 
+    public static ConcurrentMap<Integer, Messaggio> getMappaMessaggi() {
+        DB db = getDB();
+        return db.hashMap("messaggi", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+    }
+
     public static synchronized int generaNuovoIdRichiesta() {
         DB db = getDB();
         org.mapdb.Atomic.Integer idCounter = db.atomicInteger("richiesta_id_counter", 0).createOrOpen();
@@ -61,7 +65,8 @@ public class DatabaseCore {
     // inizializza il database con annunci preimpostati
     public static void seedDatabase() {
         DB db = DatabaseCore.getDB();
-        ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+        ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA)
+                .createOrOpen();
 
         ConcurrentMap<String, Utente> dbUtenti = getMappaUtenti();
         if (dbUtenti.isEmpty()) {
@@ -70,17 +75,17 @@ public class DatabaseCore {
             dbUtenti.put(admin.getUsername(), admin);
             DatabaseCore.commit();
         }
-        
+
         if (dbAnnunci.isEmpty()) {
             for (int i = 1; i <= 10; i++) {
                 Annuncio a = new Annuncio.Builder()
-                    .autore("Mario")
-                    .titolo("Skill #" + i)
-                    .categoria("Sviluppo Software")
-                    .skillOfferta("Java GWT")
-                    .controprestazioneCercata("Grafica")
-                    .disponibilita("Weekend")
-                    .build();
+                        .autore("Mario")
+                        .titolo("Skill #" + i)
+                        .categoria("Sviluppo Software")
+                        .skillOfferta("Java GWT")
+                        .controprestazioneCercata("Grafica")
+                        .disponibilita("Weekend")
+                        .build();
                 dbAnnunci.put(i, a);
             }
             DatabaseCore.commit();
@@ -88,46 +93,65 @@ public class DatabaseCore {
 
         // Skill ATTIVA
         Annuncio skill1 = new Annuncio.Builder()
-            .autore("admin")
-            .titolo("Cucina Pollo")
-            .categoria("Cucina")
-            .skillOfferta("Preparazione ricetta base")
-            .controprestazioneCercata("Lezioni di chitarra")
-            .disponibilita("Sabato e Domenica")
-            .build();
+                .autore("admin")
+                .titolo("Cucina Pollo")
+                .categoria("Cucina")
+                .skillOfferta("Preparazione ricetta base")
+                .controprestazioneCercata("Lezioni di chitarra")
+                .disponibilita("Sabato e Domenica")
+                .build();
         dbAnnunci.put(11, skill1);
 
         // Skill ACCETTATA
         Annuncio skill2 = new Annuncio.Builder()
-            .autore("admin")
-            .titolo("Programmazione Java")
-            .categoria("Sviluppo Software")
-            .skillOfferta("Spiegazione concetti OOP")
-            .controprestazioneCercata("Ripetizioni di matematica")
-            .disponibilita("Lunedì pomeriggio")
-            .build();
+                .autore("admin")
+                .titolo("Programmazione Java")
+                .categoria("Sviluppo Software")
+                .skillOfferta("Spiegazione concetti OOP")
+                .controprestazioneCercata("Ripetizioni di matematica")
+                .disponibilita("Lunedì pomeriggio")
+                .build();
         dbAnnunci.put(12, skill2);
 
         // Skill CONCLUSA
         Annuncio skill3 = new Annuncio.Builder()
-            .autore("admin")
-            .titolo("Allenamento Tennis")
-            .categoria("Sport") 
-            .skillOfferta("Palleggio e tecnica")
-            .controprestazioneCercata("Preparazione atletica")
-            .disponibilita("Giovedì sera")
-            .build();
+                .autore("admin")
+                .titolo("Allenamento Tennis")
+                .categoria("Sport")
+                .skillOfferta("Palleggio e tecnica")
+                .controprestazioneCercata("Preparazione atletica")
+                .disponibilita("Giovedì sera")
+                .build();
         dbAnnunci.put(13, skill3);
 
         Annuncio skill4 = new Annuncio.Builder()
-            .autore("admin")
-            .titolo("Consigli Fantacalcio")
-            .categoria("Sport e Tempo Libero")
-            .skillOfferta("Analisi rose e strategie per l'asta")
-            .disponibilita("Venerdì sera")
-            .controprestazioneCercata("Consigli su configurazione PC")
-            .build();
+                .autore("admin")
+                .titolo("Consigli Fantacalcio")
+                .categoria("Sport e Tempo Libero")
+                .skillOfferta("Analisi rose e strategie per l'asta")
+                .disponibilita("Venerdì sera")
+                .controprestazioneCercata("Consigli su configurazione PC")
+                .build();
         dbAnnunci.put(4, skill4);
+
+        ConcurrentMap<Integer, Messaggio> dbMessaggi = getMappaMessaggi();
+
+        if (dbMessaggi.isEmpty()) {
+            // Conversazione con UtenteScambio_1 (Scenario Classico)
+            dbMessaggi.put(1,
+                    new Messaggio("UtenteScambio_1", "admin", "Ciao! Ho visto il tuo annuncio su Skillshare."));
+            dbMessaggi.put(2, new Messaggio("admin", "UtenteScambio_1", "Ciao!"));
+
+            // Conversazione con UtenteScambio_2 (Per testare l'invio in tempo reale)
+            dbMessaggi.put(3,
+                    new Messaggio("UtenteScambio_2", "admin", "Ciao, ti andrebbe di fare uno scambio domani?"));
+            dbMessaggi.put(4, new Messaggio("admin", "UtenteScambio_2", "Certamente, dimmi pure a cosa pensavi."));
+
+            // Conversazione con UtenteScambio_3 (Per testare l'ordinamento LIFO)
+            dbMessaggi.put(5,
+                    new Messaggio("UtenteScambio_3", "admin", "Ti ho inviato una richiesta per la skill di cucina!"));
+
+        }
 
         DatabaseCore.commit();
 
@@ -168,7 +192,8 @@ public class DatabaseCore {
         return Collections.unmodifiableList(categorieList);
     }
 
-    // Restituisce l'istanza attiva del database, è synchronized per prevenire accessi contemporanei da thread diversi.
+    // Restituisce l'istanza attiva del database, è synchronized per prevenire
+    // accessi contemporanei da thread diversi.
     public static synchronized DB getDB() {
         if (db == null || db.isClosed()) {
             if (testMode) {
@@ -181,7 +206,7 @@ public class DatabaseCore {
                 // Cerca una variabile d'ambiente chiamata "DATA_DIR"
                 String dataDir = System.getenv("DATA_DIR");
                 String dbPath = "progetto_sweng.db"; // Fallback: percorso locale sul tuo PC
-                
+
                 if (dataDir != null && !dataDir.trim().isEmpty()) {
                     // Crea la cartella sul server cloud se non esiste ancora
                     File dir = new File(dataDir);
