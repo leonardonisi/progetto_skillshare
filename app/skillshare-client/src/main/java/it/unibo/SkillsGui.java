@@ -86,6 +86,7 @@ public class SkillsGui extends Composite{
                 contentArea.setWidget(new Label("Errore di rete: Impossibile caricare le skill."));
             }
 
+            
             @Override
             public void onSuccess(List<Annuncio> skillsDalDb) {
                 listaMieSkill.clear();
@@ -174,8 +175,38 @@ public class SkillsGui extends Composite{
         if (skill.getTitolo().equals("Allenamento Tennis")) statoSimulato = "CONCLUSA";
 
         if (statoSimulato.equals("ATTIVA")) {
-            buttonGroups.add(new Button("Rimuovi"));
+            // 1. Creiamo il bottone Rimuovi
+            Button btnRimuovi = new Button("Rimuovi");
+            
+            // 2. Aggiungiamo il ClickHandler per il popup
+            btnRimuovi.addClickHandler(event -> {
+                boolean confermato = com.google.gwt.user.client.Window.confirm("Sei sicuro di voler eliminare definitivamente questo annuncio dal Marketplace?");
+                
+                if (confermato) {
+                    // Chiamata RPC al server. (Presuppone che la classe Annuncio abbia un metodo getId())
+                    skillService.deleteSkill(skill.getId(), new AsyncCallback<Boolean>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            com.google.gwt.user.client.Window.alert("Errore di comunicazione con il server.");
+                        }
+
+                        @Override
+                        public void onSuccess(Boolean eliminato) {
+                            if (eliminato) {
+                                // Svuota l'area centrale e ricarica la tendina aggiornata senza la skill eliminata
+                                contentArea.clear();
+                                caricaSkillsDalDatabase();
+                            } else {
+                                com.google.gwt.user.client.Window.alert("Errore: Impossibile trovare la skill da eliminare.");
+                            }
+                        }
+                    });
+                }
+            });
+            
+            buttonGroups.add(btnRimuovi);
             buttonGroups.add(new Button("Modifica"));
+            
             Button btnChat = new Button("💬");
             btnChat.getElement().getStyle().setProperty("backgroundColor", "#007bff");
             btnChat.getElement().getStyle().setProperty("color", "#fff");

@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class Annuncio implements Serializable {
 
+    private int id;
     private String autore;
     private String titolo;
     private String categoria;
@@ -15,6 +16,7 @@ public class Annuncio implements Serializable {
     }
 
     private Annuncio(Builder builder) {
+        this.id = builder.id;
         this.autore = builder.autore;
         this.titolo = builder.titolo;
         this.categoria = builder.categoria;
@@ -24,6 +26,15 @@ public class Annuncio implements Serializable {
     }
 
     // Getter e Setter
+
+    public int getId() {
+        return id;
+    }
+
+    private void setId(int id){
+        this.id = id;
+    }
+
     public String getAutore() {
         return autore;
     }
@@ -74,6 +85,7 @@ public class Annuncio implements Serializable {
 
     // Builder
     public static class Builder {
+        private int id;
         private String autore;
         private String titolo;
         private String categoria;
@@ -82,6 +94,11 @@ public class Annuncio implements Serializable {
         private String disponibilita;
 
         public Builder() {
+        }
+
+        public Builder id(int id) {
+            this.id = id;
+            return this;
         }
 
         public Builder autore(String autore) {
