@@ -60,78 +60,10 @@ public class DatabaseCore {
 
     // inizializza il database con annunci preimpostati
     public static void seedDatabase() {
-        DB db = DatabaseCore.getDB();
-        ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
-
-        ConcurrentMap<String, Utente> dbUtenti = getMappaUtenti();
-        if (dbUtenti.isEmpty()) {
-            Utente admin = new Utente("admin", "password");
-            admin.setBio("Sono l'amministratore del sistema.");
-            dbUtenti.put(admin.getUsername(), admin);
-            DatabaseCore.commit();
+        if (getMappaUtenti().isEmpty()) {
+            DatabaseSeeder.eseguiSeeding();
+            commit();
         }
-        
-        if (dbAnnunci.isEmpty()) {
-            for (int i = 1; i <= 10; i++) {
-                Annuncio a = new Annuncio.Builder()
-                    .autore("Mario")
-                    .titolo("Skill #" + i)
-                    .categoria("Sviluppo Software")
-                    .skillOfferta("Java GWT")
-                    .controprestazioneCercata("Grafica")
-                    .disponibilita("Weekend")
-                    .build();
-                dbAnnunci.put(i, a);
-            }
-            DatabaseCore.commit();
-        }
-
-        // Skill ATTIVA
-        Annuncio skill1 = new Annuncio.Builder()
-            .autore("admin")
-            .titolo("Cucina Pollo")
-            .categoria("Cucina")
-            .skillOfferta("Preparazione ricetta base")
-            .controprestazioneCercata("Lezioni di chitarra")
-            .disponibilita("Sabato e Domenica")
-            .build();
-        dbAnnunci.put(11, skill1);
-
-        // Skill ACCETTATA
-        Annuncio skill2 = new Annuncio.Builder()
-            .autore("admin")
-            .titolo("Programmazione Java")
-            .categoria("Sviluppo Software")
-            .skillOfferta("Spiegazione concetti OOP")
-            .controprestazioneCercata("Ripetizioni di matematica")
-            .disponibilita("Lunedì pomeriggio")
-            .build();
-        dbAnnunci.put(12, skill2);
-
-        // Skill CONCLUSA
-        Annuncio skill3 = new Annuncio.Builder()
-            .autore("admin")
-            .titolo("Allenamento Tennis")
-            .categoria("Sport") 
-            .skillOfferta("Palleggio e tecnica")
-            .controprestazioneCercata("Preparazione atletica")
-            .disponibilita("Giovedì sera")
-            .build();
-        dbAnnunci.put(13, skill3);
-
-        Annuncio skill4 = new Annuncio.Builder()
-            .autore("admin")
-            .titolo("Consigli Fantacalcio")
-            .categoria("Sport e Tempo Libero")
-            .skillOfferta("Analisi rose e strategie per l'asta")
-            .disponibilita("Venerdì sera")
-            .controprestazioneCercata("Consigli su configurazione PC")
-            .build();
-        dbAnnunci.put(4, skill4);
-
-        DatabaseCore.commit();
-
-        seedCategorie(db);
     }
 
     private static void seedCategorie(DB db) {
