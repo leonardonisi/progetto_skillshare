@@ -1,7 +1,10 @@
 package it.unibo;
+
 import java.time.Duration;
 
 import org.junit.jupiter.api.AfterAll;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,9 +32,10 @@ public class SkillsSeleniumTest {
             options.addArguments("--headless=new");
         }
         driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
     }
-    
+
     @AfterAll
     static void stopDriver() {
         if (driver != null) {
@@ -58,7 +62,7 @@ public class SkillsSeleniumTest {
 
         // NAVIGAZIONE VERSO LA TENDINA SKILL
         WebElement navSkill = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-skill")));
-        
+
         // simulazione hover per far apparire la tendina
         new org.openqa.selenium.interactions.Actions(driver).moveToElement(navSkill).perform();
 
@@ -69,7 +73,7 @@ public class SkillsSeleniumTest {
         // VERIFICA CARICAMENTO PAGINA
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("sidebar-mie-skills")));
     }
-   
+
     // -------------------------------------------------------------------------
     // TEST
     // -------------------------------------------------------------------------
@@ -85,7 +89,8 @@ public class SkillsSeleniumTest {
     void sidebarSkillsAccettateIsPresent() {
         WebElement btnAccettate = driver.findElement(By.id("sidebar-skills-accettate"));
         assertTrue(btnAccettate.isDisplayed());
-        assertTrue(btnAccettate.getText().contains("Skills Accettate"), "Il testo dovrebbe contenere 'Skills Accettate'");
+        assertTrue(btnAccettate.getText().contains("Skills Accettate"),
+                "Il testo dovrebbe contenere 'Skills Accettate'");
     }
 
     @Test
@@ -94,5 +99,36 @@ public class SkillsSeleniumTest {
         assertTrue(btnConcluse.isDisplayed());
         assertTrue(btnConcluse.getText().contains("Skills Concluse"), "Il testo dovrebbe contenere 'Skills Concluse'");
     }
-    
+
+    @Test
+    void testScenarioModificaDatiAnnuncioEsistente() {
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+
+        WebElement btnSidebar = wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-skill-0")));
+        btnSidebar.click();
+
+        // Click sul pulsante Modifica
+        WebElement btnModifica = wait
+                .until(ExpectedConditions.visibilityOfElementLocated(By.id("btn-modifica-annuncio")));
+        assertTrue(btnModifica.isDisplayed());
+        btnModifica.click();
+
+        WebElement inputTitolo = wait
+                .until(ExpectedConditions.visibilityOfElementLocated(By.id("input-modifica-titolo")));
+        WebElement inputDescrizione = driver.findElement(By.id("input-modifica-descrizione"));
+        WebElement btnConferma = driver.findElement(By.id("btn-modifica-conferma"));
+
+        inputTitolo.clear();
+        inputTitolo.sendKeys("CUCINA POLLO MODIFICATO");
+        inputDescrizione.clear();
+        inputDescrizione.sendKeys("Nuova descrizione per ricetta pollo");
+
+        btnConferma.click();
+
+        WebElement titoloAggiornato = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("lbl-titolo")));
+        WebElement descAggiornata = driver.findElement(By.id("lbl-descrizione"));
+
+        assertEquals("CUCINA POLLO MODIFICATO", titoloAggiornato.getText());
+        assertEquals("DETTAGLI OGGETTO: Nuova descrizione per ricetta pollo", descAggiornata.getText());
+    }
 }
