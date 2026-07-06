@@ -89,6 +89,7 @@ public class SkillsGui extends Composite {
                 contentArea.setWidget(new Label("Errore di rete: Impossibile caricare le skill."));
             }
 
+            
             @Override
             public void onSuccess(List<Annuncio> skillsDalDb) {
                 listaMieSkill.clear();
@@ -192,9 +193,40 @@ public class SkillsGui extends Composite {
         lblOgg.getElement().setId("lbl-descrizione");
 
         if (statoSimulato.equals("ATTIVA")) {
+            // 1. Creiamo il bottone Rimuovi con la tua logica RPC (da HEAD)
             Button btnRimuovi = new Button("Rimuovi");
+            
+            btnRimuovi.addClickHandler(event -> {
+                boolean confermato = Window.confirm("Sei sicuro di voler eliminare definitivamente questo annuncio dal Marketplace?");
+                
+                if (confermato) {
+                    skillService.deleteSkill(skill.getId(), new AsyncCallback<Boolean>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Window.alert("Errore di comunicazione con il server.");
+                        }
+
+                        @Override
+                        public void onSuccess(Boolean eliminato) {
+                            if (eliminato) {
+                                // Svuota l'area centrale e ricarica la tendina aggiornata senza la skill eliminata
+                                contentArea.clear();
+                                caricaSkillsDalDatabase();
+                            } else {
+                                Window.alert("Errore: Impossibile trovare la skill da eliminare.");
+                            }
+                        }
+                    });
+                }
+            });
+            
+            // 2. Creiamo il bottone Modifica mantenendo l'ID inserito dal tuo collega (da main)
             Button btnModifica = new Button("Modifica");
             btnModifica.getElement().setId("btn-modifica-annuncio");
+            
+            // Aggiungiamo i bottoni modificati al gruppo
+            buttonGroups.add(btnRimuovi);
+            buttonGroups.add(btnModifica);
 
             Button btnChat = new Button("💬");
             btnChat.getElement().getStyle().setProperty("backgroundColor", "#007bff");

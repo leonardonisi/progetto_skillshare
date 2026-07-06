@@ -9,4 +9,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("skillService")
 public interface SkillService extends RemoteService {
     List<Annuncio> getMieSkills(String username);
+    boolean deleteSkill(int idAnnuncio);
 }

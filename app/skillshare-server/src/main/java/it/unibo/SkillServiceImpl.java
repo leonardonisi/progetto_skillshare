@@ -30,4 +30,19 @@ public class SkillServiceImpl extends RemoteServiceServlet implements SkillServi
 
         return mieSkills;
     }
+
+    @Override
+    public boolean deleteSkill(int idAnnuncio) {
+        // Recupero della mappa dal database
+        ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
+        
+        // Verifica esistenza, rimozione e salvataggio
+        if (dbAnnunci.containsKey(idAnnuncio)) {
+            dbAnnunci.remove(idAnnuncio);
+            DatabaseCore.commit();
+            return true;
+        }
+        
+        return false;
+    }
 }

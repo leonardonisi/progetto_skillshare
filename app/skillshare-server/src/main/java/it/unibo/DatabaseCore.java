@@ -93,6 +93,7 @@ public class DatabaseCore {
 
         // Skill ATTIVA
         Annuncio skill1 = new Annuncio.Builder()
+                .id(11)
                 .autore("admin")
                 .titolo("Cucina Pollo")
                 .categoria("Cucina")
@@ -104,6 +105,7 @@ public class DatabaseCore {
 
         // Skill ACCETTATA
         Annuncio skill2 = new Annuncio.Builder()
+                .id(12)
                 .autore("admin")
                 .titolo("Programmazione Java")
                 .categoria("Sviluppo Software")
@@ -115,6 +117,7 @@ public class DatabaseCore {
 
         // Skill CONCLUSA
         Annuncio skill3 = new Annuncio.Builder()
+                .id(13)
                 .autore("admin")
                 .titolo("Allenamento Tennis")
                 .categoria("Sport")
@@ -125,6 +128,7 @@ public class DatabaseCore {
         dbAnnunci.put(13, skill3);
 
         Annuncio skill4 = new Annuncio.Builder()
+                .id(14)
                 .autore("admin")
                 .titolo("Consigli Fantacalcio")
                 .categoria("Sport e Tempo Libero")

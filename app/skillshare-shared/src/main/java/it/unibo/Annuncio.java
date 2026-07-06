@@ -4,18 +4,19 @@ import java.io.Serializable;
 
 public class Annuncio implements Serializable {
 
+    private int id;
     private String autore;
     private String titolo;
     private String categoria;
     private String skillOfferta;
     private String controprestazioneCercata;
     private String disponibilita;
-    private int id;
 
     public Annuncio() {
     }
 
     private Annuncio(Builder builder) {
+        this.id = builder.id;
         this.autore = builder.autore;
         this.titolo = builder.titolo;
         this.categoria = builder.categoria;
@@ -83,6 +84,7 @@ public class Annuncio implements Serializable {
 
     // Builder
     public static class Builder {
+        private int id;
         private String autore;
         private String titolo;
         private String categoria;
@@ -91,6 +93,11 @@ public class Annuncio implements Serializable {
         private String disponibilita;
 
         public Builder() {
+        }
+
+        public Builder id(int id) {
+            this.id = id;
+            return this;
         }
 
         public Builder autore(String autore) {
