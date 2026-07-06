@@ -10,6 +10,7 @@ public class Annuncio implements Serializable {
     private String skillOfferta;
     private String controprestazioneCercata;
     private String disponibilita;
+    private int id;
 
     public Annuncio() {
     }
@@ -70,6 +71,14 @@ public class Annuncio implements Serializable {
 
     public void setDisponibilita(String disponibilita) {
         this.disponibilita = disponibilita;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     // Builder
