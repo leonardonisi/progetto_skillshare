@@ -42,4 +42,28 @@ public class CreateAdServiceImpl extends RemoteServiceServlet implements CreateA
         return new ArrayList<>(categorieImmutabili);
     }
 
+    @Override
+    public boolean aggiornaAnnuncio(int id, Annuncio annuncioAggiornato) {
+        if (annuncioAggiornato == null ||
+                annuncioAggiornato.getTitolo() == null || annuncioAggiornato.getTitolo().trim().isEmpty() ||
+                annuncioAggiornato.getCategoria() == null || annuncioAggiornato.getCategoria().trim().isEmpty() ||
+                annuncioAggiornato.getSkillOfferta() == null || annuncioAggiornato.getSkillOfferta().trim().isEmpty() ||
+                annuncioAggiornato.getDisponibilita() == null || annuncioAggiornato.getDisponibilita().trim().isEmpty()
+                ||
+                annuncioAggiornato.getAutore() == null) {
+            return false;
+        }
+
+        try {
+            if (!dbAnnunci.containsKey(id)) {
+                return false;
+            }
+            // Sovrascrivo l'annuncio mantenendo lo stesso identico ID chiave
+            dbAnnunci.put(id, annuncioAggiornato);
+            DatabaseCore.commit();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
