@@ -10,4 +10,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface SkillService extends RemoteService {
     List<Annuncio> getMieSkills(String username);
     boolean deleteSkill(int idAnnuncio);
+    boolean salvaValutazione(Valutazione valutazione);
 }
