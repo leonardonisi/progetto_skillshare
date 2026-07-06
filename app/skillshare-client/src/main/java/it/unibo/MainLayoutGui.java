@@ -113,8 +113,9 @@ public class MainLayoutGui extends Composite {
         lblChat.getElement().getStyle().setProperty("fontSize", "18px");
         lblChat.getElement().getStyle().setProperty("marginLeft", "60px");
         lblChat.getElement().setId("nav-chat");
-
-        lblChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
+        lblChat.addClickHandler(event -> {
+            new ChatGui().mostra();
+        });
 
         Label lblSkill = new Label("SKILL");
         lblSkill.getElement().getStyle().setProperty("cursor", "pointer");
@@ -147,7 +148,7 @@ public class MainLayoutGui extends Composite {
             menuSkill.hide();
         });
 
-        Label itemRichieste = new Label("LE MIE RICHIESTE");        
+        Label itemRichieste = new Label("LE MIE RICHIESTE");
         itemRichieste.getElement().getStyle().setProperty("cursor", "pointer");
         itemRichieste.getElement().setId("menu-item-le-mie-richieste");
         itemRichieste.addClickHandler(event -> {
@@ -207,7 +208,8 @@ public class MainLayoutGui extends Composite {
         contenitoreDinamico.add(nuovaVista);
     }
 
-    // metodo per generare un pannello fittizio con un messaggio (usato per le pagine non ancora implementate)
+    // metodo per generare un pannello fittizio con un messaggio (usato per le
+    // pagine non ancora implementate)
     private Widget creaVistaPlaceholder(String messaggio) {
         VerticalPanel placeholder = new VerticalPanel();
         placeholder.setWidth("100%");
@@ -256,7 +258,7 @@ public class MainLayoutGui extends Composite {
             public void onSuccess(List<String> result) {
                 tendinaCategorie.clear();
                 tendinaCategorie.addItem("Tutte le Categorie");
-                
+
                 for (String categoria : result) {
                     tendinaCategorie.addItem(categoria);
                 }
@@ -311,7 +313,7 @@ public class MainLayoutGui extends Composite {
                         String titolo = a.getTitolo().toLowerCase();
                         String descrizione = a.getSkillOfferta().toLowerCase();
 
-                        if (titolo.contains(ricercaEffettuata)|| descrizione.contains(ricercaEffettuata)) {
+                        if (titolo.contains(ricercaEffettuata) || descrizione.contains(ricercaEffettuata)) {
                             annunciFiltrati.add(a);
                         }
                     }
@@ -404,7 +406,7 @@ public class MainLayoutGui extends Composite {
         lblContro.getElement().getStyle().setProperty("fontSize", "16px");
         lblContro.getElement().getStyle().setProperty("marginBottom", "40px");
 
-        //Contenitore Bottoni Richiedi e Chat
+        // Contenitore Bottoni Richiedi e Chat
         FlowPanel btnContainer = new FlowPanel();
         btnContainer.setWidth("100%");
         btnContainer.getElement().getStyle().setProperty("display", "flex");
@@ -423,7 +425,8 @@ public class MainLayoutGui extends Composite {
         btnRichiedi.getElement().getStyle().setProperty("marginRight", "10px");
         btnRichiedi.setVisible(false);
 
-        btnRichiedi.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina RICHIESTA SCAMBIO in costruzione...")));
+        btnRichiedi.addClickHandler(
+                event -> cambiaVista(creaVistaPlaceholder("Pagina RICHIESTA SCAMBIO in costruzione...")));
 
         // Bottone Dettaglio Chat
         btnChat = new Button("💬");
@@ -437,7 +440,7 @@ public class MainLayoutGui extends Composite {
         btnChat.getElement().getStyle().setProperty("fontSize", "20px");
         btnChat.setVisible(false);
 
-        btnChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
+        btnChat.addClickHandler(event -> new ChatGui().mostra());
 
         // Assemblaggio Contenitore Bottoni
         btnContainer.add(btnRichiedi);
@@ -478,7 +481,7 @@ public class MainLayoutGui extends Composite {
         card.getElement().getStyle().setProperty("marginBottom", "15px");
         card.getElement().getStyle().setProperty("cursor", "pointer");
         card.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
-        
+
         VerticalPanel cardContent = new VerticalPanel();
         cardContent.setWidth("100%");
         cardContent.setHeight("80px");
@@ -492,7 +495,7 @@ public class MainLayoutGui extends Composite {
         card.add(cardContent);
 
         card.addClickHandler(event -> mostraDettaglio(a));
-        
+
         return card;
     }
 
@@ -505,7 +508,7 @@ public class MainLayoutGui extends Composite {
 
             @Override
             public void onSuccess(List<Annuncio> result) {
-                tuttiGliAnnunci = result; 
+                tuttiGliAnnunci = result;
 
                 aggiornaVistaAnnunci(tuttiGliAnnunci);
             }
@@ -514,7 +517,7 @@ public class MainLayoutGui extends Composite {
 
     private void aggiornaVistaAnnunci(List<Annuncio> annunciDaMostrare) {
         colonnaSinistra.clear();
-        
+
         if (annunciDaMostrare == null || annunciDaMostrare.isEmpty()) {
             Label alert = new Label("Nessun annuncio trovato");
             alert.getElement().setId("alert-filtraggio-categorie");
@@ -522,7 +525,7 @@ public class MainLayoutGui extends Composite {
             colonnaSinistra.add(alert);
             return;
         }
-        
+
         for (Annuncio a : annunciDaMostrare) {
             colonnaSinistra.add(creaCard(a));
         }
@@ -532,7 +535,7 @@ public class MainLayoutGui extends Composite {
         titoloDettaglio.setText(a.getTitolo());
         votoDettaglio.setText("👤 4.9"); // voto fisso di mockup, da collegare a database
         lblCategoria.setText("CATEGORIA: " + a.getCategoria());
-        lblDescrizione.setText("DESCRIZIONE: " + a.getSkillOfferta()); 
+        lblDescrizione.setText("DESCRIZIONE: " + a.getSkillOfferta());
         lblDispo.setText("DISPONIBILITÀ: " + a.getDisponibilita());
         lblContro.setText("CONTROPRESTAZIONE: " + a.getControprestazione());
 

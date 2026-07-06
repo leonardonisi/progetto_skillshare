@@ -26,15 +26,6 @@ public class Annuncio implements Serializable {
     }
 
     // Getter e Setter
-
-    public int getId() {
-        return id;
-    }
-
-    private void setId(int id){
-        this.id = id;
-    }
-
     public String getAutore() {
         return autore;
     }
@@ -81,6 +72,14 @@ public class Annuncio implements Serializable {
 
     public void setDisponibilita(String disponibilita) {
         this.disponibilita = disponibilita;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     // Builder

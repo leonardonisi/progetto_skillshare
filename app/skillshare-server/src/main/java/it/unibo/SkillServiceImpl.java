@@ -20,8 +20,10 @@ public class SkillServiceImpl extends RemoteServiceServlet implements SkillServi
         }
 
         // Filtraggio degli annunci che appartengono solo all'utente richiesto
-        for (Annuncio a : dbAnnunci.values()) {
-            if (username.equals(a.getAutore())) {
+        for (java.util.Map.Entry<Integer, Annuncio> entry : dbAnnunci.entrySet()) {
+            Annuncio a = entry.getValue();
+            if (a != null && username.equals(a.getAutore())) {
+                a.setId(entry.getKey()); // aggiunta dell'ID all'annuncio
                 mieSkills.add(a);
             }
         }

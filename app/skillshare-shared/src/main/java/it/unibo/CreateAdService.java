@@ -9,4 +9,6 @@ public interface CreateAdService extends RemoteService {
     boolean pubblicaAnnuncio(Annuncio annuncio) throws IllegalArgumentException;
 
     List<String> getCategorie();
+
+    boolean aggiornaAnnuncio(int id, Annuncio annuncioAggiornato);
 }
