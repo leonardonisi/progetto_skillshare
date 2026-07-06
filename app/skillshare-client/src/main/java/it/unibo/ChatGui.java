@@ -1,5 +1,7 @@
 package it.unibo;
 
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -19,7 +21,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class ChatGui {
 
-    // private final ChatServiceAsync chatService = GWT.create(ChatService.class);
+    private final ChatServiceAsync chatService = GWT.create(ChatService.class);
 
     private final VerticalPanel contactsPanel = new VerticalPanel();
     private final VerticalPanel messagesArea = new VerticalPanel();
@@ -130,7 +132,7 @@ public class ChatGui {
             }
         });
 
-        // MODIFICA: Invio automatico alla pressione del tasto INVIO della tastiera
+        // Invio automatico alla pressione del tasto INVIO della tastiera
         messageInput.addKeyPressHandler(new KeyPressHandler() {
             @Override
             public void onKeyPress(KeyPressEvent event) {
@@ -144,35 +146,48 @@ public class ChatGui {
     private void caricaContatti() {
         contactsPanel.clear();
 
-        for (int i = 1; i <= 3; i++) {
-            final String nomeInterlocutore = "UtenteScambio_" + i;
+        chatService.getConversazioniAttive(utenteLoggato, new AsyncCallback<List<String>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                contactsPanel.add(new Label("Errore nel caricamento delle conversazioni."));
+            }
 
-            VerticalPanel contactBox = new VerticalPanel();
-            contactBox.setWidth("100%");
-            contactBox.getElement().setId("contatto-" + nomeInterlocutore);
-
-            contactBox.getElement().getStyle().setProperty("border", "1px solid #000000");
-            contactBox.getElement().getStyle().setProperty("marginBottom", "15px");
-            contactBox.getElement().getStyle().setProperty("padding", "25px 20px");
-            contactBox.getElement().getStyle().setProperty("cursor", "pointer");
-            contactBox.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
-
-            Label nameLabel = new Label(nomeInterlocutore);
-            nameLabel.getElement().getStyle().setProperty("fontSize", "18px");
-            nameLabel.getElement().getStyle().setProperty("fontWeight", "bold");
-
-            contactBox.add(nameLabel);
-
-            // Handler per gestire il click sulla conversazione
-            contactBox.addDomHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    apriConversazione(nomeInterlocutore);
+            @Override
+            public void onSuccess(List<String> contatti) {
+                if (contatti == null || contatti.isEmpty()) {
+                    contactsPanel.add(new Label("Nessuna conversazione attiva."));
+                    return;
                 }
-            }, ClickEvent.getType());
 
-            contactsPanel.add(contactBox);
-        }
+                for (final String nomeInterlocutore : contatti) {
+                    VerticalPanel contactBox = new VerticalPanel();
+                    contactBox.setWidth("100%");
+                    contactBox.getElement().setId("contatto-" + nomeInterlocutore);
+
+                    contactBox.getElement().getStyle().setProperty("border", "1px solid #000000");
+                    contactBox.getElement().getStyle().setProperty("marginBottom", "15px");
+                    contactBox.getElement().getStyle().setProperty("padding", "25px 20px");
+                    contactBox.getElement().getStyle().setProperty("cursor", "pointer");
+                    contactBox.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
+
+                    Label nameLabel = new Label(nomeInterlocutore);
+                    nameLabel.getElement().getStyle().setProperty("fontSize", "18px");
+                    nameLabel.getElement().getStyle().setProperty("fontWeight", "bold");
+
+                    contactBox.add(nameLabel);
+
+                    // Gestione del click sulla conversazione reale
+                    contactBox.addDomHandler(new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            apriConversazione(nomeInterlocutore);
+                        }
+                    }, ClickEvent.getType());
+
+                    contactsPanel.add(contactBox);
+                }
+            }
+        });
     }
 
     private void apriConversazione(String interlocutore) {
@@ -181,43 +196,58 @@ public class ChatGui {
         btnInvia.setEnabled(true);
         messageInput.setFocus(true);
 
-        // Cambia l'header mostrando con chi stai parlando
         chatHeaderTitle.setHTML("<h3>Chat con: <b>" + interlocutore + "</b></h3>");
 
-        // Messaggio ricevuto (a sinistra, colore Nero)
-        Label msgRicevuto = new Label("Ciao! Ho visto il tuo annuncio su Skillshare.");
-        msgRicevuto.getElement().getStyle().setProperty("color", "#000000");
-        // MODIFICA: Ingrandito e spaziato
-        msgRicevuto.getElement().getStyle().setProperty("fontSize", "16px");
-        msgRicevuto.getElement().getStyle().setProperty("marginBottom", "12px");
+        chatService.getCronologia(utenteLoggato, interlocutore, new AsyncCallback<List<Messaggio>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                messagesArea.add(new Label("Errore nel caricamento della cronologia."));
+            }
 
-        messagesArea.add(msgRicevuto);
-        messagesArea.setCellHorizontalAlignment(msgRicevuto, VerticalPanel.ALIGN_LEFT);
+            @Override
+            public void onSuccess(List<Messaggio> cronologia) {
+                if (cronologia == null)
+                    return;
 
-        // Messaggio inviato (a destra, colore Azzurro)
-        Label msgInviato = new Label("Ciao!");
-        msgInviato.getElement().getStyle().setProperty("color", "#007BFF");
-        msgInviato.getElement().getStyle().setProperty("fontSize", "16px");
-        msgInviato.getElement().getStyle().setProperty("marginBottom", "12px");
+                for (Messaggio m : cronologia) {
+                    Label lblMsg = new Label(m.getTesto());
+                    lblMsg.getElement().getStyle().setProperty("fontSize", "16px");
+                    lblMsg.getElement().getStyle().setProperty("marginBottom", "12px");
 
-        messagesArea.add(msgInviato);
-        messagesArea.setCellHorizontalAlignment(msgInviato, VerticalPanel.ALIGN_RIGHT);
+                    // Se il mittente sono io -> Messaggio inviato (Azzurro a Destra)
+                    if (m.getMittente().equals(utenteLoggato)) {
+                        lblMsg.getElement().getStyle().setProperty("color", "#007BFF");
+                        messagesArea.add(lblMsg);
+                        messagesArea.setCellHorizontalAlignment(lblMsg, VerticalPanel.ALIGN_RIGHT);
+                    } else {
+                        // Se il mittente è l'altro -> Messaggio ricevuto (Nero a Sinistra)
+                        lblMsg.getElement().getStyle().setProperty("color", "#000000");
+                        messagesArea.add(lblMsg);
+                        messagesArea.setCellHorizontalAlignment(lblMsg, VerticalPanel.ALIGN_LEFT);
+                    }
+                }
+            }
+        });
     }
 
     private void inviaMessaggio() {
-        String testo = messageInput.getText().trim();
+        final String testo = messageInput.getText().trim();
         if (testo.isEmpty() || interlocutoreAttivo == null) {
             return;
         }
-
-        // Crea il nuovo messaggio come semplice Label azzurra
-        Label nuovoMsg = new Label(testo);
-        nuovoMsg.getElement().getStyle().setProperty("color", "#007BFF");
-        nuovoMsg.getElement().getStyle().setProperty("fontSize", "16px");
-        nuovoMsg.getElement().getStyle().setProperty("marginBottom", "12px");
-        messagesArea.add(nuovoMsg);
-        messagesArea.setCellHorizontalAlignment(nuovoMsg, VerticalPanel.ALIGN_RIGHT);
-
         messageInput.setText("");
+
+        chatService.inviaMessaggio(utenteLoggato, interlocutoreAttivo, testo, new AsyncCallback<Void>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                Window.alert("Impossibile inviare il messaggio: " + caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(Void result) {
+                apriConversazione(interlocutoreAttivo);
+                caricaContatti();
+            }
+        });
     }
 }
