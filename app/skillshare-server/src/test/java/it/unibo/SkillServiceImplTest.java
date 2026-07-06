@@ -6,6 +6,8 @@ import java.util.concurrent.ConcurrentMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,31 +38,32 @@ class SkillServiceImplTest {
     @BeforeEach
     void setUp() throws Exception {
         DatabaseCore.enableTestMode();
-        DatabaseCore.close(); 
+        DatabaseCore.close();
 
         DB db = DatabaseCore.getDB();
-        ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+        ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA)
+                .createOrOpen();
         dbAnnunci.clear();
 
         // Inserimento delle skill per l'utente "admin"
         Annuncio skill1 = new Annuncio.Builder()
-            .autore("admin")
-            .titolo("Cucina Pollo")
-            .categoria("Cucina")
-            .build();
-            
+                .autore("admin")
+                .titolo("Cucina Pollo")
+                .categoria("Cucina")
+                .build();
+
         Annuncio skill2 = new Annuncio.Builder()
-            .autore("admin")
-            .titolo("Programmazione Java")
-            .categoria("Sviluppo Software")
-            .build();
+                .autore("admin")
+                .titolo("Programmazione Java")
+                .categoria("Sviluppo Software")
+                .build();
 
         // Inseriamo una skill di "mario" per testare che il filtro funzioni
         Annuncio skillMario = new Annuncio.Builder()
-            .autore("mario")
-            .titolo("Falsa Skill")
-            .categoria("Altro")
-            .build();
+                .autore("mario")
+                .titolo("Falsa Skill")
+                .categoria("Altro")
+                .build();
 
         dbAnnunci.put(1, skill1);
         dbAnnunci.put(2, skill2);
@@ -73,11 +76,26 @@ class SkillServiceImplTest {
     @Test
     void getMieSkills_shouldReturnOnlyAdminSkills() {
         List<Annuncio> skillsRestituite = skillService.getMieSkills("admin");
-        
+
         assertNotNull(skillsRestituite);
         assertEquals(2, skillsRestituite.size(), "Deve restituire solo le 2 skill dell'admin");
-        
+
         boolean contieneMario = skillsRestituite.stream().anyMatch(a -> a.getAutore().equals("mario"));
         assertFalse(contieneMario, "Non deve contenere skill di altri utenti");
+    }
+
+    @Test
+    void getMieSkills_shouldInjectCorrectMapDBId() {
+        List<Annuncio> skillsRestituite = skillService.getMieSkills("admin");
+
+        assertNotNull(skillsRestituite);
+        assertFalse(skillsRestituite.isEmpty(), "La lista delle skill restituite non deve essere vuota");
+
+        // Verifico dinamicamente che ogni skill dell'utente abbia un ID valido
+        // assegnato dal DB
+        for (Annuncio a : skillsRestituite) {
+            assertTrue(a.getId() > 0,
+                    "L'ID associato all'annuncio '" + a.getTitolo() + "' deve essere valido e maggiore di 0");
+        }
     }
 }
