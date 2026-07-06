@@ -73,6 +73,11 @@ public class DatabaseCore {
             Utente admin = new Utente("admin", "password");
             admin.setBio("Sono l'amministratore del sistema.");
             dbUtenti.put(admin.getUsername(), admin);
+
+            Utente mario = new Utente("mario", "password");
+            mario.setBio("Sono il secondo utente per testare gli scambi.");
+            dbUtenti.put(mario.getUsername(), mario);
+
             DatabaseCore.commit();
         }
 

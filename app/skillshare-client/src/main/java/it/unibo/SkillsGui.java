@@ -29,6 +29,7 @@ public class SkillsGui extends Composite {
     private VerticalPanel listaSkillsConcluse = new VerticalPanel();
     // interfaccia asincrona per comunicare con il server
     private SkillServiceAsync skillService = GWT.create(SkillService.class);
+    private RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
 
     public SkillsGui() {
         initWidget(mainPanel);
@@ -193,7 +194,7 @@ public class SkillsGui extends Composite {
         lblOgg.getElement().setId("lbl-descrizione");
 
         if (statoSimulato.equals("ATTIVA")) {
-            // 1. Creiamo il bottone Rimuovi con la tua logica RPC (da HEAD)
+            // Creiamo il bottone Rimuovi 
             Button btnRimuovi = new Button("Rimuovi");
             
             btnRimuovi.addClickHandler(event -> {
@@ -220,7 +221,7 @@ public class SkillsGui extends Composite {
                 }
             });
             
-            // 2. Creiamo il bottone Modifica mantenendo l'ID inserito dal tuo collega (da main)
+            // Creiamo il bottone Modifica
             Button btnModifica = new Button("Modifica");
             btnModifica.getElement().setId("btn-modifica-annuncio");
             
@@ -335,9 +336,59 @@ public class SkillsGui extends Composite {
             buttonGroups.add(btnModifica);
             buttonGroups.add(btnChat);
         } else if (statoSimulato.equals("ACCETTATA")) {
-            buttonGroups.add(new Button("✓"));
-            buttonGroups.add(new Button("X"));
-            buttonGroups.add(new Button("💬"));
+           Button btnTick = new Button("✓");
+            Button btnX = new Button("X");
+            Button btnChat = new Button("💬");
+
+            btnTick.getElement().setId("btn-tick-conferma");
+            btnX.getElement().setId("btn-x-rifiuto");
+
+            btnTick.addClickHandler(event -> {
+                btnTick.setEnabled(false);
+                String utenteAttuale = SessionManager.getUtenteLoggato();
+                
+                richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, true, new AsyncCallback<RichiestaScambio>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Errore durante la conferma: " + caught.getMessage());
+                        btnTick.setEnabled(true);
+                    }
+
+                    @Override
+                    public void onSuccess(RichiestaScambio result) {
+                        if (result != null && result.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO || result.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
+                            Window.alert("Scambio concluso con successo! Entrambi avete confermato.");
+                            contentArea.clear();
+                            caricaSkillsDalDatabase();
+                        } else {
+                            btnTick.setText("In attesa della controparte...");
+                        }
+                    }
+                });
+            });
+
+            btnX.addClickHandler(event -> {
+                if (Window.confirm("Sei sicuro di voler rifiutare o annullare questo scambio?")) {
+                    String utenteAttuale = SessionManager.getUtenteLoggato();
+                    richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, false, new AsyncCallback<RichiestaScambio>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Window.alert("Errore durante l'annullamento: " + caught.getMessage());
+                        }
+
+                        @Override
+                        public void onSuccess(RichiestaScambio result) {
+                            Window.alert("Scambio annullato.");
+                            contentArea.clear();
+                            caricaSkillsDalDatabase();
+                        }
+                    });
+                }
+            });
+
+            buttonGroups.add(btnTick);
+            buttonGroups.add(btnX);
+            buttonGroups.add(btnChat);
         } else if (statoSimulato.equals("CONCLUSA")) {
             buttonGroups.add(new Button("💬"));
             buttonGroups.add(new Button("Valuta"));
