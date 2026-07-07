@@ -201,6 +201,11 @@ public class DatabaseCore {
         return Collections.unmodifiableList(categorieList);
     }
 
+    // Metodo per recuperare la mappa delle valutazioni
+    public static ConcurrentMap<String, Valutazione> getMappaValutazioni() {
+        return getDB().hashMap("valutazioni", Serializer.STRING, Serializer.JAVA).createOrOpen();
+    }
+
     // Restituisce l'istanza attiva del database, è synchronized per prevenire
     // accessi contemporanei da thread diversi.
     public static synchronized DB getDB() {

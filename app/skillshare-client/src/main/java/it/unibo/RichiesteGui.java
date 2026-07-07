@@ -26,6 +26,7 @@ public class RichiesteGui extends Composite {
     private VerticalPanel listaConcluse = new VerticalPanel();
     
     private RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
+    private SkillServiceAsync skillService = GWT.create(SkillService.class);
 
 
     public RichiesteGui() {
@@ -250,7 +251,11 @@ public class RichiesteGui extends Composite {
         } else if (statoSimulato.equals("RIFIUTATA")) {
         } else if (statoSimulato.equals("CONCLUSA")) {
             buttonGroups.add(btnChat);
-            buttonGroups.add(new Button("Valuta"));
+            Button btnValuta = new Button("Valuta");
+            btnValuta.addClickHandler(event -> {
+                SkillsGui.apriPopupValutazione(skill, skillService);
+            });
+            buttonGroups.add(btnValuta);
         }
 
         buttonWrapper.add(buttonGroups);
