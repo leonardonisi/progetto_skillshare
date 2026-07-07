@@ -29,4 +29,39 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
 
         return mieRichieste;
     }
+
+    @Override
+    public RichiestaScambio elaboraAzioneScambio(Integer idRichiesta, String username, boolean isConferma) {
+        
+        ConcurrentMap<Integer, RichiestaScambio> dbRichieste = DatabaseCore.getMappaRichieste();
+        
+        if (dbRichieste == null || !dbRichieste.containsKey(idRichiesta)) {
+            return null;
+        }
+
+        RichiestaScambio richiesta = dbRichieste.get(idRichiesta);
+
+        //Se l'utente ha cliccato la "X" (Rifiuto)
+        if (!isConferma) {
+            richiesta.setStato(RichiestaScambio.StatoRichiesta.RIFIUTATO);
+        } else {
+            // Se l'utente ha cliccato il "Tick" (Conferma), controllo chi è
+            if (username.equals(richiesta.getProprietarioId())) {
+                richiesta.setConfermatoDaProprietario(true);
+            } else if (username.equals(richiesta.getRichiedenteId())) {
+                richiesta.setConfermatoDaRichiedente(true);
+            }
+
+            // Controllo se hanno confermato ENTRAMBI
+            if (richiesta.isConfermatoDaProprietario() && richiesta.isConfermatoDaRichiedente()) {
+                richiesta.setStato(RichiestaScambio.StatoRichiesta.CONCLUSO);
+            }
+        }
+
+        // Aggiorno la mappa e faccio il commit su MapDB
+        dbRichieste.put(idRichiesta, richiesta);
+        DatabaseCore.commit();
+
+        return richiesta;
+    }
 }
