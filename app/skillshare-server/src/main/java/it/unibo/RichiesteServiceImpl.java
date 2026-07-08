@@ -6,6 +6,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 
+import it.unibo.RichiestaScambio.StatoRichiesta;
+
 @SuppressWarnings("serial")
 public class RichiesteServiceImpl extends RemoteServiceServlet implements RichiesteService {
 
@@ -13,35 +15,32 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
     private static final ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
 
     @Override
-    public List<Annuncio> getMieRichieste(String username) {
-        List<Annuncio> mieRichieste = new ArrayList<>();
-
-        if (username == null || username.trim().isEmpty()) {
-            return mieRichieste;
-        }
-
-        // Scorrimento della mappa statica
-        for (Annuncio annuncio : dbAnnunci.values()) {
-            if (username.equals(annuncio.getAutore())) {
-                mieRichieste.add(annuncio);
+    public java.util.List<Annuncio> getMieRichieste(String username) {
+        java.util.List<Annuncio> richiesteInviateDaMe = new java.util.ArrayList<>();
+        for (RichiestaScambio r : DatabaseCore.getMappaRichieste().values()) {
+            // Filtro stringente: l'utente deve essere il RICHIEDENTE, non il proprietario!
+            if (r.getRichiedenteId().equals(username)) {
+                Annuncio a = DatabaseCore.getMappaAnnunci().get(r.getIdAnnuncio());
+                if (a != null) {
+                    richiesteInviateDaMe.add(a);
+                }
             }
         }
-
-        return mieRichieste;
+        return richiesteInviateDaMe;
     }
 
     @Override
     public RichiestaScambio elaboraAzioneScambio(Integer idRichiesta, String username, boolean isConferma) {
-        
+
         ConcurrentMap<Integer, RichiestaScambio> dbRichieste = DatabaseCore.getMappaRichieste();
-        
+
         if (dbRichieste == null || !dbRichieste.containsKey(idRichiesta)) {
             return null;
         }
 
         RichiestaScambio richiesta = dbRichieste.get(idRichiesta);
 
-        //Se l'utente ha cliccato la "X" (Rifiuto)
+        // Se l'utente ha cliccato la "X" (Rifiuto)
         if (!isConferma) {
             richiesta.setStato(RichiestaScambio.StatoRichiesta.RIFIUTATO);
         } else {
@@ -63,5 +62,62 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
         DatabaseCore.commit();
 
         return richiesta;
+    }
+
+    @Override
+    public RichiestaScambio inviaRichiesta(Integer idAnnuncio, String richiedente, String proprietario,
+            String messaggio) {
+        // Usiamo l'ID dell'annuncio sia come ID richiesta che come chiave della mappa
+        // per consistenza totale
+        RichiestaScambio nuova = new RichiestaScambio(idAnnuncio, idAnnuncio, richiedente, proprietario);
+        nuova.setMessaggioProposta(messaggio);
+        nuova.setStato(RichiestaScambio.StatoRichiesta.IN_ATTESA);
+
+        // Salva usando l'ID annuncio come chiave
+        DatabaseCore.getMappaRichieste().put(idAnnuncio, nuova);
+        DatabaseCore.commit();
+        return nuova;
+    }
+
+    @Override
+    public RichiestaScambio gestisciRispostaRichiesta(Integer idRichiesta, boolean accetta) {
+        // idRichiesta corrisponde all'ID dell'annuncio salvato come chiave
+        RichiestaScambio r = DatabaseCore.getMappaRichieste().get(idRichiesta);
+        if (r != null) {
+            r.setStato(accetta ? RichiestaScambio.StatoRichiesta.ACCETTATO : RichiestaScambio.StatoRichiesta.RIFIUTATO);
+            DatabaseCore.getMappaRichieste().put(idRichiesta, r);
+            DatabaseCore.commit();
+        }
+        return r;
+    }
+
+    @Override
+    public java.util.List<RichiestaScambio> getRichiesteRicevute(String username) {
+        java.util.List<RichiestaScambio> ricevute = new java.util.ArrayList<>();
+        for (RichiestaScambio r : DatabaseCore.getMappaRichieste().values()) {
+            if (r.getProprietarioId().equals(username) && r.getStato() == StatoRichiesta.IN_ATTESA) {
+                ricevute.add(r);
+            }
+        }
+        return ricevute;
+    }
+
+    @Override
+    public java.util.HashMap<String, String> getMappaStatiRichieste() {
+        java.util.HashMap<String, String> mappa = new java.util.HashMap<>();
+        for (RichiestaScambio r : DatabaseCore.getMappaRichieste().values()) {
+            // Convertiamo l'ID in stringa prima di inserirlo nella mappa
+            if (r.getStato() == RichiestaScambio.StatoRichiesta.ACCETTATO) {
+                mappa.put(String.valueOf(r.getIdAnnuncio()), "ACCETTATA");
+            } else if (r.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
+                mappa.put(String.valueOf(r.getIdAnnuncio()), "CONCLUSA");
+            }
+        }
+        return mappa;
+    }
+
+    @Override
+    public java.util.List<RichiestaScambio> getTutteLeRichieste() {
+        return new java.util.ArrayList<>(DatabaseCore.getMappaRichieste().values());
     }
 }

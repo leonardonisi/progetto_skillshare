@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -12,6 +13,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -32,6 +34,9 @@ public class MainLayoutGui extends Composite {
     // Servizi e Contenitori Principali
     private SimplePanel contenitoreDinamico;
     private final MarketServiceAsync servizio = GWT.create(MarketService.class);
+
+    private final RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
+    private Annuncio annuncioSelezionato;
 
     // Componenti della vista Marketplace
     VerticalPanel colonnaSinistra;
@@ -425,8 +430,64 @@ public class MainLayoutGui extends Composite {
         btnRichiedi.getElement().getStyle().setProperty("marginRight", "10px");
         btnRichiedi.setVisible(false);
 
-        btnRichiedi.addClickHandler(
-                event -> cambiaVista(creaVistaPlaceholder("Pagina RICHIESTA SCAMBIO in costruzione...")));
+        btnRichiedi.addClickHandler(event -> {
+            if (annuncioSelezionato == null) return;
+            
+            // 1. Creazione della finestra Pop-up (DialogBox)
+            DialogBox popup = new DialogBox();
+            popup.setText("Nuova Proposta di Scambio");
+            popup.setGlassEnabled(true);
+            popup.setAnimationEnabled(true);
+            
+            VerticalPanel pnlPopup = new VerticalPanel();
+            pnlPopup.setSpacing(10);
+            pnlPopup.add(new Label("Inserisci i dettagli della tua proposta o cosa vuoi offrire:"));
+            
+            TextArea txtDettagli = new TextArea();
+            txtDettagli.getElement().setId("input-dettagli-proposta");
+            txtDettagli.setWidth("250px");
+            txtDettagli.setVisibleLines(4);
+            pnlPopup.add(txtDettagli);
+            
+            HorizontalPanel pnlBottoni = new HorizontalPanel();
+            pnlBottoni.setSpacing(10);
+            
+            Button btnConfermaInvia = new Button("Conferma e Invia");
+            btnConfermaInvia.getElement().setId("btn-conferma-invio-richiesta"); // ID richiesto dalla task
+            
+            Button btnAnnulla = new Button("Annulla");
+            
+            // 2. Chiamata asincrona al server per salvare la richiesta
+            btnConfermaInvia.addClickHandler(e -> {
+                richiesteService.inviaRichiesta(
+                    annuncioSelezionato.getId(), 
+                    utenteCorrente, 
+                    annuncioSelezionato.getAutore(), 
+                    txtDettagli.getText(), 
+                    new AsyncCallback<RichiestaScambio>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Window.alert("Errore nell'inviare la richiesta.");
+                        }
+
+                        @Override
+                        public void onSuccess(RichiestaScambio result) {
+                            Window.alert("Richiesta salvata nel database in stato 'In attesa'!");
+                            popup.hide();
+                        }
+                    }
+                );
+            });
+            
+            btnAnnulla.addClickHandler(e -> popup.hide());
+            
+            pnlBottoni.add(btnConfermaInvia);
+            pnlBottoni.add(btnAnnulla);
+            pnlPopup.add(pnlBottoni);
+            
+            popup.setWidget(pnlPopup);
+            popup.center();
+        });
 
         // Bottone Dettaglio Chat
         btnChat = new Button("💬");
@@ -532,6 +593,8 @@ public class MainLayoutGui extends Composite {
     }
 
     private void mostraDettaglio(Annuncio a) {
+        this.annuncioSelezionato = a;
+        
         titoloDettaglio.setText(a.getTitolo());
         votoDettaglio.setText("👤 4.9"); // voto fisso di mockup, da collegare a database
         lblCategoria.setText("CATEGORIA: " + a.getCategoria());

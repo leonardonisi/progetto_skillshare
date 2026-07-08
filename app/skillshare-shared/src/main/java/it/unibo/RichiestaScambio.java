@@ -22,6 +22,8 @@ public class RichiestaScambio implements Serializable {
     private boolean confermatoDaProprietario;
     private boolean confermatoDaRichiedente;
 
+    private String messaggioProposta;
+
     public RichiestaScambio() {
     
     }
@@ -56,4 +58,7 @@ public class RichiestaScambio implements Serializable {
 
     public boolean isConfermatoDaRichiedente() { return confermatoDaRichiedente; }
     public void setConfermatoDaRichiedente(boolean confermatoDaRichiedente) { this.confermatoDaRichiedente = confermatoDaRichiedente; }
+
+    public String getMessaggioProposta() { return messaggioProposta; }
+    public void setMessaggioProposta(String messaggioProposta) { this.messaggioProposta = messaggioProposta; }
 }

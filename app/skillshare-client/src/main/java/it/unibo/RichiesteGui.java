@@ -93,47 +93,76 @@ public class RichiesteGui extends Composite {
     }
 
     private void caricaRichiesteDalDatabase() {
-        richiesteService.getMieRichieste("admin", new AsyncCallback<List<Annuncio>>() {
+        final String utente = SessionManager.getUtenteLoggato();
+        
+        if (utente == null || utente.trim().isEmpty()) {
+            Window.alert("Errore di sessione: Nessun utente loggato. Rifare il login.");
+            return; // Blocca l'esecuzione per evitare bug se l'utente non c'è
+        }
+        
+        richiesteService.getTutteLeRichieste(new AsyncCallback<List<RichiestaScambio>>() {
             @Override
             public void onFailure(Throwable caught) {
                 contentArea.setWidget(new Label("Errore di rete: Impossibile caricare le richieste."));
             }
 
             @Override
-            public void onSuccess(List<Annuncio> skillsDalDb) {
-                listaRichieste.clear();
-                listaAccettate.clear();
-                listaRifiutate.clear();
-                listaConcluse.clear();
-
-                for (Annuncio skill : skillsDalDb) {
-                    Button btnSkill = new Button(skill.getTitolo());
-                    btnSkill.setWidth("100%");
-                    btnSkill.getElement().getStyle().setProperty("textAlign", "left");
-                    btnSkill.getElement().getStyle().setProperty("padding", "10px");
-                    btnSkill.getElement().getStyle().setProperty("backgroundColor", "#fff");
-                    btnSkill.getElement().getStyle().setProperty("border", "1px solid #000");
-                    
-                    btnSkill.addClickHandler(event -> mostraDettagliCard(skill));
-
-                    // Simulazione degli stati in base ai titoli per testare la grafica delle 4 tendine
-                    String statoSimulato = "RICHIESTA";
-                    if (skill.getTitolo().equals("Programmazione Java")) statoSimulato = "ACCETTATA";
-                    if (skill.getTitolo().equals("Cucina Pollo")) statoSimulato = "RIFIUTATA";
-                    if (skill.getTitolo().equals("Allenamento Tennis")) statoSimulato = "CONCLUSA";
-
-                    switch (statoSimulato) {
-                        case "RICHIESTA": listaRichieste.add(btnSkill); break;
-                        case "ACCETTATA": listaAccettate.add(btnSkill); break;
-                        case "RIFIUTATA": listaRifiutate.add(btnSkill); break;
-                        case "CONCLUSA": listaConcluse.add(btnSkill); break;
+            public void onSuccess(List<RichiestaScambio> tutteLeRichieste) {
+                // Passiamo la variabile dinamica 'utente' al posto della stringa fissa "admin"
+                richiesteService.getMieRichieste(utente, new AsyncCallback<List<Annuncio>>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        contentArea.setWidget(new Label("Errore di rete: Impossibile caricare le richieste."));
                     }
-                }
+
+                    @Override
+                    public void onSuccess(List<Annuncio> skillsDalDb) {
+                        listaRichieste.clear();
+                        listaAccettate.clear();
+                        listaRifiutate.clear();
+                        listaConcluse.clear();
+
+                        for (Annuncio skill : skillsDalDb) {
+                            Button btnSkill = new Button(skill.getTitolo());
+                            btnSkill.setWidth("100%");
+                            btnSkill.getElement().getStyle().setProperty("textAlign", "left");
+                            btnSkill.getElement().getStyle().setProperty("padding", "10px");
+                            btnSkill.getElement().getStyle().setProperty("backgroundColor", "#fff");
+                            btnSkill.getElement().getStyle().setProperty("border", "1px solid #000");
+                            
+                            String statoReale = "RICHIESTA";
+                            for (RichiestaScambio r : tutteLeRichieste) {
+                                if (r.getIdAnnuncio() != null && r.getIdAnnuncio().equals(skill.getId())) {
+                                    if (r.getStato() == RichiestaScambio.StatoRichiesta.IN_ATTESA) {
+                                        statoReale = "RICHIESTA";
+                                    } else if (r.getStato() == RichiestaScambio.StatoRichiesta.ACCETTATO) {
+                                        statoReale = "ACCETTATA";
+                                    } else if (r.getStato() == RichiestaScambio.StatoRichiesta.RIFIUTATO) {
+                                        statoReale = "RIFIUTATA";
+                                    } else if (r.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
+                                        statoReale = "CONCLUSA";
+                                    }
+                                }
+                            }
+
+                            final String statoDaPassare = statoReale;
+                            // Passiamo lo stato calcolato alla card di dettaglio
+                            btnSkill.addClickHandler(event -> mostraDettagliCard(skill, statoDaPassare));
+
+                            switch (statoDaPassare) {
+                                case "RICHIESTA": listaRichieste.add(btnSkill); break;
+                                case "ACCETTATA": listaAccettate.add(btnSkill); break;
+                                case "RIFIUTATA": listaRifiutate.add(btnSkill); break;
+                                case "CONCLUSA": listaConcluse.add(btnSkill); break;
+                            }
+                        }
+                    }
+                });
             }
         });
     }
 
-    private void mostraDettagliCard(Annuncio skill) {
+    private void mostraDettagliCard(Annuncio skill, String statoReale) {
         contentArea.clear();
 
         VerticalPanel card = new VerticalPanel();
@@ -184,10 +213,10 @@ public class RichiesteGui extends Composite {
         HorizontalPanel buttonGroups = new HorizontalPanel();
         buttonGroups.setSpacing(10);
 
-        String statoSimulato = "RICHIESTA";
-        if (skill.getTitolo().equals("Programmazione Java")) statoSimulato = "ACCETTATA";
-        if (skill.getTitolo().equals("Cucina Pollo")) statoSimulato = "RIFIUTATA";
-        if (skill.getTitolo().equals("Allenamento Tennis")) statoSimulato = "CONCLUSA";
+        String statoSimulato = statoReale;
+
+        lblTitolo.getElement().setId("lbl-titolo");
+        lblOgg.getElement().setId("lbl-descrizione");
 
         Button btnChat = new Button("💬"); 
         btnChat.getElement().getStyle().setProperty("backgroundColor", "#007bff");
@@ -249,6 +278,7 @@ public class RichiesteGui extends Composite {
             buttonGroups.add(btnX);
             buttonGroups.add(btnChat);
         } else if (statoSimulato.equals("RIFIUTATA")) {
+            // Categoria gestita coerentemente dallo switch
         } else if (statoSimulato.equals("CONCLUSA")) {
             buttonGroups.add(btnChat);
             Button btnValuta = new Button("Valuta");
