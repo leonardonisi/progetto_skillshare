@@ -12,4 +12,6 @@ public interface RichiesteService extends RemoteService {
     Annuncio getAnnuncioById(Integer id);
     
     Utente getUtenteById(String usernameId);
+
+    RichiestaScambio elaboraAzioneScambio(Integer idRichiesta, String username, boolean isConferma);
 }

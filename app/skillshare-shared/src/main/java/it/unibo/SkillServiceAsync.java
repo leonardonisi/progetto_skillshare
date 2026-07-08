@@ -14,4 +14,5 @@ public interface SkillServiceAsync {
     void getUtenteById(String id, AsyncCallback<Utente> callback);
 
     void deleteSkill(int idAnnuncio, AsyncCallback<Boolean> callback);
+    void salvaValutazione(Valutazione valutazione, AsyncCallback<Boolean> callback);
 }

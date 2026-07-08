@@ -10,4 +10,6 @@ public interface RichiesteServiceAsync {
     void getAnnuncioById(Integer id, AsyncCallback<Annuncio> callback);
 
     void getUtenteById(String id, AsyncCallback<Utente> callback);
+
+    void elaboraAzioneScambio(Integer idRichiesta, String username, boolean isConferma, AsyncCallback<RichiestaScambio> callback);
 }

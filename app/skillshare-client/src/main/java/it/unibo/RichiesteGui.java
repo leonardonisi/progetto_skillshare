@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.Window;
 
 public class RichiesteGui extends Composite {
 
@@ -35,6 +36,7 @@ public class RichiesteGui extends Composite {
 
     private RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
     private MarketServiceAsync marketService = GWT.create(MarketService.class);
+    private SkillServiceAsync skillService = GWT.create(SkillService.class);
 
     public RichiesteGui() {
         this.utenteCorrente = SessionManager.getUtenteLoggato();
@@ -268,6 +270,7 @@ public class RichiesteGui extends Composite {
         btnChat.getElement().getStyle().setProperty("backgroundColor", "#007bff");
         btnChat.getElement().getStyle().setProperty("color", "#fff");
 
+<<<<<<< HEAD
         switch(richiesta.getStato()) {
             case IN_ATTESA:
                 Button btnAccettaScambio = new Button("Accetta Richiesta");
@@ -281,6 +284,58 @@ public class RichiesteGui extends Composite {
                 buttonGroups.add(btnConfermaScambio);
                 buttonGroups.add(btnSegnalaScambioNonAvvenuto);
                 buttonGroups.add(btnChat);
+                Button btnTick = new Button("✓");
+                Button btnX = new Button("X");
+
+                btnTick.getElement().setId("btn-tick-conferma");
+                btnX.getElement().setId("btn-x-rifiuto");
+
+                btnTick.addClickHandler(event -> {
+                    btnTick.setEnabled(false);
+                    String utenteAttuale = SessionManager.getUtenteLoggato();
+                    
+                    richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, true, new AsyncCallback<RichiestaScambio>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Window.alert("Errore durante la conferma: " + caught.getMessage());
+                            btnTick.setEnabled(true);
+                        }
+
+                        @Override
+                        public void onSuccess(RichiestaScambio result) {
+                            if (result != null && result.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
+                                Window.alert("Scambio concluso con successo! Entrambi avete confermato.");
+                                contentArea.clear();
+                                caricaRichiesteDalDatabase();
+                            } else {
+                                btnTick.setText("In attesa della controparte...");
+                            }
+                        }
+                    });
+                });
+
+                btnX.addClickHandler(event -> {
+                    if (Window.confirm("Sei sicuro di voler rifiutare o annullare questo scambio?")) {
+                        String utenteAttuale = SessionManager.getUtenteLoggato();
+                        richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, false, new AsyncCallback<RichiestaScambio>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Errore durante l'annullamento: " + caught.getMessage());
+                            }
+
+                            @Override
+                            public void onSuccess(RichiestaScambio result) {
+                                Window.alert("Scambio annullato.");
+                                contentArea.clear();
+                                caricaRichiesteDalDatabase();
+                            }
+                        });
+                    }
+                });
+
+                buttonGroups.add(btnTick);
+                buttonGroups.add(btnX);
+                buttonGroups.add(btnChat);
                 break;
 
             case RIFIUTATO:
@@ -291,8 +346,13 @@ public class RichiesteGui extends Composite {
                 Button btnValuta = new Button("Valuta");
                 buttonGroups.add(btnValuta);
                 buttonGroups.add(btnChat);
+                buttonGroups.add(btnChat);
+                Button btnValuta = new Button("Valuta");
+                btnValuta.addClickHandler(event -> {
+                    SkillsGui.apriPopupValutazione(skill, skillService);
+                });
+                buttonGroups.add(btnValuta);
                 break;
-        }
 
         buttonWrapper.add(buttonGroups);
         buttonWrapper.setCellHorizontalAlignment(buttonGroups, HasHorizontalAlignment.ALIGN_RIGHT);

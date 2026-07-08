@@ -2,8 +2,11 @@ package it.unibo;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapdb.DB;
@@ -56,5 +59,21 @@ public class RichiesteServiceImplTest {
         
         assertNotNull(richieste);
         assertFalse(richieste.isEmpty());
+    }
+
+    @Test
+    void testDoppiaConfermaPortaAStatoConcluso() {
+        
+        RichiestaScambio r = new RichiestaScambio(999, 1, "mario", "admin");
+        r.setStato(RichiestaScambio.StatoRichiesta.ACCETTATO);
+        DatabaseCore.getMappaRichieste().put(999, r);
+
+        RichiestaScambio r1 = richiesteService.elaboraAzioneScambio(999, "admin", true);
+        assertEquals(RichiestaScambio.StatoRichiesta.ACCETTATO, r1.getStato());
+        assertTrue(r1.isConfermatoDaProprietario());
+        assertFalse(r1.isConfermatoDaRichiedente());
+
+        RichiestaScambio r2 = richiesteService.elaboraAzioneScambio(999, "mario", true);
+        assertEquals(RichiestaScambio.StatoRichiesta.CONCLUSO, r2.getStato());
     }
 }

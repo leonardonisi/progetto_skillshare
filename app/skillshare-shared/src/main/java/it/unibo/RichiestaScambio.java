@@ -17,7 +17,9 @@ public class RichiestaScambio implements Serializable {
     private Integer idAnnuncio;   
     private String richiedenteUser;   
     private String proprietarioUser;  
-    private StatoRichiesta stato;   
+    private StatoRichiesta stato;
+    private boolean confermatoDaProprietario;
+    private boolean confermatoDaRichiedente;   
 
     public RichiestaScambio() {
     }
@@ -28,6 +30,8 @@ public class RichiestaScambio implements Serializable {
         this.richiedenteUser = richiedenteUser;
         this.proprietarioUser = proprietarioUser;
         this.stato = StatoRichiesta.IN_ATTESA;
+        this.confermatoDaProprietario = false;
+        this.confermatoDaRichiedente = false;
     }
 
     public Integer getId() { return id; }
@@ -44,4 +48,10 @@ public class RichiestaScambio implements Serializable {
 
     public StatoRichiesta getStato() { return stato; }
     public void setStato(StatoRichiesta stato) { this.stato = stato; }
+
+    public boolean isConfermatoDaProprietario() { return confermatoDaProprietario; }
+    public void setConfermatoDaProprietario(boolean confermatoDaProprietario) { this.confermatoDaProprietario = confermatoDaProprietario; }
+
+    public boolean isConfermatoDaRichiedente() { return confermatoDaRichiedente; }
+    public void setConfermatoDaRichiedente(boolean confermatoDaRichiedente) { this.confermatoDaRichiedente = confermatoDaRichiedente; }
 }

@@ -98,4 +98,38 @@ class SkillServiceImplTest {
                     "L'ID associato all'annuncio '" + a.getTitolo() + "' deve essere valido e maggiore di 0");
         }
     }
+
+    @Test
+    void salvaValutazione_deveImpedireValutazioniMultiplePerLoStessoScambio() {
+        // Preparazione dati: Assicuriamoci che la mappa delle valutazioni sia vuota per il test
+        ConcurrentMap<String, Valutazione> dbValutazioni = DatabaseCore.getMappaValutazioni();
+        dbValutazioni.clear();
+
+        Valutazione valutazione = new Valutazione.Builder()
+            .id(999)
+            .autore("admin")
+            .voto(5)
+            .recensione("Ottimo scambio!")
+            .build();
+
+        // Prima chiamata: deve avere successo
+        boolean primoTentativo = skillService.salvaValutazione(valutazione);
+        org.junit.jupiter.api.Assertions.assertTrue(primoTentativo, "La prima valutazione deve essere salvata con successo");
+        org.junit.jupiter.api.Assertions.assertEquals(1, dbValutazioni.size(), "Deve esserci 1 valutazione nel db");
+
+        // Seconda chiamata (stesso scambio): deve fallire
+        Valutazione valutazioneDuplicata = new Valutazione.Builder()
+            .id(999)
+            .autore("admin")
+            .voto(3)
+            .recensione("Provo a cambiare il voto")
+            .build();
+            
+        boolean secondoTentativo = skillService.salvaValutazione(valutazioneDuplicata);
+        assertFalse(secondoTentativo, "Non deve permettere il salvataggio di una seconda valutazione per lo stesso scambio");
+        
+        // Verifica che il database non sia stato modificato dal secondo tentativo
+        assertEquals(1, dbValutazioni.size());
+        assertEquals(5, dbValutazioni.get(999).getVoto(), "Il voto deve rimanere quello della prima valutazione");
+    }
 }
