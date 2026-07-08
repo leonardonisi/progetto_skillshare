@@ -10,4 +10,6 @@ public interface MarketServiceAsync {
     void getCategorie(AsyncCallback<List<String>> callback);
 
     void getUtente(String username, AsyncCallback<Utente> callback);
+
+    void logout(String username, AsyncCallback<Void> callback);
 }
