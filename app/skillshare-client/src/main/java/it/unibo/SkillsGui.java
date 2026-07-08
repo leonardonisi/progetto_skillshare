@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -38,9 +39,11 @@ public class SkillsGui extends Composite {
     private SkillServiceAsync skillService = GWT.create(SkillService.class);
     private MarketServiceAsync marketService = GWT.create(MarketService.class);
     private RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
-
-    public SkillsGui() {
+    private MainLayoutGui mainLayout;
+        
+    public SkillsGui(MainLayoutGui mainLayout) {
         this.utenteCorrente = SessionManager.getUtenteLoggato();
+        this.mainLayout = mainLayout;
 
         initWidget(mainPanel);
         mainPanel.setWidth("100%");
@@ -573,21 +576,21 @@ public class SkillsGui extends Composite {
 
         HorizontalPanel starPanel = new HorizontalPanel();
         starPanel.setSpacing(5);
-        final int[] votoSelezionato = {0}; 
+        final int[] votoSelezionato = { 0 };
         Label[] stelle = new Label[5];
-        
+
         for (int i = 0; i < 5; i++) {
             final int starValue = i + 1;
             stelle[i] = new Label("☆");
             stelle[i].getElement().setId("star-" + starValue);
             stelle[i].getElement().getStyle().setProperty("fontSize", "24px");
             stelle[i].getElement().getStyle().setProperty("cursor", "pointer");
-            
+
             stelle[i].addClickHandler(e -> {
                 votoSelezionato[0] = starValue;
                 for (int j = 0; j < 5; j++) {
                     stelle[j].setText(j < starValue ? "★" : "☆");
-                    stelle[j].getElement().getStyle().setProperty("color", j < starValue ? "#FFD700" : "#000000"); 
+                    stelle[j].getElement().getStyle().setProperty("color", j < starValue ? "#FFD700" : "#000000");
                 }
             });
             starPanel.add(stelle[i]);
@@ -598,11 +601,11 @@ public class SkillsGui extends Composite {
 
         HorizontalPanel btnPanel = new HorizontalPanel();
         btnPanel.setSpacing(10);
-        
+
         Button btnAnnulla = new Button("Annulla");
         btnAnnulla.getElement().setId("btn-annulla-valutazione");
         btnAnnulla.addClickHandler(e -> popup.hide());
-        
+
         Button btnInvia = new Button("Invia");
         btnInvia.getElement().setId("btn-invia-valutazione");
         btnInvia.addClickHandler(e -> {
@@ -610,7 +613,7 @@ public class SkillsGui extends Composite {
                 Window.alert("Per favore, seleziona un voto con le stelle.");
                 return;
             }
-            
+
             Valutazione nuovaValutazione = new Valutazione.Builder()
                 .id(skill.getId())
                 .autore(utenteCorrente)
@@ -623,6 +626,7 @@ public class SkillsGui extends Composite {
                 public void onFailure(Throwable caught) {
                     Window.alert("Errore di connessione.");
                 }
+
                 @Override
                 public void onSuccess(Boolean salvata) {
                     if (salvata) {
@@ -635,12 +639,12 @@ public class SkillsGui extends Composite {
             });
         });
 
-            btnPanel.add(btnInvia);
-            btnPanel.add(btnAnnulla);
-            panel.add(btnPanel);
-            
-            popup.setWidget(panel);
-            popup.center();
+        btnPanel.add(btnInvia);
+        btnPanel.add(btnAnnulla);
+        panel.add(btnPanel);
+        
+        popup.setWidget(panel);
+        popup.center();
     }
 
     private void caricaImmagineProfilo(Image imgProfilo, String username) {
@@ -659,5 +663,23 @@ public class SkillsGui extends Composite {
                 }
             }
         });
+    }
+
+    private void eseguiNavigazioneChat(String interlocutore) {
+        String utenteLoggato = SessionManager.getUtenteLoggato();
+
+        // Sicurezza se la sessione locale dovesse essere vuota
+        if (utenteLoggato == null || utenteLoggato.isEmpty()) {
+            utenteLoggato = "admin";
+        }
+
+        if (utenteLoggato.equals(interlocutore)) {
+            interlocutore = "UtenteScambio_1";
+        }
+
+        ChatGui vistaChat = new ChatGui();
+        mainLayout.cambiaVista(vistaChat);
+        // Apre o crea la chat con l'interlocutore corretto
+        vistaChat.apriConversazione(interlocutore);
     }
 }

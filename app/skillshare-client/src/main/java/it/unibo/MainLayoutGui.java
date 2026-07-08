@@ -76,8 +76,9 @@ public class MainLayoutGui extends Composite {
         lblChat.getElement().getStyle().setProperty("fontSize", "18px");
         lblChat.getElement().getStyle().setProperty("marginLeft", "60px");
         lblChat.getElement().setId("nav-chat");
+
         lblChat.addClickHandler(event -> {
-            new ChatGui().mostra();
+            cambiaVista(new ChatGui());
         });
 
         Label lblSkill = new Label("SKILL");
@@ -93,6 +94,47 @@ public class MainLayoutGui extends Composite {
         menuSkill.getElement().getStyle().setProperty("border", "1px solid #ccc");
         menuSkill.getElement().getStyle().setProperty("padding", "10px");
 
+        // Bottone Logout
+        Button btnLogout = new Button("LOGOUT");
+        btnLogout.getElement().setId("btn-logout");
+
+        // Stile grafico Logout
+        btnLogout.getElement().getStyle().setProperty("marginLeft", "12px");
+        btnLogout.getElement().getStyle().setProperty("backgroundImage", "none");
+        btnLogout.getElement().getStyle().setProperty("backgroundColor", "#007bff");
+        btnLogout.getElement().getStyle().setProperty("color", "white");
+        btnLogout.getElement().getStyle().setProperty("border", "none");
+
+        // Gestione Click Logout
+        btnLogout.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                // Popup nativo di conferma
+                boolean conferma = Window.confirm("Sei sicuro di voler fare il logout?");
+                if (!conferma) {
+                    return; // Se clicca annulla interrompiamo il flusso
+                }
+
+                String utenteCorrente = SessionManager.getUtenteLoggato();
+
+                servizio.logout(utenteCorrente, new AsyncCallback<Void>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Errore durante il logout: " + caught.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(Void result) {
+                        SessionManager.logout();
+
+                        RootPanel.get().clear();
+                        new LoginGui().mostra();
+                        // Window.Location.reload();
+                    }
+                });
+            }
+        });
+
         // Comportamento Cursore
         lblSkill.addMouseOverHandler(event -> {
             menuSkill.setPopupPosition(lblSkill.getAbsoluteLeft(), lblSkill.getAbsoluteTop() + 30);
@@ -107,7 +149,7 @@ public class MainLayoutGui extends Composite {
         itemSkill.getElement().getStyle().setProperty("cursor", "pointer");
         itemSkill.getElement().setId("menu-item-le-mie-skill");
         itemSkill.addClickHandler(event -> {
-            cambiaVista(new SkillsGui());
+            cambiaVista(new SkillsGui(this));
             menuSkill.hide();
         });
 
@@ -115,7 +157,7 @@ public class MainLayoutGui extends Composite {
         itemRichieste.getElement().getStyle().setProperty("cursor", "pointer");
         itemRichieste.getElement().setId("menu-item-le-mie-richieste");
         itemRichieste.addClickHandler(event -> {
-            cambiaVista(new RichiesteGui());
+            cambiaVista(new RichiesteGui(this));
             menuSkill.hide();
         });
 
@@ -148,12 +190,16 @@ public class MainLayoutGui extends Composite {
 
         header.add(logoBenvenuto);
         header.add(navLinks);
+        header.add(btnLogout);
         header.add(imgProfilo);
+        
 
         header.setCellWidth(logoBenvenuto, "30%");
         header.setCellWidth(navLinks, "50%");
         header.setCellHorizontalAlignment(navLinks, HasHorizontalAlignment.ALIGN_CENTER);
         header.setCellHorizontalAlignment(imgProfilo, HasHorizontalAlignment.ALIGN_CENTER);
+        header.setCellWidth(btnLogout, "15%");
+        header.setCellHorizontalAlignment(btnLogout, HasHorizontalAlignment.ALIGN_RIGHT);
 
         // inizializzazione contenitore dinamico
         contenitoreDinamico = new SimplePanel();
@@ -167,7 +213,7 @@ public class MainLayoutGui extends Composite {
     }
 
     // metodo per cambiare la vista mostrata nel contenitore dinamico
-    private void cambiaVista(Widget nuovaVista) {
+    public void cambiaVista(Widget nuovaVista) {
         contenitoreDinamico.clear();
         contenitoreDinamico.add(nuovaVista);
     }

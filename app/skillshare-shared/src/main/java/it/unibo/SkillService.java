@@ -17,4 +17,5 @@ public interface SkillService extends RemoteService {
 
     boolean deleteSkill(int idAnnuncio);
     boolean salvaValutazione(Valutazione valutazione);
+    List<Valutazione> getValutazioniUtente(String username);
 }

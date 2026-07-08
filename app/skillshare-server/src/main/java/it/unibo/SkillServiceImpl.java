@@ -103,4 +103,26 @@ public class SkillServiceImpl extends RemoteServiceServlet implements SkillServi
         
         return true;
     }
+
+    @Override
+    public List<Valutazione> getValutazioniUtente(String username) {
+        List<Valutazione> risultati = new ArrayList<>();
+        
+        // Controllo di sicurezza
+        if (username == null || username.trim().isEmpty()) {
+            return risultati;
+        }
+
+        ConcurrentMap<String, Valutazione> dbValutazioni = DatabaseCore.getMappaValutazioni();
+
+        // Filtra le recensioni in base al destinatario
+        for (Valutazione v : dbValutazioni.values()) {
+            if (v != null && username.equals(v.getDestinatario())) {
+                risultati.add(v);
+            }
+        }
+
+        return risultati;
+    }
+
 }

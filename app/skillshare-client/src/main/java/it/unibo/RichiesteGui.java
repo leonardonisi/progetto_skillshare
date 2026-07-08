@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -37,9 +38,11 @@ public class RichiesteGui extends Composite {
     private RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
     private MarketServiceAsync marketService = GWT.create(MarketService.class);
     private SkillServiceAsync skillService = GWT.create(SkillService.class);
+    private MainLayoutGui mainLayout;
 
-    public RichiesteGui() {
+    public RichiesteGui(MainLayoutGui mainLayout) {
         this.utenteCorrente = SessionManager.getUtenteLoggato();
+        this.mainLayout = mainLayout;
 
         initWidget(mainPanel);
         mainPanel.setWidth("100%");
@@ -269,6 +272,7 @@ public class RichiesteGui extends Composite {
         Button btnChat = new Button("💬");
         btnChat.getElement().getStyle().setProperty("backgroundColor", "#007bff");
         btnChat.getElement().getStyle().setProperty("color", "#fff");
+        btnChat.addClickHandler(event -> eseguiNavigazioneChat(skill.getAutore()));
 
         switch(richiesta.getStato()) {
             case IN_ATTESA:
@@ -465,5 +469,23 @@ public class RichiesteGui extends Composite {
             
             popup.setWidget(panel);
             popup.center();
+    }
+    
+    private void eseguiNavigazioneChat(String interlocutore) {
+        String utenteLoggato = SessionManager.getUtenteLoggato();
+
+        if (utenteLoggato == null || utenteLoggato.isEmpty()) {
+            utenteLoggato = "utente_test";
+        }
+
+        // Evitiamo l'auto-chat se l'annuncio è il nostro
+        if (utenteLoggato.equals(interlocutore)) {
+            interlocutore = "UtenteScambio_1";
+        }
+
+        ChatGui vistaChat = new ChatGui();
+        mainLayout.cambiaVista(vistaChat);
+
+        vistaChat.apriConversazione(interlocutore);
     }
 }

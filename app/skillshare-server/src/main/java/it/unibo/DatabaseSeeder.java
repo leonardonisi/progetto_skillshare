@@ -10,6 +10,8 @@ public class DatabaseSeeder{
         ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
         ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
         ConcurrentMap<Integer, RichiestaScambio> dbRichieste = DatabaseCore.getMappaRichieste();
+        ConcurrentMap<Integer, Messaggio> dbMessaggi = DatabaseCore.getMappaMessaggi();
+        ConcurrentMap<String, Valutazione> dbValutazioni = DatabaseCore.getMappaValutazioni();
 
         //creazione Utenti
         Utente filker67 = new Utente("filker67", "password", "studente Unibo", 
@@ -355,6 +357,46 @@ public class DatabaseSeeder{
         dbRichieste.put(richiesta10.getId(), richiesta10);
         dbRichieste.put(richiesta11.getId(), richiesta11);
         dbRichieste.put(richiesta12.getId(), richiesta12);
+
+        int msgId = 1;
+        
+        dbMessaggi.put(msgId++, new Messaggio("filker67", "mastroky", "Ciao! Grazie ancora per il workshop di scrittura, mi è stato utilissimo."));
+        dbMessaggi.put(msgId++, new Messaggio("mastroky", "filker67", "Figurati! È stato un piacere, hai un ottimo stile. Ci sentiamo per il prossimo scambio!"));
+
+        dbMessaggi.put(msgId++, new Messaggio("leonisi007", "brung05", "Ehi! Confermi per sabato per la fotografia?"));
+        dbMessaggi.put(msgId++, new Messaggio("brung05", "leonisi007", "Ciao! Sì, confermo. Ci vediamo alle 15:00 in centro?"));
+        
+        dbMessaggi.put(msgId++, new Messaggio("brung05", "mastroky", "Il corso di Instagram è stato illuminante, ho già iniziato a pianificare i contenuti."));
+        dbMessaggi.put(msgId++, new Messaggio("mastroky", "brung05", "Ottimo! Sono contento ti sia servito."));
+
+        Valutazione recensione1 = new Valutazione.Builder()
+                .id(18) 
+                .autore("mastroky")
+                .destinatario("filker67")
+                .voto(5)
+                .recensione("Studente molto preparato e propositivo. Lo scambio è stato fluido e piacevole.")
+                .build();
+
+        Valutazione recensione2 = new Valutazione.Builder()
+                .id(4)
+                .autore("filker67")
+                .destinatario("leonisi007")
+                .voto(4)
+                .recensione("Molto bravo nella tecnica, abbiamo collaborato bene. Consigliato.")
+                .build();
+
+        Valutazione recensione3 = new Valutazione.Builder()
+                .id(8)
+                .autore("brung05")
+                .destinatario("mastroky")
+                .voto(5)
+                .recensione("Competenza altissima sul marketing. Mi ha salvato il profilo Instagram!")
+                .build();
+
+        // Inserimento con chiave univoca "ID_Autore"
+        dbValutazioni.put(recensione1.getId() + "_" + recensione1.getAutore(), recensione1);
+        dbValutazioni.put(recensione2.getId() + "_" + recensione2.getAutore(), recensione2);
+        dbValutazioni.put(recensione3.getId() + "_" + recensione3.getAutore(), recensione3);
 
         dbUtenti.put(filker67.getUsername(), filker67);
         dbUtenti.put(brung05.getUsername(), brung05);
