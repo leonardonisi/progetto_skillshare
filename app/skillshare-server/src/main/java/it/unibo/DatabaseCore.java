@@ -64,139 +64,14 @@ public class DatabaseCore {
 
     // inizializza il database con annunci preimpostati
     public static void seedDatabase() {
-        DB db = DatabaseCore.getDB();
-        ConcurrentMap<Integer, Annuncio> dbAnnunci = db.hashMap("annunci", Serializer.INTEGER, Serializer.JAVA)
-                .createOrOpen();
-
-        ConcurrentMap<String, Utente> dbUtenti = getMappaUtenti();
-        if (dbUtenti.isEmpty()) {
-            Utente admin = new Utente("admin", "password");
-            admin.setBio("Sono l'amministratore del sistema.");
-            dbUtenti.put(admin.getUsername(), admin);
-
-            Utente mario = new Utente("mario", "password");
-            mario.setBio("Sono il secondo utente per testare gli scambi.");
-            dbUtenti.put(mario.getUsername(), mario);
-
-            DatabaseCore.commit();
+        if (getMappaUtenti().isEmpty()) {
+            DatabaseSeeder.eseguiSeeding();
+            commit();
         }
-
-        if (dbAnnunci.isEmpty()) {
-            for (int i = 1; i <= 10; i++) {
-                Annuncio a = new Annuncio.Builder()
-                        .autore("Mario")
-                        .titolo("Skill #" + i)
-                        .categoria("Sviluppo Software")
-                        .skillOfferta("Java GWT")
-                        .controprestazioneCercata("Grafica")
-                        .disponibilita("Weekend")
-                        .build();
-                dbAnnunci.put(i, a);
-            }
-            DatabaseCore.commit();
-        }
-
-        // Skill ATTIVA
-        Annuncio skill1 = new Annuncio.Builder()
-                .id(11)
-                .autore("admin")
-                .titolo("Cucina Pollo")
-                .categoria("Cucina")
-                .skillOfferta("Preparazione ricetta base")
-                .controprestazioneCercata("Lezioni di chitarra")
-                .disponibilita("Sabato e Domenica")
-                .build();
-        dbAnnunci.put(11, skill1);
-
-        // Skill ACCETTATA
-        Annuncio skill2 = new Annuncio.Builder()
-                .id(12)
-                .autore("admin")
-                .titolo("Programmazione Java")
-                .categoria("Sviluppo Software")
-                .skillOfferta("Spiegazione concetti OOP")
-                .controprestazioneCercata("Ripetizioni di matematica")
-                .disponibilita("Lunedì pomeriggio")
-                .build();
-        dbAnnunci.put(12, skill2);
-
-        // Skill CONCLUSA
-        Annuncio skill3 = new Annuncio.Builder()
-                .id(13)
-                .autore("admin")
-                .titolo("Allenamento Tennis")
-                .categoria("Sport")
-                .skillOfferta("Palleggio e tecnica")
-                .controprestazioneCercata("Preparazione atletica")
-                .disponibilita("Giovedì sera")
-                .build();
-        dbAnnunci.put(13, skill3);
-
-        Annuncio skill4 = new Annuncio.Builder()
-                .id(14)
-                .autore("admin")
-                .titolo("Consigli Fantacalcio")
-                .categoria("Sport e Tempo Libero")
-                .skillOfferta("Analisi rose e strategie per l'asta")
-                .disponibilita("Venerdì sera")
-                .controprestazioneCercata("Consigli su configurazione PC")
-                .build();
-        dbAnnunci.put(4, skill4);
-
-        ConcurrentMap<Integer, Messaggio> dbMessaggi = getMappaMessaggi();
-
-        if (dbMessaggi.isEmpty()) {
-            // Conversazione con UtenteScambio_1 (Scenario Classico)
-            dbMessaggi.put(1,
-                    new Messaggio("UtenteScambio_1", "admin", "Ciao! Ho visto il tuo annuncio su Skillshare."));
-            dbMessaggi.put(2, new Messaggio("admin", "UtenteScambio_1", "Ciao!"));
-
-            // Conversazione con UtenteScambio_2 (Per testare l'invio in tempo reale)
-            dbMessaggi.put(3,
-                    new Messaggio("UtenteScambio_2", "admin", "Ciao, ti andrebbe di fare uno scambio domani?"));
-            dbMessaggi.put(4, new Messaggio("admin", "UtenteScambio_2", "Certamente, dimmi pure a cosa pensavi."));
-
-            // Conversazione con UtenteScambio_3 (Per testare l'ordinamento LIFO)
-            dbMessaggi.put(5,
-                    new Messaggio("UtenteScambio_3", "admin", "Ti ho inviato una richiesta per la skill di cucina!"));
-
-        }
-
-        // recezione fittizie per testare la visualizzazione dello storico delle recensioni
-        ConcurrentMap<String, Valutazione> dbValutazioni = getMappaValutazioni();
-
-        if (dbValutazioni.isEmpty()) {
-            // Recensione 1 da mario ad admin
-            Valutazione recensione1 = new Valutazione.Builder()
-                    .id(13) // ID della skill "Allenamento Tennis"
-                    .autore("mario")
-                    .destinatario("admin")
-                    .voto(5)
-                    .recensione("Lezione fantastica! Admin è un maestro formidabile, super consigliato.")
-                    .build();
-
-            // Recensione 2 da un altro utente ad admin
-            Valutazione recensione2 = new Valutazione.Builder()
-                    .id(14) // ID della skill "Consigli Fantacalcio"
-                    .autore("UtenteScambio_1")
-                    .destinatario("admin")
-                    .voto(4)
-                    .recensione("Ottimi consigli per l'asta. Molto preparato, peccato solo per un leggero ritardo all'appuntamento.")
-                    .build();
-
-            // Inserimento con la chiave univoca del server (ID_Autore)
-            dbValutazioni.put(recensione1.getId() + "_" + recensione1.getAutore(), recensione1);
-            dbValutazioni.put(recensione2.getId() + "_" + recensione2.getAutore(), recensione2);
-            
-            System.out.println("MAPDB -> Recensioni fittizie caricate con successo.");
-        }
-
-        DatabaseCore.commit();
-
-        seedCategorie(db);
     }
 
-    private static void seedCategorie(DB db) {
+    public static void seedCategorie() {
+        DB db = getDB();
         Set<String> dbCategorie = (Set<String>) db.hashSet("categorie", Serializer.STRING).createOrOpen();
         if (dbCategorie.isEmpty()) {
             try (InputStream is = DatabaseCore.class.getClassLoader().getResourceAsStream("cat.txt")) {
@@ -271,6 +146,12 @@ public class DatabaseCore {
             }
         }
         return db;
+    }
+
+    public static synchronized int generaNuovoIdAnnuncio() {
+        DB db = getDB();
+        org.mapdb.Atomic.Integer idCounter = db.atomicInteger("annuncio_id_counter", 0).createOrOpen();
+        return idCounter.incrementAndGet();
     }
 
     // Salva permanentemente le modifiche su disco.

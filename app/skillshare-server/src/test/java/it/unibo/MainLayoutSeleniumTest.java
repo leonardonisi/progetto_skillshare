@@ -192,9 +192,8 @@ public class MainLayoutSeleniumTest {
         searchBar.getText();
         searchBar.sendKeys("GWT");
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("card-annuncio")));
-        List<WebElement> cardList = driver.findElements(By.id("card-annuncio"));
-
+        List<WebElement> cardList = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.className("card-annuncio-class")));
+        
         WebElement primaCard = cardList.get(0);
         primaCard.click();
 

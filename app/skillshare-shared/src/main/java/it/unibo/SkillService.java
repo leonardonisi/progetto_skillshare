@@ -5,10 +5,16 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
-// Importante: questo definisce l'URL a cui il client farà la richiesta
 @RemoteServiceRelativePath("skillService")
 public interface SkillService extends RemoteService {
-    List<Annuncio> getMieSkills(String username);
+    List<Annuncio> getAnnunciPubblicati(String username);
+
+    List<RichiestaScambio> getRichiesteScambio(String username);
+
+    Annuncio getAnnuncioById(Integer id);
+    
+    Utente getUtenteById(String usernameId);
+
     boolean deleteSkill(int idAnnuncio);
     boolean salvaValutazione(Valutazione valutazione);
     List<Valutazione> getValutazioniUtente(String username);

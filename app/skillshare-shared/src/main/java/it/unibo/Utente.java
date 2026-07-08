@@ -28,11 +28,29 @@ public class Utente implements Serializable {
         this.annunciPubblicati = new ArrayList<>();
         this.richiesteInviateId = new ArrayList<>();
         this.richiesteRicevuteId = new ArrayList<>();
-
         this.fotoProfiloBase64 = "images/utente.jpg";
     }
 
+    public Utente(String username, String password, String bio, List<String> competenzePreferite, String locazione, String fotoProfilo) {
+        this.username = username;
+        this.password = password;
+        this.bio = bio;
+        this.competenzePreferite = competenzePreferite;
+        this.locazione = locazione;
+        this.fotoProfiloBase64 = fotoProfilo;
+        this.annunciPubblicati = new ArrayList<>();
+        this.richiesteInviateId = new ArrayList<>();
+        this.richiesteRicevuteId = new ArrayList<>();
+    }
+
     public Utente() {
+        this.competenzePreferite = new ArrayList<>();
+        this.annunciPubblicati = new ArrayList<>();
+        this.richiesteInviateId = new ArrayList<>();
+        this.richiesteRicevuteId = new ArrayList<>();
+        this.fotoProfiloBase64 = "images/utente.jpg";
+        this.bio = "";
+        this.locazione = "";
     }
 
     public String getUsername() { return username; }

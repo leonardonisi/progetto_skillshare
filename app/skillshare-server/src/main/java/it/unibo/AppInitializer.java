@@ -11,6 +11,7 @@ public class AppInitializer implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         try {
             DatabaseCore.seedDatabase();
+            DatabaseCore.seedCategorie();
         } catch (Exception e) {
             e.printStackTrace();
         }

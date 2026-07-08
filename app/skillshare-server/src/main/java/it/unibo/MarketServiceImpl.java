@@ -19,8 +19,10 @@ public class MarketServiceImpl extends RemoteServiceServlet implements MarketSer
         List<Annuncio> annunciFiltrati = new ArrayList<>();
 
         for (Annuncio a : dbAnnunci.values()) {
-            if (!a.getAutore().equals(usernameDaEscludere)) {
-                annunciFiltrati.add(a);
+            if(a.isAttivo()){
+                if (!a.getAutore().equals(usernameDaEscludere)) {
+                    annunciFiltrati.add(a);
+                }
             }
         }
 
