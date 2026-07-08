@@ -26,8 +26,17 @@ public class CreateAdServiceImpl extends RemoteServiceServlet implements CreateA
             dbAnnunci.put(id, annuncio);
             Utente autore = dbUtenti.get(annuncio.getAutore());
 
-            autore.getAnnunciPubblicati().add(id);
-            dbUtenti.put(autore.getUsername(), autore);
+            if (autore != null) {
+                autore.getAnnunciPubblicati().add(id);
+
+                autore.incrementaAnnunciInseriti();
+
+                if (autore.getContatoreAnnunciInseriti() >= 10) {
+                    autore.aggiungiBadge("Creatore Seriale"); // Sblocca in automatico il badge a quota 10
+                }
+                
+                dbUtenti.put(autore.getUsername(), autore);
+            }
 
             DatabaseCore.commit();
             return true;
