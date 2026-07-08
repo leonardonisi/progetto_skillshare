@@ -130,6 +130,6 @@ class SkillServiceImplTest {
         
         // Verifica che il database non sia stato modificato dal secondo tentativo
         assertEquals(1, dbValutazioni.size());
-        assertEquals(5, dbValutazioni.get(999).getVoto(), "Il voto deve rimanere quello della prima valutazione");
+        assertEquals(5, dbValutazioni.get("999_admin").getVoto(), "Il voto deve rimanere quello della prima valutazione");
     }
 }

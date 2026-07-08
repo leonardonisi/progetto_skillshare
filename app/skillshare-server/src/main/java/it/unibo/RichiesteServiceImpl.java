@@ -68,9 +68,9 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
             richiesta.setStato(RichiestaScambio.StatoRichiesta.RIFIUTATO);
         } else {
             // Se l'utente ha cliccato il "Tick" (Conferma), controllo chi è
-            if (username.equals(richiesta.getProprietarioId())) {
+            if (username.equals(richiesta.getProprietarioUser())) {
                 richiesta.setConfermatoDaProprietario(true);
-            } else if (username.equals(richiesta.getRichiedenteId())) {
+            } else if (username.equals(richiesta.getRichiedenteUser())) {
                 richiesta.setConfermatoDaRichiedente(true);
             }
 

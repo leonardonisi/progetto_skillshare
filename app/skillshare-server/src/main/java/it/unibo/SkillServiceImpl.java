@@ -91,9 +91,7 @@ public class SkillServiceImpl extends RemoteServiceServlet implements SkillServi
 
     @Override
     public boolean salvaValutazione(Valutazione valutazione) {
-        // Recupero pulito della mappa tramite il nuovo metodo statico
         ConcurrentMap<String, Valutazione> dbValutazioni = DatabaseCore.getMappaValutazioni();
-// Nuova chiave: unisce l'ID dello scambio e l'autore della recensione
         String chiaveUnivoca = valutazione.getId() + "_" + valutazione.getAutore();
 
         if (dbValutazioni.containsKey(chiaveUnivoca)) {

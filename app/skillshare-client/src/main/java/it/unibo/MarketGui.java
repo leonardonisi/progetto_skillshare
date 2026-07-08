@@ -130,6 +130,7 @@ public class MarketGui extends Composite {
         Button btnPubblica = new Button("PUBBLICA");
         btnPubblica.setHeight("47px");
         btnPubblica.setWidth("180px");
+        btnPubblica.getElement().setId("btn-pubblica");
         btnPubblica.getElement().getStyle().setProperty("fontSize", "14px");
         btnPubblica.getElement().getStyle().setProperty("cursor", "pointer");
         btnPubblica.getElement().getStyle().setProperty("fontWeight", "bold");
@@ -194,6 +195,8 @@ public class MarketGui extends Composite {
 
         // Label Dettaglio dei dettagli strutturali
         lblCategoria = creaDettaglioLabel("16px", "20px");
+        lblCategoria.getElement().setId("lbl-categoria");
+
         lblDescrizione = creaDettaglioLabel("16px", "20px");
         lblDispo = creaDettaglioLabel("16px", "20px");
         lblContro = creaDettaglioLabel("16px", "40px");
@@ -277,6 +280,8 @@ public class MarketGui extends Composite {
     private FocusPanel creaCard(Annuncio a) {
         FocusPanel card = new FocusPanel();
         card.setWidth("100%");
+        card.getElement().setId("card-annuncio-" + a.getId());
+        card.addStyleName("card-annuncio-class");
         card.getElement().getStyle().setProperty("border", "1px solid #666");
         card.getElement().getStyle().setProperty("marginBottom", "15px");
         card.getElement().getStyle().setProperty("cursor", "pointer");
@@ -325,6 +330,7 @@ public class MarketGui extends Composite {
 
         if (annunciDaMostrare == null || annunciDaMostrare.isEmpty()) {
             Label alert = new Label("Nessun annuncio trovato");
+            alert.getElement().setId("alert-filtraggio-categorie");
             alert.getElement().getStyle().setProperty("fontSize", "22px");
             colonnaSinistra.add(alert);
             return;
