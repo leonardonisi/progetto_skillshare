@@ -209,7 +209,7 @@ public class MainLayoutSeleniumTest {
     }
 
     @Test
-    void clickLogoutEAnnullamentoMantieneInterfaccia() {
+    void clickLogoutEConfermaRimandaAllaPaginaDiLogin() {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement btnLogout = wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-logout")));
 
