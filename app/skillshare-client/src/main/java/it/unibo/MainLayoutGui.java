@@ -1,31 +1,27 @@
 package it.unibo;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.ui.Image;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainLayoutGui extends Composite {
 
@@ -49,6 +45,7 @@ public class MainLayoutGui extends Composite {
     private Label lblContro;
     private Image imgProfilo;
     private List<Annuncio> tuttiGliAnnunci;
+    private Annuncio annuncioSelezionato;
 
     public void mostra() {
         RootPanel.get().clear();
@@ -113,8 +110,9 @@ public class MainLayoutGui extends Composite {
         lblChat.getElement().getStyle().setProperty("fontSize", "18px");
         lblChat.getElement().getStyle().setProperty("marginLeft", "60px");
         lblChat.getElement().setId("nav-chat");
+
         lblChat.addClickHandler(event -> {
-            new ChatGui().mostra();
+            cambiaVista(new ChatGui());
         });
 
         Label lblSkill = new Label("SKILL");
@@ -144,7 +142,7 @@ public class MainLayoutGui extends Composite {
         itemSkill.getElement().getStyle().setProperty("cursor", "pointer");
         itemSkill.getElement().setId("menu-item-le-mie-skill");
         itemSkill.addClickHandler(event -> {
-            cambiaVista(new SkillsGui());
+            cambiaVista(new SkillsGui(this));
             menuSkill.hide();
         });
 
@@ -152,7 +150,7 @@ public class MainLayoutGui extends Composite {
         itemRichieste.getElement().getStyle().setProperty("cursor", "pointer");
         itemRichieste.getElement().setId("menu-item-le-mie-richieste");
         itemRichieste.addClickHandler(event -> {
-            cambiaVista(new RichiesteGui());
+            cambiaVista(new RichiesteGui(this));
             menuSkill.hide();
         });
 
@@ -203,7 +201,7 @@ public class MainLayoutGui extends Composite {
     }
 
     // metodo per cambiare la vista mostrata nel contenitore dinamico
-    private void cambiaVista(Widget nuovaVista) {
+    public void cambiaVista(Widget nuovaVista) {
         contenitoreDinamico.clear();
         contenitoreDinamico.add(nuovaVista);
     }
@@ -440,7 +438,22 @@ public class MainLayoutGui extends Composite {
         btnChat.getElement().getStyle().setProperty("fontSize", "20px");
         btnChat.setVisible(false);
 
-        btnChat.addClickHandler(event -> new ChatGui().mostra());
+        btnChat.addClickHandler(event -> {
+            if (annuncioSelezionato != null) {
+                String autoreAnnuncio = annuncioSelezionato.getAutore();
+
+                // Evita che l'utente apra una chat con se stesso
+                if (utenteCorrente != null && utenteCorrente.equals(autoreAnnuncio)) {
+                    Window.alert("Non puoi avviare una chat con te stesso!");
+                    return;
+                }
+
+                // Istanzia il widget, cambia la vista e avvia la conversazione
+                ChatGui vistaChat = new ChatGui();
+                cambiaVista(vistaChat);
+                vistaChat.apriConversazione(autoreAnnuncio);
+            }
+        });
 
         // Assemblaggio Contenitore Bottoni
         btnContainer.add(btnRichiedi);
@@ -532,6 +545,7 @@ public class MainLayoutGui extends Composite {
     }
 
     private void mostraDettaglio(Annuncio a) {
+        this.annuncioSelezionato = a;
         titoloDettaglio.setText(a.getTitolo());
         votoDettaglio.setText("👤 4.9"); // voto fisso di mockup, da collegare a database
         lblCategoria.setText("CATEGORIA: " + a.getCategoria());

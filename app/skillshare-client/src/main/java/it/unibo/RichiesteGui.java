@@ -11,12 +11,13 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.Window;
 
 public class RichiesteGui extends Composite {
-    
+
     private VerticalPanel mainPanel = new VerticalPanel();
     private SimplePanel contentArea = new SimplePanel();
 
@@ -24,23 +25,24 @@ public class RichiesteGui extends Composite {
     private VerticalPanel listaAccettate = new VerticalPanel();
     private VerticalPanel listaRifiutate = new VerticalPanel();
     private VerticalPanel listaConcluse = new VerticalPanel();
-    
+
     private RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
     private SkillServiceAsync skillService = GWT.create(SkillService.class);
+    private MainLayoutGui mainLayout;
 
-
-    public RichiesteGui() {
+    public RichiesteGui(MainLayoutGui mainLayout) {
+        this.mainLayout = mainLayout;
         initWidget(mainPanel);
         mainPanel.setWidth("100%");
         mainPanel.setSpacing(10);
 
         HorizontalPanel splitLayout = new HorizontalPanel();
         splitLayout.setWidth("100%");
-        splitLayout.setSpacing(20); 
+        splitLayout.setSpacing(20);
 
         // SIDEBAR
         VerticalPanel sidebar = new VerticalPanel();
-        sidebar.setWidth("300px"); 
+        sidebar.setWidth("300px");
 
         // Tendina "Skills Richieste"
         DisclosurePanel discRichieste = new DisclosurePanel("Skills Richieste");
@@ -75,18 +77,18 @@ public class RichiesteGui extends Composite {
         sidebar.add(discAccettate);
         sidebar.add(discRifiutate);
         sidebar.add(discConcluse);
-        
-        //AREA CONTENUTO DELLA TASK
+
+        // AREA CONTENUTO DELLA TASK
         contentArea.setWidth("100%");
-        
+
         splitLayout.add(sidebar);
         splitLayout.add(contentArea);
 
         // Allineamento
         splitLayout.setCellVerticalAlignment(sidebar, HasVerticalAlignment.ALIGN_TOP);
         splitLayout.setCellVerticalAlignment(contentArea, HasVerticalAlignment.ALIGN_TOP);
-        splitLayout.setCellWidth(contentArea, "100%"); 
-        
+        splitLayout.setCellWidth(contentArea, "100%");
+
         mainPanel.add(splitLayout);
 
         caricaRichiesteDalDatabase();
@@ -113,20 +115,32 @@ public class RichiesteGui extends Composite {
                     btnSkill.getElement().getStyle().setProperty("padding", "10px");
                     btnSkill.getElement().getStyle().setProperty("backgroundColor", "#fff");
                     btnSkill.getElement().getStyle().setProperty("border", "1px solid #000");
-                    
+
                     btnSkill.addClickHandler(event -> mostraDettagliCard(skill));
 
-                    // Simulazione degli stati in base ai titoli per testare la grafica delle 4 tendine
+                    // Simulazione degli stati in base ai titoli per testare la grafica delle 4
+                    // tendine
                     String statoSimulato = "RICHIESTA";
-                    if (skill.getTitolo().equals("Programmazione Java")) statoSimulato = "ACCETTATA";
-                    if (skill.getTitolo().equals("Cucina Pollo")) statoSimulato = "RIFIUTATA";
-                    if (skill.getTitolo().equals("Allenamento Tennis")) statoSimulato = "CONCLUSA";
+                    if (skill.getTitolo().equals("Programmazione Java"))
+                        statoSimulato = "ACCETTATA";
+                    if (skill.getTitolo().equals("Cucina Pollo"))
+                        statoSimulato = "RIFIUTATA";
+                    if (skill.getTitolo().equals("Allenamento Tennis"))
+                        statoSimulato = "CONCLUSA";
 
                     switch (statoSimulato) {
-                        case "RICHIESTA": listaRichieste.add(btnSkill); break;
-                        case "ACCETTATA": listaAccettate.add(btnSkill); break;
-                        case "RIFIUTATA": listaRifiutate.add(btnSkill); break;
-                        case "CONCLUSA": listaConcluse.add(btnSkill); break;
+                        case "RICHIESTA":
+                            listaRichieste.add(btnSkill);
+                            break;
+                        case "ACCETTATA":
+                            listaAccettate.add(btnSkill);
+                            break;
+                        case "RIFIUTATA":
+                            listaRifiutate.add(btnSkill);
+                            break;
+                        case "CONCLUSA":
+                            listaConcluse.add(btnSkill);
+                            break;
                     }
                 }
             }
@@ -138,7 +152,7 @@ public class RichiesteGui extends Composite {
 
         VerticalPanel card = new VerticalPanel();
         card.setWidth("100%");
-        card.getElement().getStyle().setProperty("border", "2px solid #000"); 
+        card.getElement().getStyle().setProperty("border", "2px solid #000");
         card.getElement().getStyle().setProperty("padding", "20px");
         card.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
 
@@ -146,11 +160,11 @@ public class RichiesteGui extends Composite {
         HorizontalPanel cardHeader = new HorizontalPanel();
         cardHeader.setWidth("100%");
         cardHeader.getElement().getStyle().setProperty("marginBottom", "20px");
-        
-        Label lblTitolo = new Label(skill.getTitolo().toUpperCase()); 
+
+        Label lblTitolo = new Label(skill.getTitolo().toUpperCase());
         lblTitolo.getElement().getStyle().setProperty("fontWeight", "bold");
         lblTitolo.getElement().getStyle().setProperty("fontSize", "22px");
-        
+
         Label lblRating = new Label("👤 4.9");
         lblRating.getElement().getStyle().setProperty("fontSize", "18px");
         lblRating.getElement().getStyle().setProperty("fontWeight", "bold");
@@ -164,34 +178,38 @@ public class RichiesteGui extends Composite {
         Label lblCat = new Label("CATEGORIA: " + skill.getCategoria());
         lblCat.getElement().getStyle().setProperty("marginBottom", "10px");
         card.add(lblCat);
-        
+
         Label lblOgg = new Label("DETTAGLI OGGETTO: " + skill.getSkillOfferta());
         lblOgg.getElement().getStyle().setProperty("marginBottom", "10px");
         card.add(lblOgg);
-        
+
         Label lblDisp = new Label("DISPONIBILITÀ: " + skill.getDisponibilita());
         lblDisp.getElement().getStyle().setProperty("marginBottom", "10px");
         card.add(lblDisp);
-        
+
         Label lblContro = new Label("CONTROPRESTAZIONE OFFERTA: " + skill.getControprestazione());
         lblContro.getElement().getStyle().setProperty("marginBottom", "20px");
         card.add(lblContro);
 
         // --- BOTTONI DINAMICI ---
         HorizontalPanel buttonWrapper = new HorizontalPanel();
-        buttonWrapper.setWidth("100%"); 
-        
+        buttonWrapper.setWidth("100%");
+
         HorizontalPanel buttonGroups = new HorizontalPanel();
         buttonGroups.setSpacing(10);
 
         String statoSimulato = "RICHIESTA";
-        if (skill.getTitolo().equals("Programmazione Java")) statoSimulato = "ACCETTATA";
-        if (skill.getTitolo().equals("Cucina Pollo")) statoSimulato = "RIFIUTATA";
-        if (skill.getTitolo().equals("Allenamento Tennis")) statoSimulato = "CONCLUSA";
+        if (skill.getTitolo().equals("Programmazione Java"))
+            statoSimulato = "ACCETTATA";
+        if (skill.getTitolo().equals("Cucina Pollo"))
+            statoSimulato = "RIFIUTATA";
+        if (skill.getTitolo().equals("Allenamento Tennis"))
+            statoSimulato = "CONCLUSA";
 
-        Button btnChat = new Button("💬"); 
+        Button btnChat = new Button("💬");
         btnChat.getElement().getStyle().setProperty("backgroundColor", "#007bff");
         btnChat.getElement().getStyle().setProperty("color", "#fff");
+        btnChat.addClickHandler(event -> eseguiNavigazioneChat(skill.getAutore()));
 
         if (statoSimulato.equals("RICHIESTA")) {
             buttonGroups.add(btnChat);
@@ -205,43 +223,45 @@ public class RichiesteGui extends Composite {
             btnTick.addClickHandler(event -> {
                 btnTick.setEnabled(false);
                 String utenteAttuale = SessionManager.getUtenteLoggato();
-                
-                richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, true, new AsyncCallback<RichiestaScambio>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Window.alert("Errore durante la conferma: " + caught.getMessage());
-                        btnTick.setEnabled(true);
-                    }
 
-                    @Override
-                    public void onSuccess(RichiestaScambio result) {
-                        if (result != null && result.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
-                            Window.alert("Scambio concluso con successo! Entrambi avete confermato.");
-                            contentArea.clear();
-                            caricaRichiesteDalDatabase();
-                        } else {
-                            btnTick.setText("In attesa della controparte...");
-                        }
-                    }
-                });
+                richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, true,
+                        new AsyncCallback<RichiestaScambio>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Errore durante la conferma: " + caught.getMessage());
+                                btnTick.setEnabled(true);
+                            }
+
+                            @Override
+                            public void onSuccess(RichiestaScambio result) {
+                                if (result != null && result.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
+                                    Window.alert("Scambio concluso con successo! Entrambi avete confermato.");
+                                    contentArea.clear();
+                                    caricaRichiesteDalDatabase();
+                                } else {
+                                    btnTick.setText("In attesa della controparte...");
+                                }
+                            }
+                        });
             });
 
             btnX.addClickHandler(event -> {
                 if (Window.confirm("Sei sicuro di voler rifiutare o annullare questo scambio?")) {
                     String utenteAttuale = SessionManager.getUtenteLoggato();
-                    richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, false, new AsyncCallback<RichiestaScambio>() {
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            Window.alert("Errore durante l'annullamento: " + caught.getMessage());
-                        }
+                    richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, false,
+                            new AsyncCallback<RichiestaScambio>() {
+                                @Override
+                                public void onFailure(Throwable caught) {
+                                    Window.alert("Errore durante l'annullamento: " + caught.getMessage());
+                                }
 
-                        @Override
-                        public void onSuccess(RichiestaScambio result) {
-                            Window.alert("Scambio annullato.");
-                            contentArea.clear();
-                            caricaRichiesteDalDatabase();
-                        }
-                    });
+                                @Override
+                                public void onSuccess(RichiestaScambio result) {
+                                    Window.alert("Scambio annullato.");
+                                    contentArea.clear();
+                                    caricaRichiesteDalDatabase();
+                                }
+                            });
                 }
             });
 
@@ -260,8 +280,26 @@ public class RichiesteGui extends Composite {
 
         buttonWrapper.add(buttonGroups);
         buttonWrapper.setCellHorizontalAlignment(buttonGroups, HasHorizontalAlignment.ALIGN_RIGHT);
-        
+
         card.add(buttonWrapper);
         contentArea.add(card);
+    }
+
+    private void eseguiNavigazioneChat(String interlocutore) {
+        String utenteLoggato = SessionManager.getUtenteLoggato();
+
+        if (utenteLoggato == null || utenteLoggato.isEmpty()) {
+            utenteLoggato = "utente_test";
+        }
+
+        // Evitiamo l'auto-chat se l'annuncio è il nostro
+        if (utenteLoggato.equals(interlocutore)) {
+            interlocutore = "UtenteScambio_1";
+        }
+
+        ChatGui vistaChat = new ChatGui();
+        mainLayout.cambiaVista(vistaChat);
+
+        vistaChat.apriConversazione(interlocutore);
     }
 }

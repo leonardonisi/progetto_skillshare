@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DialogBox;
 
@@ -33,8 +34,10 @@ public class SkillsGui extends Composite {
     // interfaccia asincrona per comunicare con il server
     private SkillServiceAsync skillService = GWT.create(SkillService.class);
     private RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
+    private MainLayoutGui mainLayout;
 
-    public SkillsGui() {
+    public SkillsGui(MainLayoutGui mainLayout) {
+        this.mainLayout = mainLayout;
         initWidget(mainPanel);
         mainPanel.setWidth("100%");
         mainPanel.setSpacing(10);
@@ -93,7 +96,6 @@ public class SkillsGui extends Composite {
                 contentArea.setWidget(new Label("Errore di rete: Impossibile caricare le skill."));
             }
 
-            
             @Override
             public void onSuccess(List<Annuncio> skillsDalDb) {
                 listaMieSkill.clear();
@@ -156,21 +158,21 @@ public class SkillsGui extends Composite {
 
         HorizontalPanel starPanel = new HorizontalPanel();
         starPanel.setSpacing(5);
-        final int[] votoSelezionato = {0}; 
+        final int[] votoSelezionato = { 0 };
         Label[] stelle = new Label[5];
-        
+
         for (int i = 0; i < 5; i++) {
             final int starValue = i + 1;
             stelle[i] = new Label("☆");
             stelle[i].getElement().setId("star-" + starValue);
             stelle[i].getElement().getStyle().setProperty("fontSize", "24px");
             stelle[i].getElement().getStyle().setProperty("cursor", "pointer");
-            
+
             stelle[i].addClickHandler(e -> {
                 votoSelezionato[0] = starValue;
                 for (int j = 0; j < 5; j++) {
                     stelle[j].setText(j < starValue ? "★" : "☆");
-                    stelle[j].getElement().getStyle().setProperty("color", j < starValue ? "#FFD700" : "#000000"); 
+                    stelle[j].getElement().getStyle().setProperty("color", j < starValue ? "#FFD700" : "#000000");
                 }
             });
             starPanel.add(stelle[i]);
@@ -180,11 +182,11 @@ public class SkillsGui extends Composite {
 
         HorizontalPanel btnPanel = new HorizontalPanel();
         btnPanel.setSpacing(10);
-        
+
         Button btnAnnulla = new Button("Annulla");
         btnAnnulla.getElement().setId("btn-annulla-valutazione");
         btnAnnulla.addClickHandler(e -> popup.hide());
-        
+
         Button btnInvia = new Button("Invia");
         btnInvia.getElement().setId("btn-invia-valutazione");
         btnInvia.addClickHandler(e -> {
@@ -192,19 +194,20 @@ public class SkillsGui extends Composite {
                 Window.alert("Per favore, seleziona un voto con le stelle.");
                 return;
             }
-            
+
             Valutazione nuovaValutazione = new Valutazione.Builder()
-                .id(skill.getId())
-                .autore("admin")
-                .voto(votoSelezionato[0])
-                .recensione(txtRecensione.getText())
-                .build();
-                
+                    .id(skill.getId())
+                    .autore("admin")
+                    .voto(votoSelezionato[0])
+                    .recensione(txtRecensione.getText())
+                    .build();
+
             skillService.salvaValutazione(nuovaValutazione, new AsyncCallback<Boolean>() {
                 @Override
                 public void onFailure(Throwable caught) {
                     Window.alert("Errore di connessione.");
                 }
+
                 @Override
                 public void onSuccess(Boolean salvata) {
                     if (salvata) {
@@ -220,7 +223,7 @@ public class SkillsGui extends Composite {
         btnPanel.add(btnInvia);
         btnPanel.add(btnAnnulla);
         panel.add(btnPanel);
-        
+
         popup.setWidget(panel);
         popup.center();
     }
@@ -289,10 +292,11 @@ public class SkillsGui extends Composite {
         if (statoSimulato.equals("ATTIVA")) {
             // Realizzazione del bottone Rimuovi con la tua logica RPC
             Button btnRimuovi = new Button("Rimuovi");
-            
+
             btnRimuovi.addClickHandler(event -> {
-                boolean confermato = Window.confirm("Sei sicuro di voler eliminare definitivamente questo annuncio dal Marketplace?");
-                
+                boolean confermato = Window
+                        .confirm("Sei sicuro di voler eliminare definitivamente questo annuncio dal Marketplace?");
+
                 if (confermato) {
                     skillService.deleteSkill(skill.getId(), new AsyncCallback<Boolean>() {
                         @Override
@@ -303,7 +307,8 @@ public class SkillsGui extends Composite {
                         @Override
                         public void onSuccess(Boolean eliminato) {
                             if (eliminato) {
-                                // Svuota l'area centrale e ricarica la tendina aggiornata senza la skill eliminata
+                                // Svuota l'area centrale e ricarica la tendina aggiornata senza la skill
+                                // eliminata
                                 contentArea.clear();
                                 caricaSkillsDalDatabase();
                             } else {
@@ -313,11 +318,12 @@ public class SkillsGui extends Composite {
                     });
                 }
             });
-            
-            // Creiamo il bottone Modifica mantenendo l'ID inserito dal tuo collega (da main)
+
+            // Creiamo il bottone Modifica mantenendo l'ID inserito dal tuo collega (da
+            // main)
             Button btnModifica = new Button("Modifica");
             btnModifica.getElement().setId("btn-modifica-annuncio");
-            
+
             // Aggiungiamo i bottoni modificati al gruppo
             buttonGroups.add(btnRimuovi);
             buttonGroups.add(btnModifica);
@@ -325,6 +331,7 @@ public class SkillsGui extends Composite {
             Button btnChat = new Button("💬");
             btnChat.getElement().getStyle().setProperty("backgroundColor", "#007bff");
             btnChat.getElement().getStyle().setProperty("color", "#fff");
+            btnChat.addClickHandler(event -> eseguiNavigazioneChat(skill.getAutore()));
 
             // Gestione click Modifica
             btnModifica.addClickHandler(clickEvent -> {
@@ -429,9 +436,10 @@ public class SkillsGui extends Composite {
             buttonGroups.add(btnModifica);
             buttonGroups.add(btnChat);
         } else if (statoSimulato.equals("ACCETTATA")) {
-           Button btnTick = new Button("✓");
+            Button btnTick = new Button("✓");
             Button btnX = new Button("X");
             Button btnChat = new Button("💬");
+            btnChat.addClickHandler(event -> eseguiNavigazioneChat(skill.getAutore()));
 
             btnTick.getElement().setId("btn-tick-conferma");
             btnX.getElement().setId("btn-x-rifiuto");
@@ -439,43 +447,46 @@ public class SkillsGui extends Composite {
             btnTick.addClickHandler(event -> {
                 btnTick.setEnabled(false);
                 String utenteAttuale = SessionManager.getUtenteLoggato();
-                
-                richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, true, new AsyncCallback<RichiestaScambio>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Window.alert("Errore durante la conferma: " + caught.getMessage());
-                        btnTick.setEnabled(true);
-                    }
 
-                    @Override
-                    public void onSuccess(RichiestaScambio result) {
-                        if (result != null && result.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO || result.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
-                            Window.alert("Scambio concluso con successo! Entrambi avete confermato.");
-                            contentArea.clear();
-                            caricaSkillsDalDatabase();
-                        } else {
-                            btnTick.setText("In attesa della controparte...");
-                        }
-                    }
-                });
+                richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, true,
+                        new AsyncCallback<RichiestaScambio>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Errore durante la conferma: " + caught.getMessage());
+                                btnTick.setEnabled(true);
+                            }
+
+                            @Override
+                            public void onSuccess(RichiestaScambio result) {
+                                if (result != null && result.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO
+                                        || result.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
+                                    Window.alert("Scambio concluso con successo! Entrambi avete confermato.");
+                                    contentArea.clear();
+                                    caricaSkillsDalDatabase();
+                                } else {
+                                    btnTick.setText("In attesa della controparte...");
+                                }
+                            }
+                        });
             });
 
             btnX.addClickHandler(event -> {
                 if (Window.confirm("Sei sicuro di voler rifiutare o annullare questo scambio?")) {
                     String utenteAttuale = SessionManager.getUtenteLoggato();
-                    richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, false, new AsyncCallback<RichiestaScambio>() {
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            Window.alert("Errore durante l'annullamento: " + caught.getMessage());
-                        }
+                    richiesteService.elaboraAzioneScambio(skill.getId(), utenteAttuale, false,
+                            new AsyncCallback<RichiestaScambio>() {
+                                @Override
+                                public void onFailure(Throwable caught) {
+                                    Window.alert("Errore durante l'annullamento: " + caught.getMessage());
+                                }
 
-                        @Override
-                        public void onSuccess(RichiestaScambio result) {
-                            Window.alert("Scambio annullato.");
-                            contentArea.clear();
-                            caricaSkillsDalDatabase();
-                        }
-                    });
+                                @Override
+                                public void onSuccess(RichiestaScambio result) {
+                                    Window.alert("Scambio annullato.");
+                                    contentArea.clear();
+                                    caricaSkillsDalDatabase();
+                                }
+                            });
                 }
             });
 
@@ -483,8 +494,10 @@ public class SkillsGui extends Composite {
             buttonGroups.add(btnX);
             buttonGroups.add(btnChat);
         } else if (statoSimulato.equals("CONCLUSA")) {
-            buttonGroups.add(new Button("💬"));
-            
+            Button btnChatConclusa = new Button("💬");
+            btnChatConclusa.addClickHandler(event -> eseguiNavigazioneChat(skill.getAutore()));
+            buttonGroups.add(btnChatConclusa);
+
             Button btnValuta = new Button("Valuta");
             btnValuta.getElement().setId("btn-valuta-scambio");
             btnValuta.addClickHandler(event -> {
@@ -492,12 +505,30 @@ public class SkillsGui extends Composite {
             });
             buttonGroups.add(btnValuta);
         }
-        
+
         buttonWrapper.add(buttonGroups);
         // Allineamento del gruppo di bottoni tutto a destra
         buttonWrapper.setCellHorizontalAlignment(buttonGroups, HasHorizontalAlignment.ALIGN_RIGHT);
 
         card.add(buttonWrapper);
         contentArea.add(card);
+    }
+
+    private void eseguiNavigazioneChat(String interlocutore) {
+        String utenteLoggato = SessionManager.getUtenteLoggato();
+
+        // Sicurezza se la sessione locale dovesse essere vuota
+        if (utenteLoggato == null || utenteLoggato.isEmpty()) {
+            utenteLoggato = "admin";
+        }
+
+        if (utenteLoggato.equals(interlocutore)) {
+            interlocutore = "UtenteScambio_1";
+        }
+
+        ChatGui vistaChat = new ChatGui();
+        mainLayout.cambiaVista(vistaChat);
+        // Apre o crea la chat con l'interlocutore corretto
+        vistaChat.apriConversazione(interlocutore);
     }
 }
