@@ -272,7 +272,7 @@ public class RichiesteGui extends Composite {
         Button btnChat = new Button("💬");
         btnChat.getElement().getStyle().setProperty("backgroundColor", "#007bff");
         btnChat.getElement().getStyle().setProperty("color", "#fff");
-        btnChat.addClickHandler(event -> eseguiNavigazioneChat(skill.getAutore()));
+        btnChat.addClickHandler(event -> eseguiNavigazioneChat(utente.getUsername()));
 
         switch(richiesta.getStato()) {
             case IN_ATTESA:
@@ -470,7 +470,7 @@ public class RichiesteGui extends Composite {
             popup.setWidget(panel);
             popup.center();
     }
-    
+
     private void eseguiNavigazioneChat(String interlocutore) {
         String utenteLoggato = SessionManager.getUtenteLoggato();
 
