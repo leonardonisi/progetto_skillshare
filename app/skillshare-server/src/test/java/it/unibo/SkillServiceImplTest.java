@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -130,6 +129,58 @@ class SkillServiceImplTest {
         
         // Verifica che il database non sia stato modificato dal secondo tentativo
         assertEquals(1, dbValutazioni.size());
-        assertEquals(5, dbValutazioni.get(999).getVoto(), "Il voto deve rimanere quello della prima valutazione");
+        assertEquals(5, dbValutazioni.get("999_admin").getVoto(), "Il voto deve rimanere quello della prima valutazione");
+    }
+
+    @Test
+    void getValutazioniUtente_shouldReturnOnlyTargetUserReviews() {
+        // Recupero corretto con la chiave String
+        ConcurrentMap<String, Valutazione> dbValutazioni = DatabaseCore.getMappaValutazioni();
+        dbValutazioni.clear();
+
+        // Prepariamo 3 recensioni: 2 destinate a "mario", 1 a "admin"
+        Valutazione v1 = new Valutazione.Builder()
+            .id(101)
+            .autore("luigi")
+            .destinatario("mario")
+            .voto(5)
+            .recensione("Bravissimo e preparato!")
+            .build();
+
+        Valutazione v2 = new Valutazione.Builder()
+            .id(102)
+            .autore("toad")
+            .destinatario("mario")
+            .voto(3)
+            .recensione("Ok, ma in ritardo.")
+            .build();
+
+        Valutazione v3 = new Valutazione.Builder()
+            .id(103)
+            .autore("mario")
+            .destinatario("admin")
+            .voto(4)
+            .recensione("Ottima skill.")
+            .build();
+
+        // Inseriamo nel DB fittizio usando la chiave univoca del server (ID_Autore)
+        dbValutazioni.put(v1.getId() + "_" + v1.getAutore(), v1);
+        dbValutazioni.put(v2.getId() + "_" + v2.getAutore(), v2);
+        dbValutazioni.put(v3.getId() + "_" + v3.getAutore(), v3);
+        DatabaseCore.commit();
+
+        // ACT
+        List<Valutazione> recensioniMario = skillService.getValutazioniUtente("mario");
+
+        // ASSERT
+        assertNotNull(recensioniMario, "La lista non deve essere null");
+        assertEquals(2, recensioniMario.size(), "Dovrebbero esserci esattamente 2 recensioni per mario");
+        
+        boolean contieneCinque = recensioniMario.stream().anyMatch(v -> v.getVoto() == 5);
+        boolean contieneTre = recensioniMario.stream().anyMatch(v -> v.getVoto() == 3);
+        assertTrue(contieneCinque && contieneTre, "Le recensioni restituite devono contenere i voti corretti");
+        
+        boolean contieneAltroDestinatario = recensioniMario.stream().anyMatch(v -> !v.getDestinatario().equals("mario"));
+        assertFalse(contieneAltroDestinatario, "Non deve contenere valutazioni destinate ad altri utenti");
     }
 }
