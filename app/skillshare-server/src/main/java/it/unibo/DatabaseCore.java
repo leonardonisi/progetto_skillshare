@@ -162,6 +162,35 @@ public class DatabaseCore {
 
         }
 
+        // recezione fittizie per testare la visualizzazione dello storico delle recensioni
+        ConcurrentMap<String, Valutazione> dbValutazioni = getMappaValutazioni();
+
+        if (dbValutazioni.isEmpty()) {
+            // Recensione 1 da mario ad admin
+            Valutazione recensione1 = new Valutazione.Builder()
+                    .id(13) // ID della skill "Allenamento Tennis"
+                    .autore("mario")
+                    .destinatario("admin")
+                    .voto(5)
+                    .recensione("Lezione fantastica! Admin è un maestro formidabile, super consigliato.")
+                    .build();
+
+            // Recensione 2 da un altro utente ad admin
+            Valutazione recensione2 = new Valutazione.Builder()
+                    .id(14) // ID della skill "Consigli Fantacalcio"
+                    .autore("UtenteScambio_1")
+                    .destinatario("admin")
+                    .voto(4)
+                    .recensione("Ottimi consigli per l'asta. Molto preparato, peccato solo per un leggero ritardo all'appuntamento.")
+                    .build();
+
+            // Inserimento con la chiave univoca del server (ID_Autore)
+            dbValutazioni.put(recensione1.getId() + "_" + recensione1.getAutore(), recensione1);
+            dbValutazioni.put(recensione2.getId() + "_" + recensione2.getAutore(), recensione2);
+            
+            System.out.println("MAPDB -> Recensioni fittizie caricate con successo.");
+        }
+
         DatabaseCore.commit();
 
         seedCategorie(db);
