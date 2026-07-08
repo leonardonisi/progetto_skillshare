@@ -44,6 +44,13 @@ public class Utente implements Serializable {
     }
 
     public Utente() {
+        this.competenzePreferite = new ArrayList<>();
+        this.annunciPubblicati = new ArrayList<>();
+        this.richiesteInviateId = new ArrayList<>();
+        this.richiesteRicevuteId = new ArrayList<>();
+        this.fotoProfiloBase64 = "images/utente.jpg";
+        this.bio = "";
+        this.locazione = "";
     }
 
     public String getUsername() { return username; }

@@ -7,5 +7,9 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("richieste")
 public interface RichiesteService extends RemoteService {
-    List<Annuncio> getMieRichieste(String username);
+    List<RichiestaScambio> getRichiesteScambio(String username);
+
+    Annuncio getAnnuncioById(Integer id);
+    
+    Utente getUtenteById(String usernameId);
 }

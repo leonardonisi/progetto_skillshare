@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestRegisterServiceImpl {
+public class RegisterServiceImplTest {
 
     private RegisterServiceImpl registerService;
 
@@ -24,40 +24,32 @@ public class TestRegisterServiceImpl {
 
     @Test
     void testRegistrazioneCompletataConSuccesso() {
-        boolean esito = registerService.registraUtente("nuovoutente", "password", "password");
-        assertTrue(esito);
+        String esito = registerService.register("nuovoutente", "password", "password");
+        assertEquals("ok", esito);
         assertNotNull(DatabaseCore.getMappaUtenti().get("nuovoutente"));
     }
 
     @Test
     void testUsernameGiaUsato() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            registerService.registraUtente("admin", "password", "password");
-        });
-        assertEquals("Username già usato", ex.getMessage());
+        String result = registerService.register("admin", "password", "password");
+        assertEquals("Username già usato", result);
     }
 
     @Test
     void testPasswordNonConforme() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            registerService.registraUtente("utente1", "password", "pasword_diversa");
-        });
-        assertEquals("Password non conforme", ex.getMessage());
+        String result = registerService.register("utente1", "password", "pasword_diversa");
+        assertEquals("Password non conforme", result);
     }
 
     @Test
     void testUsernameTroppoCorto() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            registerService.registraUtente("tu", "password", "password");
-        });
-        assertEquals("Username troppo corto", ex.getMessage());
+        String result = registerService.register("tu", "password", "password");
+        assertEquals("Username troppo corto", result);
     }
 
     @Test
     void testPasswordTroppoCorta() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            registerService.registraUtente("utente1", "pa", "pa");
-        });
-        assertEquals("Password troppo corta", ex.getMessage());
+        String result = registerService.register("utente1", "pa", "pa");
+        assertEquals("Password troppo corta", result);
     }
 }

@@ -319,6 +319,7 @@ public class ForYouGui extends Composite {
         VerticalPanel cardAnnuncio = new VerticalPanel();
         cardAnnuncio.getElement().setId("card-utente");
         cardAnnuncio.setWidth("100%");
+        cardAnnuncio.getElement().getStyle().setProperty("padding", "30px");
         cardAnnuncio.getElement().getStyle().setProperty("border", "1px solid #666");
         cardAnnuncio.getElement().getStyle().setProperty("marginTop", "15px");
         cardAnnuncio.getElement().getStyle().setProperty("cursor", "pointer");
@@ -328,6 +329,7 @@ public class ForYouGui extends Composite {
         titoloDettaglio.getElement().setId("lbl-titolo");
         titoloDettaglio.getElement().getStyle().setProperty("fontWeight", "bold");
         titoloDettaglio.getElement().getStyle().setProperty("fontSize", "28px");
+        titoloDettaglio.getElement().getStyle().setProperty("marginBottom", "30px");
 
         // Label Dettaglio dei dettagli strutturali
         Label lblCategoria = new Label("CATEGORIA: " + a.getCategoria());

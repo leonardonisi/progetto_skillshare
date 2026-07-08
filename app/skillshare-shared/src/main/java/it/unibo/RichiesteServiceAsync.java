@@ -5,5 +5,9 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface RichiesteServiceAsync {
-    void getMieRichieste(String username, AsyncCallback<List<Annuncio>> callback);
+    void getRichiesteScambio(String username, AsyncCallback<List<RichiestaScambio>> callback);
+
+    void getAnnuncioById(Integer id, AsyncCallback<Annuncio> callback);
+
+    void getUtenteById(String id, AsyncCallback<Utente> callback);
 }

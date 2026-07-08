@@ -74,11 +74,11 @@ class SkillServiceImplTest {
     }
 
     @Test
-    void getMieSkills_shouldReturnOnlyAdminSkills() {
-        List<Annuncio> skillsRestituite = skillService.getMieSkills("admin");
+    void getAnnunciPubblicati_shouldReturnOnlyAdminSkills() {
+        List<Annuncio> skillsRestituite = skillService.getAnnunciPubblicati("admin");
 
         assertNotNull(skillsRestituite);
-        assertEquals(2, skillsRestituite.size(), "Deve restituire solo le 2 skill dell'admin");
+        assertEquals(2, skillsRestituite.size());
 
         boolean contieneMario = skillsRestituite.stream().anyMatch(a -> a.getAutore().equals("mario"));
         assertFalse(contieneMario, "Non deve contenere skill di altri utenti");
@@ -86,7 +86,7 @@ class SkillServiceImplTest {
 
     @Test
     void getMieSkills_shouldInjectCorrectMapDBId() {
-        List<Annuncio> skillsRestituite = skillService.getMieSkills("admin");
+        List<Annuncio> skillsRestituite = skillService.getAnnunciPubblicati("admin");
 
         assertNotNull(skillsRestituite);
         assertFalse(skillsRestituite.isEmpty(), "La lista delle skill restituite non deve essere vuota");

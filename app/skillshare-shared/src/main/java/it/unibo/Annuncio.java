@@ -63,7 +63,7 @@ public class Annuncio implements Serializable {
         return skillOfferta;
     }
 
-    public void setOffro(String skillOfferta) {
+    public void setSkillOfferta(String skillOfferta) {
         this.skillOfferta = skillOfferta;
     }
 
