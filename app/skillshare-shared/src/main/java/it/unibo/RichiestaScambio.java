@@ -13,26 +13,24 @@ public class RichiestaScambio implements Serializable {
         CONCLUSO
     }
 
-    private Integer id;             // ID univoco della richiesta
+    private Integer id;  
     private Integer idAnnuncio;   
-    private String richiedenteId;   // Username di chi ha cliccato "Richiedi"
-    private String proprietarioId;  // Username di chi ha pubblicato l'annuncio
-    private StatoRichiesta stato;   // stato della richiesta
-
+    private String richiedenteUser;   
+    private String proprietarioUser;  
+    private StatoRichiesta stato;
     private boolean confermatoDaProprietario;
-    private boolean confermatoDaRichiedente;
+    private boolean confermatoDaRichiedente;   
 
     private String messaggioProposta;
 
     public RichiestaScambio() {
-    
     }
-    
-    public RichiestaScambio(Integer id, Integer idAnnuncio, String richiedenteId, String proprietarioId) {
+
+    public RichiestaScambio(Integer id, Integer idAnnuncio, String richiedenteUser, String proprietarioUser) {
         this.id = id;
         this.idAnnuncio = idAnnuncio;
-        this.richiedenteId = richiedenteId;
-        this.proprietarioId = proprietarioId;
+        this.richiedenteUser = richiedenteUser;
+        this.proprietarioUser = proprietarioUser;
         this.stato = StatoRichiesta.IN_ATTESA;
         this.confermatoDaProprietario = false;
         this.confermatoDaRichiedente = false;
@@ -44,11 +42,11 @@ public class RichiestaScambio implements Serializable {
     public Integer getIdAnnuncio() { return idAnnuncio; }
     public void setIdAnnuncio(Integer idAnnuncio) { this.id = idAnnuncio; }
 
-    public String getRichiedenteId() { return richiedenteId; }
-    public void setRichiedenteId(String richiedenteId) { this.richiedenteId = richiedenteId; }
+    public String getRichiedenteUser() { return richiedenteUser; }
+    public void setRichiedenteUser(String richiedenteUser) { this.richiedenteUser = richiedenteUser; }
 
-    public String getProprietarioId() { return proprietarioId; }
-    public void setProprietarioId(String proprietarioId) { this.proprietarioId = proprietarioId; }
+    public String getProprietarioUser() { return proprietarioUser; }
+    public void setProprietarioUser(String proprietarioUser) { this.proprietarioUser = proprietarioUser; }
 
     public StatoRichiesta getStato() { return stato; }
     public void setStato(StatoRichiesta stato) { this.stato = stato; }

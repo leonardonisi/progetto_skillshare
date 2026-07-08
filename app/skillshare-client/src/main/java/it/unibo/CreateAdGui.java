@@ -31,7 +31,7 @@ public class CreateAdGui {
         final ListBox categoryList = new ListBox();
         final TextArea offertSkill = new TextArea();
         final TextArea disponibility = new TextArea();
-        final TextArea searchedSkill = new TextArea();
+        final ListBox searchedSkill = new ListBox();
         final Button btnPubblica = new Button("PUBBLICA");
         final Button btnAnnulla = new Button("ANNULLA");
 
@@ -48,9 +48,13 @@ public class CreateAdGui {
             public void onSuccess(List<String> result) {
                 categoryList.clear();
                 categoryList.addItem("Scegli categoria");
+
+                searchedSkill.clear();
+                searchedSkill.addItem("Scegli categoria");
                 
                 for (String categoria : result) {
                     categoryList.addItem(categoria);
+                    searchedSkill.addItem(categoria);
                 }
             }
         });
@@ -83,7 +87,7 @@ public class CreateAdGui {
         mainPanel.add(offertSkill);
         mainPanel.add(new Label("Disponibilità:"));
         mainPanel.add(disponibility);
-        mainPanel.add(new Label("Skill Ricercata:"));
+        mainPanel.add(new Label("Categoria Skill Ricercata:"));
         mainPanel.add(searchedSkill);
         mainPanel.add(btnPubblica);
         mainPanel.add(btnAnnulla);
@@ -97,8 +101,7 @@ public class CreateAdGui {
         offertSkill.setVisibleLines(6);
         disponibility.setCharacterWidth(50);
         disponibility.setVisibleLines(2);
-        searchedSkill.setCharacterWidth(50);
-        searchedSkill.setVisibleLines(6);
+        searchedSkill.setWidth("206px");
 
         RootPanel.get().add(mainPanel);
         titleField.setFocus(true);
@@ -116,7 +119,7 @@ public class CreateAdGui {
                 String titolo = titleField.getText().trim();
                 String categoria = categoryList.getSelectedItemText();
                 String offro = offertSkill.getText().trim();
-                String cerco = searchedSkill.getText().trim();
+                String cerco = searchedSkill.getSelectedItemText();
                 String disponibilita = disponibility.getText().trim();
 
                 if (autore == null || autore.isEmpty()) {

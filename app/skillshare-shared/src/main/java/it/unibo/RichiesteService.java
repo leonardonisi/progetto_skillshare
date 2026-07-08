@@ -7,7 +7,11 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("richieste")
 public interface RichiesteService extends RemoteService {
-    List<Annuncio> getMieRichieste(String username);
+    List<RichiestaScambio> getRichiesteScambio(String username);
+
+    Annuncio getAnnuncioById(Integer id);
+    
+    Utente getUtenteById(String usernameId);
 
     RichiestaScambio elaboraAzioneScambio(Integer idRichiesta, String username, boolean isConferma);
 
@@ -20,4 +24,6 @@ public interface RichiesteService extends RemoteService {
     java.util.HashMap<String, String> getMappaStatiRichieste();
 
     java.util.List<RichiestaScambio> getTutteLeRichieste();
+
+    java.util.List<Annuncio> getMieRichieste(String username);
 }

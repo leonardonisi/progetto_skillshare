@@ -11,15 +11,31 @@ import it.unibo.RichiestaScambio.StatoRichiesta;
 @SuppressWarnings("serial")
 public class RichiesteServiceImpl extends RemoteServiceServlet implements RichiesteService {
 
-    // Salvataggio del riferimento alla mappa
-    private static final ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
+    @Override
+    public List<RichiestaScambio> getRichiesteScambio(String username) {
+        try {
+            List<RichiestaScambio> listaRichieste = new ArrayList<>();
+            ConcurrentMap<Integer, RichiestaScambio> dbRichieste = DatabaseCore.getMappaRichieste();
+            
+            for (RichiestaScambio r : dbRichieste.values()) {
+                if (r != null && username.equals(r.getRichiedenteUser())) {
+                    listaRichieste.add(r);
+                }
+            }
+            return listaRichieste;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; 
+        }
+    }
 
     @Override
     public java.util.List<Annuncio> getMieRichieste(String username) {
         java.util.List<Annuncio> richiesteInviateDaMe = new java.util.ArrayList<>();
         for (RichiestaScambio r : DatabaseCore.getMappaRichieste().values()) {
             // Filtro stringente: l'utente deve essere il RICHIEDENTE, non il proprietario!
-            if (r.getRichiedenteId().equals(username)) {
+            if (r.getRichiedenteUser().equals(username)) {
                 Annuncio a = DatabaseCore.getMappaAnnunci().get(r.getIdAnnuncio());
                 if (a != null) {
                     richiesteInviateDaMe.add(a);
@@ -27,6 +43,30 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
             }
         }
         return richiesteInviateDaMe;
+    }
+    
+    
+    public Annuncio getAnnuncioById(Integer id) {
+        try {
+            ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
+            return dbAnnunci.get(id);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; 
+        }
+    }
+
+    @Override
+    public Utente getUtenteById(String usernameId) {
+        try {
+            ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
+            return dbUtenti.get(usernameId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -45,9 +85,9 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
             richiesta.setStato(RichiestaScambio.StatoRichiesta.RIFIUTATO);
         } else {
             // Se l'utente ha cliccato il "Tick" (Conferma), controllo chi è
-            if (username.equals(richiesta.getProprietarioId())) {
+            if (username.equals(richiesta.getProprietarioUser())) {
                 richiesta.setConfermatoDaProprietario(true);
-            } else if (username.equals(richiesta.getRichiedenteId())) {
+            } else if (username.equals(richiesta.getRichiedenteUser())) {
                 richiesta.setConfermatoDaRichiedente(true);
             }
 
@@ -95,7 +135,7 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
     public java.util.List<RichiestaScambio> getRichiesteRicevute(String username) {
         java.util.List<RichiestaScambio> ricevute = new java.util.ArrayList<>();
         for (RichiestaScambio r : DatabaseCore.getMappaRichieste().values()) {
-            if (r.getProprietarioId().equals(username) && r.getStato() == StatoRichiesta.IN_ATTESA) {
+            if (r.getProprietarioUser().equals(username) && r.getStato() == StatoRichiesta.IN_ATTESA) {
                 ricevute.add(r);
             }
         }
