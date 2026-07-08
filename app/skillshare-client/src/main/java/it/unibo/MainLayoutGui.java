@@ -128,6 +128,47 @@ public class MainLayoutGui extends Composite {
         menuSkill.getElement().getStyle().setProperty("border", "1px solid #ccc");
         menuSkill.getElement().getStyle().setProperty("padding", "10px");
 
+        // Bottone Logout
+        Button btnLogout = new Button("LOGOUT");
+        btnLogout.getElement().setId("btn-logout");
+
+        // Stile grafico Logout
+        btnLogout.getElement().getStyle().setProperty("marginLeft", "12px");
+        btnLogout.getElement().getStyle().setProperty("backgroundImage", "none");
+        btnLogout.getElement().getStyle().setProperty("backgroundColor", "#007bff");
+        btnLogout.getElement().getStyle().setProperty("color", "white");
+        btnLogout.getElement().getStyle().setProperty("border", "none");
+
+        // Gestione Click Logout
+        btnLogout.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                // Popup nativo di conferma
+                boolean conferma = Window.confirm("Sei sicuro di voler fare il logout?");
+                if (!conferma) {
+                    return; // Se clicca annulla interrompiamo il flusso
+                }
+
+                String utenteCorrente = SessionManager.getUtenteLoggato();
+
+                servizio.logout(utenteCorrente, new AsyncCallback<Void>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Errore durante il logout: " + caught.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(Void result) {
+                        SessionManager.logout();
+
+                        RootPanel.get().clear();
+                        new LoginGui().mostra();
+                        // Window.Location.reload();
+                    }
+                });
+            }
+        });
+
         // Comportamento Cursore
         lblSkill.addMouseOverHandler(event -> {
             menuSkill.setPopupPosition(lblSkill.getAbsoluteLeft(), lblSkill.getAbsoluteTop() + 30);
@@ -184,10 +225,13 @@ public class MainLayoutGui extends Composite {
         header.add(logoBenvenuto);
         header.add(navLinks);
         header.add(imgProfilo);
+        header.add(btnLogout);
 
         header.setCellWidth(logoBenvenuto, "30%");
         header.setCellWidth(navLinks, "50%");
         header.setCellHorizontalAlignment(navLinks, HasHorizontalAlignment.ALIGN_CENTER);
+        header.setCellWidth(btnLogout, "15%");
+        header.setCellHorizontalAlignment(btnLogout, HasHorizontalAlignment.ALIGN_RIGHT);
 
         // inizializzazione contenitore dinamico
         contenitoreDinamico = new SimplePanel();

@@ -207,4 +207,19 @@ public class MainLayoutSeleniumTest {
 
         assertTrue(titoloTesto.contains("gwt") || descrizioneTesto.contains("gwt"));
     }
+
+    @Test
+    void clickLogoutEConfermaRimandaAllaPaginaDiLogin() {
+        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
+        WebElement btnLogout = wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-logout")));
+
+        btnLogout.click();
+        Alert alertConferma = wait.until(ExpectedConditions.alertIsPresent());
+        alertConferma.accept();
+
+        WebElement titoloLogin = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-login")));
+        WebElement inputUsernameLogin = driver.findElement(By.id("input-username"));
+        assertTrue(titoloLogin.isDisplayed());
+        assertTrue(inputUsernameLogin.isDisplayed());
+    }
 }
