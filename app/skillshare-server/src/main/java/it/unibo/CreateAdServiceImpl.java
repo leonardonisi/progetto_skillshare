@@ -1,46 +1,45 @@
 package it.unibo;
 
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
-import org.mapdb.DB;
-import org.mapdb.Serializer;
 import java.util.concurrent.ConcurrentMap;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CreateAdServiceImpl extends RemoteServiceServlet implements CreateAdService {
-    private static final DB db = DatabaseCore.getDB();
 
-    private static final ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
-
-    private static final ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
+    // Rimosse le variabili static final globali per evitare bug nei test!
 
     @Override
     public boolean pubblicaAnnuncio(Annuncio annuncio) {
-        if (annuncio == null || annuncio.getTitolo() == null || annuncio.getSkillOfferta() == null
-                || annuncio.getControprestazione() == null || annuncio.getDisponibilita() == null
-                || annuncio.getAutore() == null) {
-            return false;
+        if (annuncio == null || 
+            annuncio.getTitolo() == null || annuncio.getTitolo().trim().isEmpty() || 
+            annuncio.getSkillOfferta() == null || annuncio.getSkillOfferta().trim().isEmpty() ||
+            annuncio.getControprestazione() == null || annuncio.getControprestazione().trim().isEmpty() || 
+            annuncio.getDisponibilita() == null || annuncio.getDisponibilita().trim().isEmpty() || 
+            annuncio.getAutore() == null || annuncio.getAutore().trim().isEmpty()) {
+        return false;
         }
+        
         try {
-            int id = dbAnnunci.size() + 1;
-            dbAnnunci.put(id, annuncio);
-            Utente autore = dbUtenti.get(annuncio.getAutore());
+            // Recupero dinamico delle mappe (fondamentale per i Test in RAM)
+            ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
+            ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
 
+            int id = DatabaseCore.generaNuovoIdAnnuncio();
+            
+            annuncio.setId(id);
+            dbAnnunci.put(id, annuncio);
+            
+            Utente autore = dbUtenti.get(annuncio.getAutore());
             if (autore != null) {
                 autore.getAnnunciPubblicati().add(id);
-
-                autore.incrementaAnnunciInseriti();
-
-                if (autore.getContatoreAnnunciInseriti() >= 10) {
-                    autore.aggiungiBadge("Creatore Seriale"); // Sblocca in automatico il badge a quota 10
-                }
-                
                 dbUtenti.put(autore.getUsername(), autore);
             }
 
             DatabaseCore.commit();
             return true;
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -58,16 +57,19 @@ public class CreateAdServiceImpl extends RemoteServiceServlet implements CreateA
                 annuncioAggiornato.getCategoria() == null || annuncioAggiornato.getCategoria().trim().isEmpty() ||
                 annuncioAggiornato.getSkillOfferta() == null || annuncioAggiornato.getSkillOfferta().trim().isEmpty() ||
                 annuncioAggiornato.getDisponibilita() == null || annuncioAggiornato.getDisponibilita().trim().isEmpty()
-                ||
-                annuncioAggiornato.getAutore() == null) {
+                || annuncioAggiornato.getAutore() == null) {
             return false;
         }
 
         try {
+            ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
+            
             if (!dbAnnunci.containsKey(id)) {
                 return false;
             }
-            // Sovrascrivo l'annuncio mantenendo lo stesso identico ID chiave
+            
+            annuncioAggiornato.setId(id);
+            
             dbAnnunci.put(id, annuncioAggiornato);
             DatabaseCore.commit();
             return true;

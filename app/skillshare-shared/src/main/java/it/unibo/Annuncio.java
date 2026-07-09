@@ -11,6 +11,7 @@ public class Annuncio implements Serializable {
     private String skillOfferta;
     private String controprestazioneCercata;
     private String disponibilita;
+    private boolean attivo = true;
 
     public Annuncio() {
     }
@@ -26,6 +27,14 @@ public class Annuncio implements Serializable {
     }
 
     // Getter e Setter
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getAutore() {
         return autore;
     }
@@ -54,7 +63,7 @@ public class Annuncio implements Serializable {
         return skillOfferta;
     }
 
-    public void setOffro(String skillOfferta) {
+    public void setSkillOfferta(String skillOfferta) {
         this.skillOfferta = skillOfferta;
     }
 
@@ -74,13 +83,9 @@ public class Annuncio implements Serializable {
         this.disponibilita = disponibilita;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    public boolean isAttivo() { return attivo; }
+    
+    public void setAttivo(boolean attivo) { this.attivo = attivo; }
 
     // Builder
     public static class Builder {

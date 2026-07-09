@@ -1,66 +1,55 @@
 package it.unibo;
 
-import com.google.gwt.user.server.rpc.jakarta.AbstractRemoteServiceServlet;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-
-import java.lang.reflect.Field;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
-import java.util.concurrent.ConcurrentMap;
-import org.mapdb.Serializer;
-import org.mapdb.DB;
-
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-class RegisterServiceImplTest {
-
-    @Mock
-    private ServletConfig servletConfig;
-    @Mock
-    private ServletContext servletContext;
-    @Mock
-    private HttpServletRequest request;
+public class RegisterServiceImplTest {
 
     private RegisterServiceImpl registerService;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         DatabaseCore.enableTestMode();
-        DatabaseCore.close(); 
-
-        DB db = DatabaseCore.getDB();
-        ConcurrentMap<String, Utente> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
-        dbUtenti.clear();
-        dbUtenti.put("admin", new Utente("admin", "password"));
-        DatabaseCore.commit();
-
+        DatabaseCore.seedDatabase();
+        
         registerService = new RegisterServiceImpl();
     }
 
+    @AfterEach
+    void tearDown() {
+        DatabaseCore.close();
+    }
+
     @Test
-    void register_ValidData_ShouldSaveUserInDatabase() {
-        String usernameTest = "nuovo_utente";
-        String passwordTest = "password123";
-        
-        String result = registerService.register(usernameTest, passwordTest, passwordTest);
+    void testRegistrazioneCompletataConSuccesso() {
+        String esito = registerService.register("nuovoutente", "password", "password");
+        assertEquals("ok", esito);
+        assertNotNull(DatabaseCore.getMappaUtenti().get("nuovoutente"));
+    }
 
-        assertEquals("ok", result);
+    @Test
+    void testUsernameGiaUsato() {
+        String result = registerService.register("admin", "password", "password");
+        assertEquals("Username già usato", result);
+    }
 
-        DB db = DatabaseCore.getDB();
-        ConcurrentMap<String, Utente> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
+    @Test
+    void testPasswordNonConforme() {
+        String result = registerService.register("utente1", "password", "pasword_diversa");
+        assertEquals("Password non conforme", result);
+    }
 
-        assertTrue(dbUtenti.containsKey(usernameTest), "L'utente non è stato salvato nel Database");
-        assertEquals(passwordTest, dbUtenti.get(usernameTest).getPassword(), "La password salvata non corrisponde");
+    @Test
+    void testUsernameTroppoCorto() {
+        String result = registerService.register("tu", "password", "password");
+        assertEquals("Username troppo corto", result);
+    }
+
+    @Test
+    void testPasswordTroppoCorta() {
+        String result = registerService.register("utente1", "pa", "pa");
+        assertEquals("Password troppo corta", result);
     }
 }
