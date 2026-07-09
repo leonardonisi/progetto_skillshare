@@ -403,6 +403,14 @@ public class SkillsGui extends Composite {
         buttonGroups.setSpacing(10);
 
         Button btnChat = new Button("💬");
+        btnChat.getElement().setId("btn-chat-sidebar");
+
+        // Determina dinamicamente l'interlocutore della chat
+        final String interlocutoreChat = annuncio.getAutore().equals(utenteCorrente)
+                ? richiesta.getRichiedenteUser()
+                : annuncio.getAutore();
+
+        btnChat.addClickHandler(event -> eseguiNavigazioneChat(interlocutoreChat));
 
         switch (richiesta.getStato()) {
             case IN_ATTESA:
@@ -417,20 +425,25 @@ public class SkillsGui extends Composite {
 
                 btnConfermaScambio.addClickHandler(event -> {
                     btnConfermaScambio.setEnabled(false);
-                    richiesteService.elaboraAzioneScambio(annuncio.getId(), utenteCorrente, true, new AsyncCallback<RichiestaScambio>() {
-                        @Override
-                        public void onFailure(Throwable caught) { btnConfermaScambio.setEnabled(true); }
-                        @Override
-                        public void onSuccess(RichiestaScambio result) {
-                            if (result != null && result.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
-                                Window.alert("Scambio concluso con successo! Entrambi avete confermato.");
-                                contentArea.clear();
-                                aggiornaTuttiIDati();
-                            } else {
-                                btnConfermaScambio.setText("In attesa della controparte...");
-                            }
-                        }
-                    });
+                    richiesteService.elaboraAzioneScambio(annuncio.getId(), utenteCorrente, true,
+                            new AsyncCallback<RichiestaScambio>() {
+                                @Override
+                                public void onFailure(Throwable caught) {
+                                    btnConfermaScambio.setEnabled(true);
+                                }
+
+                                @Override
+                                public void onSuccess(RichiestaScambio result) {
+                                    if (result != null
+                                            && result.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
+                                        Window.alert("Scambio concluso con successo! Entrambi avete confermato.");
+                                        contentArea.clear();
+                                        aggiornaTuttiIDati();
+                                    } else {
+                                        btnConfermaScambio.setText("In attesa della controparte...");
+                                    }
+                                }
+                            });
                 });
  
                 
@@ -522,9 +535,106 @@ public class SkillsGui extends Composite {
         });
 
         Button btnModifica = new Button("Modifica");
+        btnModifica.getElement().setId("btn-modifica-annuncio");
+
         btnModifica.addClickHandler(clickEvent -> {
-            // Qui inserisci la tua logica di modifica originaria (CreateAdService)
-            Window.alert("Implementazione form di modifica qui");
+            card.clear();
+            card.add(cardHeader);
+
+            // Campo input Titolo
+            TextBox txtTitolo = new TextBox();
+            txtTitolo.getElement().setId("input-modifica-titolo");
+            txtTitolo.setText(skill.getTitolo());
+            txtTitolo.setWidth("100%");
+            card.add(new Label("TITOLO:"));
+            card.add(txtTitolo);
+
+            // Menu a tendina Categorie
+            ListBox listCat = new ListBox();
+            card.add(new Label("CATEGORIA:"));
+            card.add(listCat);
+
+            // Recupero asincrono delle categorie tramite il servizio dedicato
+            CreateAdServiceAsync adService = GWT.create(CreateAdService.class);
+            adService.getCategorie(new AsyncCallback<List<String>>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    listCat.addItem(skill.getCategoria());
+                }
+
+                @Override
+                public void onSuccess(List<String> categorieDalDb) {
+                    for (String cat : categorieDalDb) {
+                        listCat.addItem(cat);
+                    }
+
+                    // Pre-seleziona la voce corrente
+                    for (int i = 0; i < listCat.getItemCount(); i++) {
+                        if (listCat.getItemText(i).equalsIgnoreCase(skill.getCategoria())) {
+                            listCat.setSelectedIndex(i);
+                            break;
+                        }
+                    }
+                }
+            });
+
+            // Campo input Descrizione / Oggetto Skill
+            TextArea txtDesc = new TextArea();
+            txtDesc.getElement().setId("input-modifica-descrizione");
+            txtDesc.setText(skill.getSkillOfferta());
+            txtDesc.setWidth("100%");
+            card.add(new Label("DETTAGLI OGGETTO:"));
+            card.add(txtDesc);
+
+            // Campo input Disponibilità
+            TextArea txtDisp = new TextArea();
+            txtDisp.getElement().setId("input-modifica-disponibilita");
+            txtDisp.setText(skill.getDisponibilita());
+            txtDisp.setWidth("100%");
+            card.add(new Label("DISPONIBILITÀ:"));
+            card.add(txtDisp);
+
+            // Pulsante di salvataggio finale
+            Button btnConferma = new Button("Conferma");
+            btnConferma.getElement().setId("btn-modifica-conferma");
+
+            btnConferma.addClickHandler(confermaEvent -> {
+                if (txtTitolo.getText().trim().isEmpty() || txtDesc.getText().trim().isEmpty()
+                        || txtDisp.getText().trim().isEmpty()) {
+                    Window.alert("Tutti i campi sono obbligatori!");
+                    return;
+                }
+
+                // Aggiorna lo stato dell'oggetto locale
+                skill.setTitolo(txtTitolo.getText().trim());
+                skill.setCategoria(listCat.getSelectedItemText());
+                skill.setSkillOfferta(txtDesc.getText().trim());
+                skill.setDisponibilita(txtDisp.getText().trim());
+
+                adService.aggiornaAnnuncio(skill.getId(), skill, new AsyncCallback<Boolean>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Errore di rete durante la modifica: " + caught.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(Boolean result) {
+                        if (result) {
+                            Window.alert("Annuncio aggiornato con successo!");
+                            aggiornaTuttiIDati();
+                            mostraDettagliAnnuncio(skill);
+                        } else {
+                            Window.alert("Errore: Impossibile aggiornare l'annuncio nel database.");
+                        }
+                    }
+                });
+            });
+
+            HorizontalPanel confWrapper = new HorizontalPanel();
+            confWrapper.setWidth("100%");
+            confWrapper.add(btnConferma);
+            confWrapper.setCellHorizontalAlignment(btnConferma, HasHorizontalAlignment.ALIGN_RIGHT);
+            card.add(confWrapper);
         });
 
         buttonGroups.add(btnRimuovi);
