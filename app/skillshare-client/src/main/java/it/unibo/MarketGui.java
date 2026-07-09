@@ -33,9 +33,11 @@ public class MarketGui extends Composite {
     private Image imgAnnuncio;
     private List<Annuncio> tuttiGliAnnunci;
     private Annuncio annuncioSelezionato;
+    private MainLayoutGui mainLayout;
 
-    public MarketGui() {
+    public MarketGui(MainLayoutGui mainLayout) {
         this.utenteCorrente = SessionManager.getUtenteLoggato();
+        this.mainLayout = mainLayout;
 
         VerticalPanel vistaMarket = new VerticalPanel();
         vistaMarket.setWidth("80%");
@@ -223,7 +225,8 @@ public class MarketGui extends Composite {
         btnRichiedi.setVisible(false);
 
         btnRichiedi.addClickHandler(event -> {
-            if (annuncioSelezionato == null) return;
+            if (annuncioSelezionato == null)
+                return;
 
             DialogBox popupOfferta = new DialogBox();
             popupOfferta.setText("Formula la tua proposta di scambio");
@@ -245,26 +248,28 @@ public class MarketGui extends Composite {
             Button btnAnnullaProposta = new Button("Annulla");
 
             btnAnnullaProposta.addClickHandler(e -> popupOfferta.hide());
-            
+
             btnInviaProposta.addClickHandler(e -> {
                 String proposta = inputControprestazione.getText().trim();
-                if(proposta.isEmpty()) {
+                if (proposta.isEmpty()) {
                     Window.alert("Il messaggio della proposta non può essere vuoto!");
                     return;
                 }
 
-                richiesteService.inviaRichiesta(annuncioSelezionato.getId(), utenteCorrente, annuncioSelezionato.getAutore(), proposta, new AsyncCallback<RichiestaScambio>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Window.alert("Errore nell'invio della richiesta: " + caught.getMessage());
-                    }
+                richiesteService.inviaRichiesta(annuncioSelezionato.getId(), utenteCorrente,
+                        annuncioSelezionato.getAutore(), proposta, new AsyncCallback<RichiestaScambio>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Errore nell'invio della richiesta: " + caught.getMessage());
+                            }
 
-                    @Override
-                    public void onSuccess(RichiestaScambio result) {
-                        Window.alert("Proposta inviata con successo! Troverai lo stato nella pagina Richieste.");
-                        popupOfferta.hide();
-                    }
-                });
+                            @Override
+                            public void onSuccess(RichiestaScambio result) {
+                                Window.alert(
+                                        "Proposta inviata con successo! Troverai lo stato nella pagina Richieste.");
+                                popupOfferta.hide();
+                            }
+                        });
             });
 
             bottoniPopup.add(btnInviaProposta);
@@ -284,8 +289,11 @@ public class MarketGui extends Composite {
         btnChat.getElement().getStyle().setProperty("border", "none");
         btnChat.getElement().getStyle().setProperty("cursor", "pointer");
         btnChat.getElement().getStyle().setProperty("fontSize", "20px");
+
         btnChat.setVisible(false);
-        btnChat.addClickHandler(event -> new ChatGui().mostra());
+        btnChat.addClickHandler(event -> {
+            mainLayout.cambiaVista(new ChatGui());
+        });
 
         btnContainer.add(btnRichiedi);
         btnContainer.add(btnChat);
@@ -397,7 +405,7 @@ public class MarketGui extends Composite {
 
     private void mostraDettaglio(Annuncio a) {
         annuncioSelezionato = a;
-        
+
         titoloDettaglio.setText(a.getTitolo());
         imgAnnuncio.setVisible(true);
         caricaImmagineProfilo(imgAnnuncio, a.getAutore());
@@ -433,26 +441,28 @@ public class MarketGui extends Composite {
                 Button btnAnnullaProposta = new Button("Annulla");
 
                 btnAnnullaProposta.addClickHandler(e -> popupOfferta.hide());
-                
+
                 btnInviaProposta.addClickHandler(e -> {
                     String proposta = inputControprestazione.getText().trim();
-                    if(proposta.isEmpty()) {
+                    if (proposta.isEmpty()) {
                         Window.alert("Il messaggio della proposta non può essere vuoto!");
                         return;
                     }
 
-                    richiesteService.inviaRichiesta(a.getId(), utenteCorrente, a.getAutore(), proposta, new AsyncCallback<RichiestaScambio>() {
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            Window.alert("Errore nell'invio della richiesta: " + caught.getMessage());
-                        }
+                    richiesteService.inviaRichiesta(a.getId(), utenteCorrente, a.getAutore(), proposta,
+                            new AsyncCallback<RichiestaScambio>() {
+                                @Override
+                                public void onFailure(Throwable caught) {
+                                    Window.alert("Errore nell'invio della richiesta: " + caught.getMessage());
+                                }
 
-                        @Override
-                        public void onSuccess(RichiestaScambio result) {
-                            Window.alert("Proposta inviata con successo! Troverai lo stato nella pagina Richieste.");
-                            popupOfferta.hide();
-                        }
-                    });
+                                @Override
+                                public void onSuccess(RichiestaScambio result) {
+                                    Window.alert(
+                                            "Proposta inviata con successo! Troverai lo stato nella pagina Richieste.");
+                                    popupOfferta.hide();
+                                }
+                            });
                 });
 
                 bottoniPopup.add(btnInviaProposta);

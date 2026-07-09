@@ -60,7 +60,7 @@ public class MainLayoutGui extends Composite {
         lblMarket.getElement().getStyle().setProperty("fontSize", "18px");
         lblMarket.getElement().setId("nav-market");
 
-        lblMarket.addClickHandler(event -> cambiaVista(new MarketGui()));
+        lblMarket.addClickHandler(event -> cambiaVista(new MarketGui(this)));
 
         Label lblPerTe = new Label("PER TE");
         lblPerTe.getElement().getStyle().setProperty("cursor", "pointer");
@@ -195,7 +195,6 @@ public class MainLayoutGui extends Composite {
         header.add(navLinks);
         header.add(btnLogout);
         header.add(imgProfilo);
-        
 
         header.setCellWidth(logoBenvenuto, "30%");
         header.setCellWidth(navLinks, "50%");
@@ -211,7 +210,7 @@ public class MainLayoutGui extends Composite {
         mainContainer.add(header);
         mainContainer.add(contenitoreDinamico);
 
-        cambiaVista(new MarketGui());
+        cambiaVista(new MarketGui(this));
         initWidget(mainContainer);
     }
 
