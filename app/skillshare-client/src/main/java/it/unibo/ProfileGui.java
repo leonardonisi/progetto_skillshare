@@ -1,29 +1,32 @@
 package it.unibo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.FileUpload;
-import com.google.gwt.dom.client.Element;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class ProfileGui {
 
     private final ProfileServiceAsync profileService = GWT.create(ProfileService.class);
+    private final SkillServiceAsync skillService = GWT.create(SkillService.class);
 
     // Lista per tenere traccia delle categorie scelte ed evitare i duplicati
     private List<String> categorieSelezionate = new ArrayList<>();
@@ -115,6 +118,16 @@ public class ProfileGui {
         usernameLabel.setWidth("200px");
         usernameLabel.getElement().getStyle().setProperty("textAlign", "center");
         usernameLabel.getElement().getStyle().setProperty("padding", "5px");
+
+        // container per il raiting medio
+        HorizontalPanel ratingPanel = new HorizontalPanel();
+        ratingPanel.setSpacing(5);
+        ratingPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+        Label lblRating = new Label("Caricamento rating..."); 
+        lblRating.getElement().setId("lbl-rating-medio");
+        lblRating.getElement().getStyle().setProperty("fontSize", "18px");
+        lblRating.getElement().getStyle().setProperty("fontWeight", "bold");
+        ratingPanel.add(lblRating);
 
         HorizontalPanel bodyPanel = new HorizontalPanel();
         bodyPanel.setWidth("100%");
@@ -318,12 +331,108 @@ public class ProfileGui {
         cardPanel.add(photoPanel);
         cardPanel.add(usernameTitle);
         cardPanel.add(usernameLabel);
+        cardPanel.add(ratingPanel);
         cardPanel.add(bodyPanel);
         cardPanel.add(editButton);
 
+        // container per lo storico delle recensioni
+        VerticalPanel storicoContainer = new VerticalPanel();
+        storicoContainer.getElement().setId("container-storico-recensioni");
+        storicoContainer.setWidth("600px");
+        storicoContainer.setSpacing(10);
+        storicoContainer.getElement().getStyle().setProperty("marginTop", "20px");
+        storicoContainer.getElement().getStyle().setProperty("marginBottom", "40px");
+        
+        Label storicoTitle = new Label("Storico Recensioni");
+        storicoTitle.getElement().getStyle().setProperty("fontWeight", "bold");
+        storicoTitle.getElement().getStyle().setProperty("fontSize", "20px");
+        storicoTitle.getElement().getStyle().setProperty("color", "#8b2e71");
+        storicoContainer.add(storicoTitle);
+
         pageBackground.add(cardPanel);
+        pageBackground.add(storicoContainer);
         RootPanel.get().add(pageBackground);
 
+        // chiamata RCP per ottenere le recensioni dell'utente
+        caricaEmostraRecensioni(utenteLoggato, lblRating, storicoContainer);
+
+    }
+
+    // metodo per caricare e mostrare le recensioni dell'utente
+    private void caricaEmostraRecensioni(String username, Label lblRating, VerticalPanel storicoContainer) {
+        skillService.getValutazioniUtente(username, new AsyncCallback<List<Valutazione>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                lblRating.setText("Errore caricamento rating");
+            }
+
+            @Override
+            public void onSuccess(List<Valutazione> recensioni) {
+                if (recensioni == null || recensioni.isEmpty()) {
+                    lblRating.setText("Nessuna recensione");
+                    Label noRev = new Label("L'utente non ha ancora ricevuto recensioni.");
+                    noRev.getElement().getStyle().setProperty("color", "#666");
+                    storicoContainer.add(noRev);
+                    return;
+                }
+
+                // Calcolo Rating Medio
+                double somma = 0;
+                for (Valutazione v : recensioni) {
+                    somma += v.getVoto();
+                }
+                double media = somma / recensioni.size();
+                
+                String mediaFormat = String.valueOf(Math.round(media * 10.0) / 10.0);
+                
+                StringBuilder stelle = new StringBuilder();
+                int stellePiene = (int) Math.round(media);
+                for (int i = 0; i < 5; i++) {
+                    if (i < stellePiene) stelle.append("★");
+                    else stelle.append("☆");
+                }
+                
+                lblRating.setText(mediaFormat + " " + stelle.toString());
+                lblRating.getElement().getStyle().setProperty("color", "#FFD700"); 
+
+                // Rendering Storico Recensioni
+                for (int i = recensioni.size() - 1; i >= 0; i--) {
+                    Valutazione v = recensioni.get(i);
+                    
+                    VerticalPanel cardRecensione = new VerticalPanel();
+                    cardRecensione.setWidth("100%");
+                    cardRecensione.getElement().setId("item-recensione-" + i);
+                    cardRecensione.getElement().getStyle().setBackgroundColor("white");
+                    cardRecensione.getElement().getStyle().setProperty("padding", "15px");
+                    cardRecensione.getElement().getStyle().setProperty("borderRadius", "8px");
+                    cardRecensione.getElement().getStyle().setProperty("boxShadow", "0 2px 4px rgba(0,0,0,0.05)");
+
+                    HorizontalPanel headerRec = new HorizontalPanel();
+                    headerRec.setWidth("100%");
+                    
+                    Label autore = new Label("Da: " + v.getAutore());
+                    autore.getElement().getStyle().setProperty("fontWeight", "bold");
+                    
+                    StringBuilder votoStella = new StringBuilder();
+                    for(int s=0; s<5; s++) { votoStella.append(s < v.getVoto() ? "★" : "☆"); }
+                    Label lblVoto = new Label(votoStella.toString());
+                    lblVoto.getElement().getStyle().setProperty("color", "#FFD700");
+
+                    headerRec.add(autore);
+                    headerRec.add(lblVoto);
+                    headerRec.setCellHorizontalAlignment(lblVoto, HasHorizontalAlignment.ALIGN_RIGHT);
+
+                    Label testoRec = new Label(v.getRecensione());
+                    testoRec.getElement().getStyle().setProperty("marginTop", "10px");
+                    testoRec.getElement().getStyle().setProperty("fontStyle", "italic");
+
+                    cardRecensione.add(headerRec);
+                    cardRecensione.add(testoRec);
+
+                    storicoContainer.add(cardRecensione);
+                }
+            }
+        });
     }
 
     // Legge il file e lo trasforma in testo Base64
