@@ -135,6 +135,7 @@ public class DatabaseCore {
                     dbPath = dataDir + (dataDir.endsWith(File.separator) ? "" : File.separator) + "progetto_sweng.db";
                     System.out.println("MAPDB -> Avvio in modalità CLOUD. Percorso: " + dbPath);
                 } else {
+                    dbPath = new File("progetto_sweng.db").getAbsolutePath();
                     System.out.println("MAPDB -> Avvio in modalità LOCALE.");
                 }
 
