@@ -8,6 +8,7 @@ public class Valutazione implements Serializable {
 
     private int id;
     private String autore;
+    private String destinatario;
     private int voto; // Da 1 a 5
     private String recensione;
 
@@ -17,28 +18,37 @@ public class Valutazione implements Serializable {
     private Valutazione(Builder builder) {
         this.id = builder.id;
         this.autore = builder.autore;
+        this.destinatario = builder.destinatario;
         this.voto = builder.voto;
         this.recensione = builder.recensione;
     }
 
     // Getter
-    public int getId() { 
-        return id; 
+    public int getId() {
+        return id;
     }
-    public String getAutore() { 
+
+    public String getAutore() {
         return autore;
     }
-    public int getVoto() {
-         return voto;
+
+    public String getDestinatario() {
+        return destinatario;
     }
+
+    public int getVoto() {
+        return voto;
+    }
+
     public String getRecensione() {
-         return recensione;
+        return recensione;
     }
 
     // Builder
     public static class Builder {
         private int id;
         private String autore;
+        private String destinatario;
         private int voto;
         private String recensione;
 
@@ -49,6 +59,11 @@ public class Valutazione implements Serializable {
 
         public Builder autore(String autore) {
             this.autore = autore;
+            return this;
+        }
+
+        public Builder destinatario(String destinatario) {
+            this.destinatario = destinatario;
             return this;
         }
 
