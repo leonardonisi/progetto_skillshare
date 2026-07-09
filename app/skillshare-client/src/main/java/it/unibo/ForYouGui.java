@@ -48,8 +48,8 @@ public class ForYouGui extends Composite {
     private Label lblLocazione;
     private Label alertAnnunci;
 
-    //private Button btnRichiedi;
-    //private Button btnChat;
+    // private Button btnRichiedi;
+    // private Button btnChat;
     private List<Utente> tuttiGliUtenti;
     private List<Annuncio> annunciUtenteOrdinati;
 
@@ -133,7 +133,7 @@ public class ForYouGui extends Composite {
         headerDettaglioUtente.setCellHorizontalAlignment(votoProfilo, HasHorizontalAlignment.ALIGN_RIGHT);
         headerDettaglioUtente.setCellHorizontalAlignment(imgProfilo, HasHorizontalAlignment.ALIGN_RIGHT);
         headerDettaglioUtente.setCellWidth(usernameProfilo, "100%");
-        
+
         // Dettagli Profilo
         lblBiografia = new Label();
         lblBiografia.getElement().setId("lbl-biografia");
@@ -192,7 +192,7 @@ public class ForYouGui extends Composite {
 
             @Override
             public void onSuccess(List<Utente> result) {
-                tuttiGliUtenti = result; 
+                tuttiGliUtenti = result;
 
                 aggiornaVistaUtenti(tuttiGliUtenti);
             }
@@ -208,7 +208,7 @@ public class ForYouGui extends Composite {
         messaggio.getElement().getStyle().setProperty("marginBottom", "15px");
 
         colonnaSinistra.add(messaggio);
-        
+
         if (utentiDaMostrare == null || utentiDaMostrare.isEmpty()) {
             Label alert = new Label("Nessun utente trovato");
             alert.getElement().setId("alert-utenti");
@@ -216,7 +216,7 @@ public class ForYouGui extends Composite {
             colonnaSinistra.add(alert);
             return;
         }
-        
+
         for (Utente a : utentiDaMostrare) {
             colonnaSinistra.add(creaCardUtente(a));
         }
@@ -229,7 +229,7 @@ public class ForYouGui extends Composite {
         card.getElement().getStyle().setProperty("border", "1px solid #666");
         card.getElement().getStyle().setProperty("marginBottom", "15px");
         card.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
-        
+
         HorizontalPanel cardContent = new HorizontalPanel();
         cardContent.setWidth("100%");
         cardContent.setHeight("80px");
@@ -258,10 +258,10 @@ public class ForYouGui extends Composite {
         cardContent.add(lblUsername);
         cardContent.add(lblVoto);
         cardContent.add(imgCard);
-        
+
         cardContent.setCellHorizontalAlignment(lblVoto, HasHorizontalAlignment.ALIGN_RIGHT);
         cardContent.setCellHorizontalAlignment(imgCard, HasHorizontalAlignment.ALIGN_RIGHT);
-        cardContent.setCellWidth(lblUsername, "100%"); 
+        cardContent.setCellWidth(lblUsername, "100%");
 
         card.add(cardContent);
 
@@ -269,7 +269,7 @@ public class ForYouGui extends Composite {
             mostraDettaglio(a);
             caricaAnnunciOrdinati(a.getUsername());
         });
-        
+
         return card;
     }
 
@@ -281,10 +281,10 @@ public class ForYouGui extends Composite {
         caricaImmagineProfilo(imgProfilo, a.getUsername());
         imgProfilo.setVisible(true);
         lblBiografia.setText("BIOGRAFIA: " + a.getBio());
-        lblLocazione.setText("LOCAZIONE: " + a.getLocazione()); 
+        lblLocazione.setText("LOCAZIONE: " + a.getLocazione());
     }
 
-    private void caricaAnnunciOrdinati(String username){
+    private void caricaAnnunciOrdinati(String username) {
         dettaglioAnnunciUtente.setVisible(true);
 
         servizio.getAnnunciOrdinati(utenteCorrente, username, new AsyncCallback<List<Annuncio>>() {
@@ -295,20 +295,20 @@ public class ForYouGui extends Composite {
 
             @Override
             public void onSuccess(List<Annuncio> result) {
-                annunciUtenteOrdinati = result; 
+                annunciUtenteOrdinati = result;
 
                 aggiornaVistaAnnunci(annunciUtenteOrdinati);
             }
         });
     }
 
-    private void aggiornaVistaAnnunci(List<Annuncio> annunci){
+    private void aggiornaVistaAnnunci(List<Annuncio> annunci) {
         if (annunci == null || annunci.isEmpty()) {
             alertAnnunci.setText("Nessun annuncio trovato");
             dettaglioAnnunciUtente.add(alertAnnunci);
             return;
         }
-        
+
         for (Annuncio a : annunci) {
             dettaglioAnnunciUtente.add(creaCardAnnuncio(a));
         }
@@ -350,7 +350,7 @@ public class ForYouGui extends Composite {
         lblContro.getElement().getStyle().setProperty("fontSize", "16px");
         lblContro.getElement().getStyle().setProperty("marginBottom", "40px");
 
-        //Contenitore Bottoni Richiedi e Chat
+        // Contenitore Bottoni Richiedi e Chat
         FlowPanel btnContainer = new FlowPanel();
         btnContainer.setWidth("100%");
         btnContainer.getElement().getStyle().setProperty("display", "flex");
@@ -368,7 +368,8 @@ public class ForYouGui extends Composite {
         btnRichiedi.getElement().getStyle().setProperty("border", "none");
         btnRichiedi.getElement().getStyle().setProperty("marginRight", "10px");
 
-        btnRichiedi.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina RICHIESTA SCAMBIO in costruzione...")));
+        // btnRichiedi.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina
+        // RICHIESTA SCAMBIO in costruzione...")));
 
         // Bottone Dettaglio Chat
         Button btnChat = new Button("💬");
@@ -381,7 +382,9 @@ public class ForYouGui extends Composite {
         btnChat.getElement().getStyle().setProperty("cursor", "pointer");
         btnChat.getElement().getStyle().setProperty("fontSize", "20px");
 
-        btnChat.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina CHAT in costruzione...")));
+        btnChat.addClickHandler(event -> {
+            cambiaVista(new ChatGui());
+        });
 
         // Assemblaggio Contenitore Bottoni
         btnContainer.add(btnRichiedi);
@@ -415,21 +418,5 @@ public class ForYouGui extends Composite {
                 }
             }
         });
-    }
-
-    // metodo per generare un pannello fittizio con un messaggio (usato per le pagine non ancora implementate)
-    private Widget creaVistaPlaceholder(String messaggio) {
-        VerticalPanel placeholder = new VerticalPanel();
-        placeholder.setWidth("100%");
-        placeholder.setHeight("300px");
-        placeholder.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        placeholder.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-
-        Label lblMessaggio = new Label(messaggio);
-        lblMessaggio.getElement().getStyle().setProperty("fontSize", "20px");
-        lblMessaggio.getElement().getStyle().setProperty("color", "gray");
-
-        placeholder.add(lblMessaggio);
-        return placeholder;
     }
 }
