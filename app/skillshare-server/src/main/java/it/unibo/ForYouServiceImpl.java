@@ -35,17 +35,15 @@ public class ForYouServiceImpl extends RemoteServiceServlet implements ForYouSer
         }
         
         for (Annuncio annuncio : dbAnnunci.values()) {
-            if(annuncio.isAttivo()){
-                String autore = annuncio.getAutore();
-                if (autore == null) continue;
+            String autore = annuncio.getAutore();
+            if (autore == null) continue;
 
-                // Incrementiamo totale annunci pubblicati dall'autore
-                mappaTotaleAnnunci.put(autore, mappaTotaleAnnunci.getOrDefault(autore, 0) + 1);
+            // Incrementiamo totale annunci pubblicati dall'autore
+            mappaTotaleAnnunci.put(autore, mappaTotaleAnnunci.getOrDefault(autore, 0) + 1);
 
-                // Incrementiamo match
-                if (categoriePreferite != null && categoriePreferite.contains(annuncio.getCategoria())) {
-                    mappaMatch.put(autore, mappaMatch.getOrDefault(autore, 0) + 1);
-                }
+            // Incrementiamo match
+            if (categoriePreferite != null && categoriePreferite.contains(annuncio.getCategoria())) {
+                mappaMatch.put(autore, mappaMatch.getOrDefault(autore, 0) + 1);
             }
         }
 
@@ -83,12 +81,10 @@ public class ForYouServiceImpl extends RemoteServiceServlet implements ForYouSer
         List<Annuncio> cacheSupporto = new ArrayList<>();
 
         for (Annuncio a : dbAnnunci.values()){
-            if(a.isAttivo()){
-                String autore = a.getAutore();
-                if (autore == null) continue;
-                else if (autore.equals(utenteAnnunci))
-                    annunciUtenteScelto.add(a);
-            }
+            String autore = a.getAutore();
+            if (autore == null) continue;
+            else if (autore.equals(utenteAnnunci))
+                annunciUtenteScelto.add(a);
         }
 
         for (Annuncio a : annunciUtenteScelto){

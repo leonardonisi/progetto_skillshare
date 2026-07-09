@@ -32,8 +32,9 @@ public class CreateAdSeleniumTest {
         if (!"false".equalsIgnoreCase(System.getProperty("headless", "true"))) {
             options.addArguments("--headless=new");
         }
+        // Selenium Manager (bundled since 4.6) downloads chromedriver automatically
         driver = new ChromeDriver(options);
-        // CORREZIONE: Rimosso l'implicitlyWait globale per evitare conflitti con WebDriverWait
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
     }
 
     @AfterAll
@@ -45,6 +46,7 @@ public class CreateAdSeleniumTest {
 
     @BeforeEach
     void loadApp() {
+        // Accetta preventivamente eventuali alert rimasti appesi
         try {
             driver.switchTo().alert().accept();
         } catch (Exception e) {
@@ -52,25 +54,17 @@ public class CreateAdSeleniumTest {
         }
 
         driver.get(BASE_URL);
+
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
-        // Attesa esplicita per l'input username
         WebElement inputUsername = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("input-username")));
-        inputUsername.clear();
+
+        // Inserisci le credenziali per superare la login
         inputUsername.sendKeys("admin");
+        driver.findElement(By.id("input-password")).sendKeys("password");
+        driver.findElement(By.id("btn-login")).click();
 
-        // Attesa esplicita per l'input password
-        WebElement inputPassword = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("input-password")));
-        inputPassword.clear();
-        inputPassword.sendKeys("password");
-
-        // CORREZIONE: Attendi che il pulsante di login sia cliccabile prima di fare click
-        WebElement btnLogin = wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-login")));
-        btnLogin.click();
-
-        // CORREZIONE: Se il login richiede un'autenticazione asincrona RPC, la Home potrebbe metterci un istante a caricarsi.
-        // NOTA: Assicurati che il pulsante di navigazione nella HOME si chiami davvero "btn-pubblica" 
-        // e non vada in conflitto con il "btn-pubblica" interno al form.
+        // Attende il caricamento e clicca sul pulsante "PUBBLICA" della Home
         WebElement btnPubblicaHome = wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-pubblica")));
         btnPubblicaHome.click();
 
@@ -80,14 +74,18 @@ public class CreateAdSeleniumTest {
     // -------------------------------------------------------------------------
     // TEST
     // -------------------------------------------------------------------------
+
     @Test
     void pageLoadsWithCorrectTitle() {
+        // Cerco l'elemento del titolo tramite l'ID
         WebElement titleElement = driver.findElement(By.id("titolo-create-ad"));
+        // Verifico
         assertEquals("PUBBLICA ANNUNCIO", titleElement.getText());
     }
 
     @Test
     void testFormElementsArePresent() {
+        // Verifica la presenza di tutti i widget assegnati nella task grafica
         assertTrue(driver.findElement(By.id("titolo-annuncio")).isDisplayed());
         assertTrue(driver.findElement(By.id("categoria-annuncio")).isDisplayed());
         assertTrue(driver.findElement(By.id("offerta-skill")).isDisplayed());
@@ -100,9 +98,13 @@ public class CreateAdSeleniumTest {
     void testCampiObbligatoriMancantiMostraAvviso() {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
+        // Compila solo il titolo, lasciando vuoti "offro" e "cerco"
         driver.findElement(By.id("titolo-annuncio")).sendKeys("Ripetizioni Java");
+
+        // Clicca sul pulsante pubblica
         driver.findElement(By.id("btn-pubblica")).click();
 
+        // Verifica la comparsa dell'alert bloccante
         Alert alert = wait.until(ExpectedConditions.alertIsPresent());
         assertEquals("Devi specificare sia cosa offri sia cosa cerchi sia la disponibilità", alert.getText());
         alert.accept();
@@ -112,6 +114,7 @@ public class CreateAdSeleniumTest {
     void testPubblicazioneConSuccesso() {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
+        // Compila interamente tutti i campi del form
         driver.findElement(By.id("titolo-annuncio")).sendKeys("Ripetizioni Java");
         driver.findElement(By.id("offerta-skill")).sendKeys("Spiegazione Socket e Concorrenza");
         driver.findElement(By.id("disponibilita")).sendKeys("Venerdì pomeriggio");
@@ -119,6 +122,7 @@ public class CreateAdSeleniumTest {
 
         driver.findElement(By.id("btn-pubblica")).click();
 
+        // Verifica l'alert di successo finale
         Alert alert = wait.until(ExpectedConditions.alertIsPresent());
         assertEquals("Annuncio pubblicato con successo", alert.getText());
         alert.accept();
@@ -127,8 +131,10 @@ public class CreateAdSeleniumTest {
     // -------------------------------------------------------------------------
     // HELPER
     // -------------------------------------------------------------------------
+    /** Waits until the GWT app has finished bootstrapping (input is clickable). */
     private WebElement waitForApp() {
         return new WebDriverWait(driver, TIMEOUT)
                 .until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-create-ad")));
     }
+
 }

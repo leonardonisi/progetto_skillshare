@@ -92,9 +92,9 @@ public class ChatSeleniumTest {
 
     @Test
     void testVisualizzazioneListaContatti() {
-        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-        WebElement contatto1 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("contatto-UtenteScambio_1")));
-        
+        // Verifica che compaiano i riquadri dei contatti simulati con lo username
+        // corretto
+        WebElement contatto1 = driver.findElement(By.id("contatto-UtenteScambio_1"));
         assertTrue(contatto1.isDisplayed());
         assertTrue(contatto1.getText().contains("UtenteScambio_1"));
     }
@@ -103,11 +103,14 @@ public class ChatSeleniumTest {
     void testAperturaConversazioneMostraMessaggi() {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
-        WebElement contatto1 = wait.until(ExpectedConditions.elementToBeClickable(By.id("contatto-UtenteScambio_1")));
-        contatto1.click();
+        // Clicca sul riquadro del contatto per aprire la chat
+        driver.findElement(By.id("contatto-UtenteScambio_1")).click();
 
-        WebElement areaMessaggi = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("area-cronologia-messaggi")));
+        // Recupera l'area dei messaggi
+        WebElement areaMessaggi = wait
+                .until(ExpectedConditions.visibilityOfElementLocated(By.id("area-cronologia-messaggi")));
 
+        // Aspetta che i tuoi testi reali siano visibili a schermo
         wait.until(ExpectedConditions.textToBePresentInElement(areaMessaggi, "Skillshare"));
         wait.until(ExpectedConditions.textToBePresentInElement(areaMessaggi, "Ciao!"));
 
@@ -120,17 +123,21 @@ public class ChatSeleniumTest {
     void testInvioMessaggioConSuccesso() {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
-        wait.until(ExpectedConditions.elementToBeClickable(By.id("contatto-UtenteScambio_1"))).click();
+        // Seleziona la chat per abilitare i campi
+        driver.findElement(By.id("contatto-UtenteScambio_1")).click();
 
         WebElement inputMessaggio = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("input-messaggio")));
         WebElement btnInvia = driver.findElement(By.id("btn-invia-messaggio"));
 
+        // Scrive il messaggio e clicca invia (Scenario 3)
         String testoMessaggio = "Questo è un messaggio di test automatizzato.";
         inputMessaggio.sendKeys(testoMessaggio);
         btnInvia.click();
 
+        // Verifica che il testo si sia azzerato nella casella di input
         assertEquals("", inputMessaggio.getAttribute("value"));
 
+        // Verifica che il messaggio sia apparso a video nella chat
         WebElement areaMessaggi = driver.findElement(By.id("area-cronologia-messaggi"));
         assertTrue(areaMessaggi.getText().contains(testoMessaggio));
     }

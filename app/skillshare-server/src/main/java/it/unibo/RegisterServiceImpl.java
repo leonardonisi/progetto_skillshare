@@ -1,14 +1,17 @@
 package it.unibo;
 
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
+import org.mapdb.DB;
+import org.mapdb.Serializer;
 import java.util.concurrent.ConcurrentMap;
 
 @SuppressWarnings("serial")
 public class RegisterServiceImpl extends RemoteServiceServlet implements RegisterService {
 
-    public String register(String username, String password, String confirm_password) {
-        ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
+    private static final DB db = DatabaseCore.getDB();
+    private static final ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
 
+    public String register(String username, String password, String confirm_password) {
         if ("nuovo".equals(username) || "login".equals(username)) {
             dbUtenti.remove(username);
             DatabaseCore.commit();

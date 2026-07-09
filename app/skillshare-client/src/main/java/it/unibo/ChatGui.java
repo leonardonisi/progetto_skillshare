@@ -3,8 +3,6 @@ package it.unibo;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -21,7 +19,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class ChatGui extends Composite {
+public class ChatGui {
 
     private final ChatServiceAsync chatService = GWT.create(ChatService.class);
 
@@ -38,10 +36,6 @@ public class ChatGui extends Composite {
 
     public void mostra() {
         RootPanel.get().clear();
-        RootPanel.get().add(this);
-    }
-
-    public ChatGui() {
 
         // recupero utente loggato
         utenteLoggato = SessionManager.getUtenteLoggato();
@@ -61,6 +55,16 @@ public class ChatGui extends Composite {
         VerticalPanel leftCol = new VerticalPanel();
         leftCol.setWidth("35%");
         leftCol.setSpacing(10);
+
+        // Pulsante per tornare al Marketplace
+        Button btnBackToMarket = new Button("⬅ Torna al Marketplace");
+        btnBackToMarket.setWidth("100px");
+        btnBackToMarket.getElement().setId("btn-torna-market");
+        btnBackToMarket.addClickHandler(event -> {
+            RootPanel.get().clear();
+            new MainLayoutGui().mostra();
+        });
+        leftCol.add(btnBackToMarket);
 
         leftCol.add(new HTML("<h3>Conversazioni Attive</h3>"));
 
@@ -112,16 +116,11 @@ public class ChatGui extends Composite {
         rightCol.add(inputPanel);
 
         // Assemblaggio pagina
-        VerticalPanel vistaCompleta = new VerticalPanel();
-        vistaCompleta.setWidth("100%");
-
         mainLayout.add(leftCol);
         mainLayout.add(rightCol);
 
-        vistaCompleta.add(title);
-        vistaCompleta.add(mainLayout);
-
-        initWidget(vistaCompleta);
+        RootPanel.get().add(title);
+        RootPanel.get().add(mainLayout);
 
         caricaContatti();
 
@@ -191,7 +190,7 @@ public class ChatGui extends Composite {
         });
     }
 
-    public void apriConversazione(String interlocutore) {
+    private void apriConversazione(String interlocutore) {
         this.interlocutoreAttivo = interlocutore;
         messagesArea.clear();
         btnInvia.setEnabled(true);
@@ -207,36 +206,8 @@ public class ChatGui extends Composite {
 
             @Override
             public void onSuccess(List<Messaggio> cronologia) {
-                // Se non c'è una cronologia creiamo dinamicamente il contatto
-                if (cronologia == null || cronologia.isEmpty()) {
-                    String idContatto = "contatto-" + interlocutore;
-                    if (Document.get().getElementById(idContatto) == null) {
-                        VerticalPanel contactBox = new VerticalPanel();
-                        contactBox.setWidth("100%");
-                        contactBox.getElement().setId(idContatto);
-
-                        contactBox.getElement().getStyle().setProperty("border", "1px solid #000000");
-                        contactBox.getElement().getStyle().setProperty("marginBottom", "15px");
-                        contactBox.getElement().getStyle().setProperty("padding", "25px 20px");
-                        contactBox.getElement().getStyle().setProperty("cursor", "pointer");
-                        contactBox.getElement().getStyle().setProperty("backgroundColor", "#ffffff");
-
-                        Label nameLabel = new Label(interlocutore);
-                        nameLabel.getElement().getStyle().setProperty("fontSize", "18px");
-                        nameLabel.getElement().getStyle().setProperty("fontWeight", "bold");
-                        contactBox.add(nameLabel);
-
-                        contactBox.addDomHandler(event -> apriConversazione(interlocutore), ClickEvent.getType());
-                        contactsPanel.insert(contactBox, 0);
-                    }
-
-                    Label infoLabel = new Label(
-                            "Nessun messaggio precedente. Scrivi qualcosa per iniziare lo scambio!");
-                    infoLabel.getElement().getStyle().setProperty("fontStyle", "italic");
-                    infoLabel.getElement().getStyle().setProperty("color", "#999");
-                    messagesArea.add(infoLabel);
+                if (cronologia == null)
                     return;
-                }
 
                 for (Messaggio m : cronologia) {
                     Label lblMsg = new Label(m.getTesto());

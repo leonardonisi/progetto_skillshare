@@ -77,6 +77,7 @@ public class SkillsSeleniumTest {
     // -------------------------------------------------------------------------
     // TEST
     // -------------------------------------------------------------------------
+
     @Test
     void sidebarMieSkillsIsPresent() {
         WebElement btnMieSkills = driver.findElement(By.id("sidebar-mie-skills"));

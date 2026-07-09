@@ -12,6 +12,4 @@ public interface MarketService extends RemoteService {
     List<String> getCategorie();
 
     Utente getUtente(String username);
-
-    void logout(String username);
 }

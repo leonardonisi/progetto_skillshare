@@ -11,12 +11,9 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -169,13 +166,13 @@ public class RichiesteGui extends Composite {
             @Override
             public void onFailure(Throwable caught) {
                 Window.alert("ERRORE RPC: " + caught.toString());
-                GWT.log("Errore completo:", caught); // Controlla la console del browser (F12)
+                GWT.log("Errore completo:", caught);
             }
 
             @Override
             public void onSuccess(Annuncio annuncio) {
-                // Chiamata asincrona inlined per l'utente
-                richiesteService.getUtenteById(richiesta.getProprietarioUser(), new AsyncCallback<Utente>() {
+                // Modificato con marketService.getUtente e getProprietarioId() per coerenza di modello
+                marketService.getUtente(richiesta.getProprietarioUser(), new AsyncCallback<Utente>() {
                     @Override
                     public void onFailure(Throwable caught) {
                         contentArea.setWidget(new Label("Errore nel recupero dell'utente richiedente."));
@@ -276,12 +273,6 @@ public class RichiesteGui extends Composite {
 
         switch(richiesta.getStato()) {
             case IN_ATTESA:
-                Button btnAccettaScambio = new Button("Accetta Richiesta");
-                btnAccettaScambio.addClickHandler(event -> {
-                    Window.alert("Chiamata RPC di accettazione da implementare sul bottone");
-                });
-
-                buttonGroups.add(btnAccettaScambio);
                 buttonGroups.add(btnChat);
                 break;
 
@@ -463,12 +454,12 @@ public class RichiesteGui extends Composite {
             });
         });
 
-            btnPanel.add(btnInvia);
-            btnPanel.add(btnAnnulla);
-            panel.add(btnPanel);
-            
-            popup.setWidget(panel);
-            popup.center();
+        btnPanel.add(btnInvia);
+        btnPanel.add(btnAnnulla);
+        panel.add(btnPanel);
+        
+        popup.setWidget(panel);
+        popup.center();
     }
 
     private void eseguiNavigazioneChat(String interlocutore) {

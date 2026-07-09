@@ -2,6 +2,7 @@ package it.unibo;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Utente implements Serializable {
@@ -20,6 +21,11 @@ public class Utente implements Serializable {
     private List<Integer> richiesteInviateId;  
     private List<Integer> richiesteRicevuteId;
 
+    private int contatoreAnnunciInseriti;
+    private int contatoreRichiesteInviate;
+    private HashMap<String, Integer> scambiConclusiPerCategoria;
+    private List<String> badgeOttenuti;
+
     public Utente(String username, String password) {
         this.username = username;
         this.password = password;
@@ -29,6 +35,11 @@ public class Utente implements Serializable {
         this.richiesteInviateId = new ArrayList<>();
         this.richiesteRicevuteId = new ArrayList<>();
         this.fotoProfiloBase64 = "images/utente.jpg";
+
+        this.contatoreAnnunciInseriti = 0;
+        this.contatoreRichiesteInviate = 0;
+        this.scambiConclusiPerCategoria = new HashMap<>();
+        this.badgeOttenuti = new ArrayList<>();
     }
 
     public Utente(String username, String password, String bio, List<String> competenzePreferite, String locazione, String fotoProfilo) {
@@ -76,4 +87,32 @@ public class Utente implements Serializable {
     public List<Integer> getRichiesteInviateId() { return richiesteInviateId; }
 
     public List<Integer> getRichiesteRicevuteId() { return richiesteRicevuteId; }
+
+    public int getContatoreAnnunciInseriti() { return contatoreAnnunciInseriti; }
+    public void setContatoreAnnunciInseriti(int contatoreAnnunciInseriti) { this.contatoreAnnunciInseriti = contatoreAnnunciInseriti; }
+    public void incrementaAnnunciInseriti() { this.contatoreAnnunciInseriti++; }
+
+    public int getContatoreRichiesteInviate() { return contatoreRichiesteInviate; }
+    public void setContatoreRichiesteInviate(int contatoreRichiesteInviate) { this.contatoreRichiesteInviate = contatoreRichiesteInviate; }
+    public void incrementaRichiesteInviate() { this.contatoreRichiesteInviate++; }
+
+    public HashMap<String, Integer> getScambiConclusiPerCategoria() { return scambiConclusiPerCategoria; }
+    public void setScambiConclusiPerCategoria(HashMap<String, Integer> scambiConclusiPerCategoria) { this.scambiConclusiPerCategoria = scambiConclusiPerCategoria; }
+    
+    // Incrementa la specifica categoria e la inizializza a 1 se non esisteva ancora
+    public void incrementaScambiCategoria(String categoria) {
+        if (categoria == null) return;
+        int attuale = this.scambiConclusiPerCategoria.getOrDefault(categoria, 0);
+        this.scambiConclusiPerCategoria.put(categoria, attuale + 1);
+    }
+
+    public List<String> getBadgeOttenuti() { return badgeOttenuti; }
+    public void setBadgeOttenuti(List<String> badgeOttenuti) { this.badgeOttenuti = badgeOttenuti; }
+    
+    // Aggiunge un badge solo se l'utente non lo possiede già
+    public void aggiungiBadge(String nomeBadge) {
+        if (!this.badgeOttenuti.contains(nomeBadge)) {
+            this.badgeOttenuti.add(nomeBadge);
+        }
+    }
 }

@@ -9,69 +9,26 @@ import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 public class SkillServiceImpl extends RemoteServiceServlet implements SkillService {
 
     @Override
-    public List<Annuncio> getAnnunciPubblicati(String username) {
+    public List<Annuncio> getMieSkills(String username) {
         // Recupero della mappa dal database
         ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
-        List<Annuncio> annunciPubblicati = new ArrayList<>();
+        List<Annuncio> mieSkills = new ArrayList<>();
 
         // Controllo di sicurezza base
         if (username == null || username.trim().isEmpty()) {
-            return annunciPubblicati;
+            return mieSkills;
         }
 
         // Filtraggio degli annunci che appartengono solo all'utente richiesto
         for (java.util.Map.Entry<Integer, Annuncio> entry : dbAnnunci.entrySet()) {
             Annuncio a = entry.getValue();
             if (a != null && username.equals(a.getAutore())) {
-                a.setId(entry.getKey());
-                annunciPubblicati.add(a);
+                a.setId(entry.getKey()); // aggiunta dell'ID all'annuncio
+                mieSkills.add(a);
             }
         }
 
-        return annunciPubblicati;
-    }
-
-    @Override
-    public List<RichiestaScambio> getRichiesteScambio(String username) {
-        try {
-            List<RichiestaScambio> listaRichieste = new ArrayList<>();
-            ConcurrentMap<Integer, RichiestaScambio> dbRichieste = DatabaseCore.getMappaRichieste();
-            
-            for (RichiestaScambio r : dbRichieste.values()) {
-                if (r != null && username.equals(r.getProprietarioUser())) {
-                    listaRichieste.add(r);
-                }
-            }
-            return listaRichieste;
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null; 
-        }
-    }
-
-    @Override
-    public Annuncio getAnnuncioById(Integer id) {
-        try {
-            ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
-            return dbAnnunci.get(id);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null; 
-        }
-    }
-
-    @Override
-    public Utente getUtenteById(String usernameId) {
-        try {
-            ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
-            return dbUtenti.get(usernameId);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return mieSkills;
     }
 
     @Override
@@ -91,7 +48,9 @@ public class SkillServiceImpl extends RemoteServiceServlet implements SkillServi
 
     @Override
     public boolean salvaValutazione(Valutazione valutazione) {
+        // Recupero pulito della mappa tramite il nuovo metodo statico
         ConcurrentMap<String, Valutazione> dbValutazioni = DatabaseCore.getMappaValutazioni();
+// Nuova chiave: unisce l'ID dello scambio e l'autore della recensione
         String chiaveUnivoca = valutazione.getId() + "_" + valutazione.getAutore();
 
         if (dbValutazioni.containsKey(chiaveUnivoca)) {
@@ -103,26 +62,4 @@ public class SkillServiceImpl extends RemoteServiceServlet implements SkillServi
         
         return true;
     }
-
-    @Override
-    public List<Valutazione> getValutazioniUtente(String username) {
-        List<Valutazione> risultati = new ArrayList<>();
-        
-        // Controllo di sicurezza
-        if (username == null || username.trim().isEmpty()) {
-            return risultati;
-        }
-
-        ConcurrentMap<String, Valutazione> dbValutazioni = DatabaseCore.getMappaValutazioni();
-
-        // Filtra le recensioni in base al destinatario
-        for (Valutazione v : dbValutazioni.values()) {
-            if (v != null && username.equals(v.getDestinatario())) {
-                risultati.add(v);
-            }
-        }
-
-        return risultati;
-    }
-
 }

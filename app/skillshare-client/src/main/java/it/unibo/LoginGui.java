@@ -34,6 +34,7 @@ public class LoginGui {
 
         // Aggiunte per mostra password
         final Button showPasswordButton = new Button("👀");
+        final Label passwordVisibleLabel = new Label();
         final Label vuoto = new Label("");
 
         final Button loginButton = new Button("LOGIN");
@@ -41,6 +42,7 @@ public class LoginGui {
 
         usernameField.getElement().setAttribute("placeholder", "Username");
         passwordField.getElement().setAttribute("placeholder", "Password");
+        passwordVisibleLabel.setVisible(false);
 
         // assegnazione id per identificazione con Selenium
         title.getElement().setId("titolo-login");
@@ -65,6 +67,7 @@ public class LoginGui {
         mainPanel.add(new HTML("<h2>Inserisci username e password:</h2>"));
         mainPanel.add(usernameField);
         mainPanel.add(passwordPanel);
+        mainPanel.add(passwordVisibleLabel);
         mainPanel.add(loginButton);
         mainPanel.add(registerButton);
 
@@ -82,6 +85,7 @@ public class LoginGui {
         usernameField.setFocus(true);
         usernameField.selectAll();
 
+        // --- Logica Handler ---
         class LoginHandler implements KeyUpHandler, ClickHandler {
             public void onClick(ClickEvent event) {
                 login();
@@ -124,7 +128,6 @@ public class LoginGui {
             }
 
         }
-
         LoginHandler loginHandler = new LoginHandler();
         loginButton.addClickHandler(loginHandler);
         usernameField.addKeyUpHandler(loginHandler);
@@ -141,13 +144,12 @@ public class LoginGui {
         showPasswordButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                String currentType = passwordField.getElement().getAttribute("type");
-                if ("password".equals(currentType)) {
-                    passwordField.getElement().setAttribute("type", "text");
-                    showPasswordButton.setText("🙈");
+                if (passwordVisibleLabel.isVisible()) {
+                    passwordVisibleLabel.setVisible(false);
+                    passwordField.setVisible(true);
                 } else {
-                    passwordField.getElement().setAttribute("type", "password");
-                    showPasswordButton.setText("👀");
+                    passwordVisibleLabel.setText(passwordField.getText());
+                    passwordVisibleLabel.setVisible(true);
                 }
             }
         });
