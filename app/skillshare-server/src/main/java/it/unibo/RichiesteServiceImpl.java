@@ -71,36 +71,55 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
 
     @Override
     public RichiestaScambio elaboraAzioneScambio(Integer idRichiesta, String username, boolean isConferma) {
-
         ConcurrentMap<Integer, RichiestaScambio> dbRichieste = DatabaseCore.getMappaRichieste();
-
         if (dbRichieste == null || !dbRichieste.containsKey(idRichiesta)) {
             return null;
         }
 
         RichiestaScambio richiesta = dbRichieste.get(idRichiesta);
 
-        // Se l'utente ha cliccato la "X" (Rifiuto)
         if (!isConferma) {
             richiesta.setStato(RichiestaScambio.StatoRichiesta.RIFIUTATO);
         } else {
-            // Se l'utente ha cliccato il "Tick" (Conferma), controllo chi è
             if (username.equals(richiesta.getProprietarioUser())) {
                 richiesta.setConfermatoDaProprietario(true);
             } else if (username.equals(richiesta.getRichiedenteUser())) {
                 richiesta.setConfermatoDaRichiedente(true);
             }
 
-            // Controllo se hanno confermato ENTRAMBI
+            // Quando ENTRAMBI gli utenti premono la spunta (✓), lo scambio si conclude ufficialmente
             if (richiesta.isConfermatoDaProprietario() && richiesta.isConfermatoDaRichiedente()) {
                 richiesta.setStato(RichiestaScambio.StatoRichiesta.CONCLUSO);
+
+                Annuncio annuncio = DatabaseCore.getMappaAnnunci().get(richiesta.getIdAnnuncio());
+                if (annuncio != null && annuncio.getCategoria() != null) {
+                    String tag = annuncio.getCategoria();
+
+                    // 1. Aggiornamento Proprietario
+                    Utente proprietario = DatabaseCore.getMappaUtenti().get(richiesta.getProprietarioUser());
+                    if (proprietario != null) {
+                        proprietario.incrementaScambiCategoria(tag);
+                        if (proprietario.getScambiConclusiPerCategoria().getOrDefault(tag, 0) >= 10) {
+                            proprietario.aggiungiBadge("Esperto in " + tag);
+                        }
+                        DatabaseCore.getMappaUtenti().put(proprietario.getUsername(), proprietario);
+                    }
+
+                    // 2. Aggiornamento Richiedente
+                    Utente richiedente = DatabaseCore.getMappaUtenti().get(richiesta.getRichiedenteUser());
+                    if (richiedente != null) {
+                        richiedente.incrementaScambiCategoria(tag);
+                        if (richiedente.getScambiConclusiPerCategoria().getOrDefault(tag, 0) >= 10) {
+                            richiedente.aggiungiBadge("Esperto in " + tag);
+                        }
+                        DatabaseCore.getMappaUtenti().put(richiedente.getUsername(), richiedente);
+                    }
+                }
             }
         }
 
-        // Aggiorno la mappa e faccio il commit su MapDB
         dbRichieste.put(idRichiesta, richiesta);
         DatabaseCore.commit();
-
         return richiesta;
     }
 
@@ -112,6 +131,15 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
         RichiestaScambio nuova = new RichiestaScambio(idAnnuncio, idAnnuncio, richiedente, proprietario);
         nuova.setMessaggioProposta(messaggio);
         nuova.setStato(RichiestaScambio.StatoRichiesta.IN_ATTESA);
+
+        Utente utenteRichiedente = DatabaseCore.getMappaUtenti().get(richiedente);
+        if (utenteRichiedente != null) {
+            utenteRichiedente.incrementaRichiesteInviate();
+            if (utenteRichiedente.getContatoreRichiesteInviate() >= 10) {
+                utenteRichiedente.aggiungiBadge("Richiedente Attivo");
+            }
+            DatabaseCore.getMappaUtenti().put(utenteRichiedente.getUsername(), utenteRichiedente);
+        }
 
         // Salva usando l'ID annuncio come chiave
         DatabaseCore.getMappaRichieste().put(idAnnuncio, nuova);

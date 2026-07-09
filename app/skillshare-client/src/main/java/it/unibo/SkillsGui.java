@@ -33,6 +33,8 @@ public class SkillsGui extends Composite {
     private VerticalPanel listaSkillsAccettate = new VerticalPanel();
     private VerticalPanel listaSkillsConcluse = new VerticalPanel();
 
+    private VerticalPanel listaSkillsRifiutate = new VerticalPanel();
+
     private SkillServiceAsync skillService = GWT.create(SkillService.class);
     private MarketServiceAsync marketService = GWT.create(MarketService.class);
     private RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
@@ -71,10 +73,15 @@ public class SkillsGui extends Composite {
         listaSkillsConcluse.setWidth("100%");
         discConcluse.setContent(listaSkillsConcluse);
 
+        DisclosurePanel discRifiutate = new DisclosurePanel("Skills Rifiutate");
+        listaSkillsRifiutate.setWidth("100%");
+        discRifiutate.setContent(listaSkillsRifiutate);
+
         sidebar.add(discMieSkills);
         sidebar.add(discRichiesteAttesa);
         sidebar.add(discAccettate);
         sidebar.add(discConcluse);
+        sidebar.add(discRifiutate);
 
         contentArea.setWidth("100%");
         contentArea.setWidget(new Label("Seleziona una skill o una richiesta per vedere i dettagli."));
@@ -96,6 +103,7 @@ public class SkillsGui extends Composite {
         listaRichiesteAttesa.clear();
         listaSkillsAccettate.clear();
         listaSkillsConcluse.clear();
+        listaSkillsRifiutate.clear();
 
         richiesteService.getTutteLeRichieste(new AsyncCallback<List<RichiestaScambio>>() {
             @Override
@@ -126,6 +134,9 @@ public class SkillsGui extends Composite {
                                     } else if (r.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
                                         statoScambioDellaSkill = "CONCLUSA";
                                         richiestaAssociata = r;
+                                    } else if (r.getStato() == RichiestaScambio.StatoRichiesta.RIFIUTATO) {
+                                        statoScambioDellaSkill = "RIFIUTATA";
+                                        richiestaAssociata = r;
                                     }
                                 }
                             }
@@ -142,6 +153,9 @@ public class SkillsGui extends Composite {
                             } else if (statoDaPassare.equals("CONCLUSA")) {
                                 btnSkill.addClickHandler(event -> mostraDettagliRichiestaScambio(reqAssociata));
                                 listaSkillsConcluse.add(btnSkill);
+                            } else if (statoDaPassare.equals("RIFIUTATA")) {
+                                btnSkill.addClickHandler(event -> mostraDettagliRichiestaScambio(reqAssociata));
+                                listaSkillsRifiutate.add(btnSkill);
                             }
                         }
                         getRichiesteRicevute();
@@ -431,7 +445,26 @@ public class SkillsGui extends Composite {
                                 }
                             });
                 });
-
+ 
+                
+                btnSegnalaAnnullamento.addClickHandler(event -> {
+                    if (Window.confirm("Sei sicuro di voler segnalare il fallimento di questo scambio?")) {
+                        richiesteService.elaboraAzioneScambio(annuncio.getId(), utenteCorrente, false, new AsyncCallback<RichiestaScambio>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Errore durante l'annullamento: " + caught.getMessage());
+                            }
+ 
+                            @Override
+                            public void onSuccess(RichiestaScambio result) {
+                                Window.alert("Scambio segnalato come fallito.");
+                                contentArea.clear();
+                                aggiornaTuttiIDati();
+                            }
+                        });
+                    }
+                });
+ 
                 buttonGroups.add(btnConfermaScambio);
                 buttonGroups.add(btnSegnalaAnnullamento);
                 buttonGroups.add(btnChat);
@@ -441,6 +474,10 @@ public class SkillsGui extends Composite {
                 Button btnValuta = new Button("Valuta");
                 btnValuta.addClickHandler(event -> apriPopupValutazione(annuncio));
                 buttonGroups.add(btnValuta);
+                buttonGroups.add(btnChat);
+                break;
+            
+            case RIFIUTATO:
                 buttonGroups.add(btnChat);
                 break;
         }
