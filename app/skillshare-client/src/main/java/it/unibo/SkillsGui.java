@@ -33,11 +33,13 @@ public class SkillsGui extends Composite {
     private VerticalPanel listaSkillsAccettate = new VerticalPanel();
     private VerticalPanel listaSkillsConcluse = new VerticalPanel();
 
+    private VerticalPanel listaSkillsRifiutate = new VerticalPanel();
+
     private SkillServiceAsync skillService = GWT.create(SkillService.class);
     private MarketServiceAsync marketService = GWT.create(MarketService.class);
     private RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
     private MainLayoutGui mainLayout;
-        
+
     public SkillsGui(MainLayoutGui mainLayout) {
         this.utenteCorrente = SessionManager.getUtenteLoggato();
         this.mainLayout = mainLayout;
@@ -71,10 +73,15 @@ public class SkillsGui extends Composite {
         listaSkillsConcluse.setWidth("100%");
         discConcluse.setContent(listaSkillsConcluse);
 
+        DisclosurePanel discRifiutate = new DisclosurePanel("Skills Rifiutate");
+        listaSkillsRifiutate.setWidth("100%");
+        discRifiutate.setContent(listaSkillsRifiutate);
+
         sidebar.add(discMieSkills);
         sidebar.add(discRichiesteAttesa);
         sidebar.add(discAccettate);
         sidebar.add(discConcluse);
+        sidebar.add(discRifiutate);
 
         contentArea.setWidth("100%");
         contentArea.setWidget(new Label("Seleziona una skill o una richiesta per vedere i dettagli."));
@@ -89,17 +96,19 @@ public class SkillsGui extends Composite {
         // Caricamento dati iniziali
         aggiornaTuttiIDati();
     }
-    
+
     // Metodo helper per aggiornare tutte le liste
     private void aggiornaTuttiIDati() {
         listaMieSkill.clear();
         listaRichiesteAttesa.clear();
         listaSkillsAccettate.clear();
         listaSkillsConcluse.clear();
+        listaSkillsRifiutate.clear();
 
         richiesteService.getTutteLeRichieste(new AsyncCallback<List<RichiestaScambio>>() {
             @Override
-            public void onFailure(Throwable caught) {}
+            public void onFailure(Throwable caught) {
+            }
 
             @Override
             public void onSuccess(List<RichiestaScambio> tutteLeRichieste) {
@@ -125,6 +134,9 @@ public class SkillsGui extends Composite {
                                     } else if (r.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
                                         statoScambioDellaSkill = "CONCLUSA";
                                         richiestaAssociata = r;
+                                    } else if (r.getStato() == RichiestaScambio.StatoRichiesta.RIFIUTATO) {
+                                        statoScambioDellaSkill = "RIFIUTATA";
+                                        richiestaAssociata = r;
                                     }
                                 }
                             }
@@ -141,6 +153,9 @@ public class SkillsGui extends Composite {
                             } else if (statoDaPassare.equals("CONCLUSA")) {
                                 btnSkill.addClickHandler(event -> mostraDettagliRichiestaScambio(reqAssociata));
                                 listaSkillsConcluse.add(btnSkill);
+                            } else if (statoDaPassare.equals("RIFIUTATA")) {
+                                btnSkill.addClickHandler(event -> mostraDettagliRichiestaScambio(reqAssociata));
+                                listaSkillsRifiutate.add(btnSkill);
                             }
                         }
                         getRichiesteRicevute();
@@ -152,11 +167,11 @@ public class SkillsGui extends Composite {
 
     private Button creaBottoneSidebar(String testo) {
         Button btn = new Button(testo);
-        btn.getElement().getStyle().setProperty("width", "95%"); 
+        btn.getElement().getStyle().setProperty("width", "95%");
         btn.getElement().getStyle().setProperty("boxSizing", "border-box");
         btn.getElement().getStyle().setProperty("textAlign", "left");
         btn.getElement().getStyle().setProperty("padding", "10px");
-        btn.getElement().getStyle().setProperty("marginBottom", "5px"); 
+        btn.getElement().getStyle().setProperty("marginBottom", "5px");
         btn.getElement().getStyle().setProperty("backgroundColor", "#fff");
         btn.getElement().getStyle().setProperty("border", "1px solid #000");
         return btn;
@@ -202,16 +217,18 @@ public class SkillsGui extends Composite {
                         public void onFailure(Throwable caught) {
                             btnSkill.setText("Errore caricamento");
                         }
+
                         @Override
                         public void onSuccess(Annuncio annuncio) {
-                            if(annuncio != null) btnSkill.setText(annuncio.getTitolo());
+                            if (annuncio != null)
+                                btnSkill.setText(annuncio.getTitolo());
                         }
                     });
 
                     btnSkill.addClickHandler(event -> mostraDettagliRichiestaScambio(r));
 
                     // Ordinamento nelle sidebar in base allo stato
-                    switch(r.getStato()) {
+                    switch (r.getStato()) {
                         case IN_ATTESA:
                             listaRichiesteAttesa.add(btnSkill);
                             break;
@@ -233,13 +250,14 @@ public class SkillsGui extends Composite {
     private void getRichiesteRicevute() {
         richiesteService.getRichiesteRicevute(utenteCorrente, new AsyncCallback<List<RichiestaScambio>>() {
             @Override
-            public void onFailure(Throwable caught) {}
+            public void onFailure(Throwable caught) {
+            }
 
             @Override
             public void onSuccess(List<RichiestaScambio> richiesteRicevute) {
                 for (RichiestaScambio req : richiesteRicevute) {
                     // Mostriamo solo quelle ancora in attesa di risposta
-                    if(req.getStato() == RichiestaScambio.StatoRichiesta.IN_ATTESA) {
+                    if (req.getStato() == RichiestaScambio.StatoRichiesta.IN_ATTESA) {
                         Button btnRichiesta = creaBottoneSidebar("Proposta da: " + req.getRichiedenteUser());
                         btnRichiesta.getElement().getStyle().setProperty("border", "1px solid #ff9800");
 
@@ -250,7 +268,7 @@ public class SkillsGui extends Composite {
             }
         });
     }
-    
+
     private void mostraDettagliPropostaRicevuta(RichiestaScambio req) {
         contentArea.clear();
         VerticalPanel dettagliCard = new VerticalPanel();
@@ -265,31 +283,36 @@ public class SkillsGui extends Composite {
         Button btnRifiuta = new Button("Rifiuta");
 
         btnAccetta.addClickHandler(click -> {
-            richiesteService.gestisciRispostaRichiesta(req.getIdAnnuncio(), true, new AsyncCallback<RichiestaScambio>() {
-                @Override
-                public void onSuccess(RichiestaScambio result) {
-                    Window.alert("Scambio accettato con successo!");
-                    contentArea.clear();
-                    aggiornaTuttiIDati(); 
-                }
-                @Override
-                public void onFailure(Throwable caught) {
-                    Window.alert("Errore: " + caught.getMessage());
-                }
-            });
+            richiesteService.gestisciRispostaRichiesta(req.getIdAnnuncio(), true,
+                    new AsyncCallback<RichiestaScambio>() {
+                        @Override
+                        public void onSuccess(RichiestaScambio result) {
+                            Window.alert("Scambio accettato con successo!");
+                            contentArea.clear();
+                            aggiornaTuttiIDati();
+                        }
+
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Window.alert("Errore: " + caught.getMessage());
+                        }
+                    });
         });
 
         btnRifiuta.addClickHandler(click -> {
-            richiesteService.gestisciRispostaRichiesta(req.getIdAnnuncio(), false, new AsyncCallback<RichiestaScambio>() {
-                @Override
-                public void onSuccess(RichiestaScambio result) {
-                    Window.alert("Scambio rifiutato.");
-                    contentArea.clear();
-                    aggiornaTuttiIDati();
-                }
-                @Override
-                public void onFailure(Throwable caught) {}
-            });
+            richiesteService.gestisciRispostaRichiesta(req.getIdAnnuncio(), false,
+                    new AsyncCallback<RichiestaScambio>() {
+                        @Override
+                        public void onSuccess(RichiestaScambio result) {
+                            Window.alert("Scambio rifiutato.");
+                            contentArea.clear();
+                            aggiornaTuttiIDati();
+                        }
+
+                        @Override
+                        public void onFailure(Throwable caught) {
+                        }
+                    });
         });
 
         azioniPanel.add(btnAccetta);
@@ -380,8 +403,8 @@ public class SkillsGui extends Composite {
         buttonGroups.setSpacing(10);
 
         Button btnChat = new Button("💬");
-        
-        switch(richiesta.getStato()) {
+
+        switch (richiesta.getStato()) {
             case IN_ATTESA:
                 buttonGroups.add(btnChat);
                 break;
@@ -409,16 +432,39 @@ public class SkillsGui extends Composite {
                         }
                     });
                 });
-
+ 
+                
+                btnSegnalaAnnullamento.addClickHandler(event -> {
+                    if (Window.confirm("Sei sicuro di voler segnalare il fallimento di questo scambio?")) {
+                        richiesteService.elaboraAzioneScambio(annuncio.getId(), utenteCorrente, false, new AsyncCallback<RichiestaScambio>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Errore durante l'annullamento: " + caught.getMessage());
+                            }
+ 
+                            @Override
+                            public void onSuccess(RichiestaScambio result) {
+                                Window.alert("Scambio segnalato come fallito.");
+                                contentArea.clear();
+                                aggiornaTuttiIDati();
+                            }
+                        });
+                    }
+                });
+ 
                 buttonGroups.add(btnConfermaScambio);
                 buttonGroups.add(btnSegnalaAnnullamento);
                 buttonGroups.add(btnChat);
                 break;
-            
+
             case CONCLUSO:
                 Button btnValuta = new Button("Valuta");
                 btnValuta.addClickHandler(event -> apriPopupValutazione(annuncio));
                 buttonGroups.add(btnValuta);
+                buttonGroups.add(btnChat);
+                break;
+            
+            case RIFIUTATO:
                 buttonGroups.add(btnChat);
                 break;
         }
@@ -439,7 +485,7 @@ public class SkillsGui extends Composite {
 
         HorizontalPanel cardHeader = new HorizontalPanel();
         cardHeader.setWidth("100%");
-        
+
         Label lblTitolo = new Label(skill.getTitolo().toUpperCase());
         lblTitolo.getElement().getStyle().setProperty("fontWeight", "bold");
         lblTitolo.getElement().getStyle().setProperty("fontSize", "22px");
@@ -461,7 +507,9 @@ public class SkillsGui extends Composite {
             if (Window.confirm("Eliminare definitivamente questo annuncio?")) {
                 skillService.deleteSkill(skill.getId(), new AsyncCallback<Boolean>() {
                     @Override
-                    public void onFailure(Throwable caught) {}
+                    public void onFailure(Throwable caught) {
+                    }
+
                     @Override
                     public void onSuccess(Boolean eliminato) {
                         if (eliminato) {
@@ -472,7 +520,7 @@ public class SkillsGui extends Composite {
                 });
             }
         });
-        
+
         Button btnModifica = new Button("Modifica");
         btnModifica.addClickHandler(clickEvent -> {
             // Qui inserisci la tua logica di modifica originaria (CreateAdService)
@@ -481,10 +529,10 @@ public class SkillsGui extends Composite {
 
         buttonGroups.add(btnRimuovi);
         buttonGroups.add(btnModifica);
-        
+
         buttonWrapper.add(buttonGroups);
         buttonWrapper.setCellHorizontalAlignment(buttonGroups, HasHorizontalAlignment.ALIGN_RIGHT);
-        
+
         card.add(buttonWrapper);
         contentArea.add(card);
     }
@@ -549,12 +597,12 @@ public class SkillsGui extends Composite {
             }
 
             Valutazione nuovaValutazione = new Valutazione.Builder()
-                .id(skill.getId())
-                .autore(utenteCorrente)
-                .voto(votoSelezionato[0])
-                .recensione(txtRecensione.getText())
-                .build();
-                
+                    .id(skill.getId())
+                    .autore(utenteCorrente)
+                    .voto(votoSelezionato[0])
+                    .recensione(txtRecensione.getText())
+                    .build();
+
             skillService.salvaValutazione(nuovaValutazione, new AsyncCallback<Boolean>() {
                 @Override
                 public void onFailure(Throwable caught) {

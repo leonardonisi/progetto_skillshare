@@ -40,7 +40,7 @@ public class RichiestaScambio implements Serializable {
     public void setId(Integer id) { this.id = id; }
 
     public Integer getIdAnnuncio() { return idAnnuncio; }
-    public void setIdAnnuncio(Integer idAnnuncio) { this.id = idAnnuncio; }
+    public void setIdAnnuncio(Integer idAnnuncio) { this.idAnnuncio = idAnnuncio; }
 
     public String getRichiedenteUser() { return richiedenteUser; }
     public void setRichiedenteUser(String richiedenteUser) { this.richiedenteUser = richiedenteUser; }

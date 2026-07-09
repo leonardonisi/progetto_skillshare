@@ -11,6 +11,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FileUpload;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -194,6 +195,50 @@ public class ProfileGui {
                     if (profiloSalvato.getCompetenzePreferite() != null) {
                         categorieSelezionate.addAll(profiloSalvato.getCompetenzePreferite());
                     }
+                    VerticalPanel panelBadgeContenitore = new VerticalPanel();
+                    panelBadgeContenitore.setWidth("100%");
+                    panelBadgeContenitore.setSpacing(10);        
+                    panelBadgeContenitore.getElement().getStyle().setProperty("marginTop", "20px");
+                    panelBadgeContenitore.getElement().getStyle().setProperty("padding", "15px");
+                    panelBadgeContenitore.getElement().getStyle().setProperty("border", "1px dashed #007BFF");
+                    panelBadgeContenitore.getElement().getStyle().setProperty("backgroundColor", "#f8f9fa");
+
+                    Label lblSezioneBadge = new Label("MEDAGLIE E TRAGUARDI GUADAGNATI:");
+                    lblSezioneBadge.getElement().getStyle().setProperty("fontWeight", "bold");
+                    lblSezioneBadge.getElement().getStyle().setProperty("color", "#007BFF");
+                    panelBadgeContenitore.add(lblSezioneBadge);
+
+                    List<String> distintiviSbloccati = profiloSalvato.getBadgeOttenuti();
+
+                    if (distintiviSbloccati == null || distintiviSbloccati.isEmpty()) {
+                        Label lblNessunBadge = new Label("Nessun badge sbloccato finora. Completa 10 azioni per ricevere la tua prima medaglia!");
+                        lblNessunBadge.getElement().getStyle().setProperty("fontStyle", "italic");
+                        panelBadgeContenitore.add(lblNessunBadge);
+                    } else {
+                        FlowPanel grigliaMedaglie = new FlowPanel();
+                        grigliaMedaglie.setWidth("100%");
+
+                        for (String nomeMedaglia : distintiviSbloccati) {
+                            HorizontalPanel boxSingoloBadge = new HorizontalPanel();
+                            boxSingoloBadge.setSpacing(5);
+                            boxSingoloBadge.getElement().getStyle().setProperty("display", "inline-flex");
+                            boxSingoloBadge.getElement().getStyle().setProperty("margin", "5px 10px");
+                            boxSingoloBadge.getElement().getStyle().setProperty("padding", "5px 10px");
+                            boxSingoloBadge.getElement().getStyle().setProperty("backgroundColor", "#fff");
+                            boxSingoloBadge.getElement().getStyle().setProperty("border", "1px solid #28a745");
+                            boxSingoloBadge.getElement().getStyle().setProperty("borderRadius", "4px");
+
+                            Label emojiMedaglia = new Label("🏅");
+                            Label testoMedaglia = new Label(nomeMedaglia);
+                            testoMedaglia.getElement().getStyle().setProperty("fontWeight", "bold");
+
+                            boxSingoloBadge.add(emojiMedaglia);
+                            boxSingoloBadge.add(testoMedaglia);
+                            grigliaMedaglie.add(boxSingoloBadge);
+                        }
+                        panelBadgeContenitore.add(grigliaMedaglie);
+                    }
+                    cardPanel.add(panelBadgeContenitore);
                 }
             }
         });
@@ -356,6 +401,7 @@ public class ProfileGui {
         // chiamata RCP per ottenere le recensioni dell'utente
         caricaEmostraRecensioni(utenteLoggato, lblRating, storicoContainer);
 
+
     }
 
     // metodo per caricare e mostrare le recensioni dell'utente
@@ -447,8 +493,9 @@ public class ProfileGui {
     }-*/;
 
     public void aggiornaFotoCaricata(String base) {
-        this.fotoBase = base;          // Salva la stringa per il database
-        this.photoImg.setUrl(base);     // Aggiorna l'immagine sullo schermo istantaneamente
-        this.editButton.setVisible(true);  // Mostra il bottone "SALVA"
+        this.fotoBase = base;          
+        this.photoImg.setUrl(base);    
+        this.editButton.setVisible(true);  
     }
+
 }

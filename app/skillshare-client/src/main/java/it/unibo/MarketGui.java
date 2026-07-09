@@ -409,60 +409,6 @@ public class MarketGui extends Composite {
 
         btnRichiedi.setVisible(true);
         btnChat.setVisible(true);
-
-        btnRichiedi.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                DialogBox popupOfferta = new DialogBox();
-                popupOfferta.setText("Formula la tua proposta di scambio");
-                popupOfferta.setGlassEnabled(true);
-                popupOfferta.setAnimationEnabled(true);
-
-                VerticalPanel layoutPopup = new VerticalPanel();
-                layoutPopup.setSpacing(10);
-                layoutPopup.add(new Label("Cosa offri in controprestazione per: " + a.getTitolo() + "?"));
-
-                TextArea inputControprestazione = new TextArea();
-                inputControprestazione.setWidth("350px");
-                inputControprestazione.setVisibleLines(4);
-                layoutPopup.add(inputControprestazione);
-
-                HorizontalPanel bottoniPopup = new HorizontalPanel();
-                bottoniPopup.setSpacing(10);
-                Button btnInviaProposta = new Button("Invia Richiesta");
-                Button btnAnnullaProposta = new Button("Annulla");
-
-                btnAnnullaProposta.addClickHandler(e -> popupOfferta.hide());
-                
-                btnInviaProposta.addClickHandler(e -> {
-                    String proposta = inputControprestazione.getText().trim();
-                    if(proposta.isEmpty()) {
-                        Window.alert("Il messaggio della proposta non può essere vuoto!");
-                        return;
-                    }
-
-                    richiesteService.inviaRichiesta(a.getId(), utenteCorrente, a.getAutore(), proposta, new AsyncCallback<RichiestaScambio>() {
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            Window.alert("Errore nell'invio della richiesta: " + caught.getMessage());
-                        }
-
-                        @Override
-                        public void onSuccess(RichiestaScambio result) {
-                            Window.alert("Proposta inviata con successo! Troverai lo stato nella pagina Richieste.");
-                            popupOfferta.hide();
-                        }
-                    });
-                });
-
-                bottoniPopup.add(btnInviaProposta);
-                bottoniPopup.add(btnAnnullaProposta);
-                layoutPopup.add(bottoniPopup);
-
-                popupOfferta.setWidget(layoutPopup);
-                popupOfferta.center();
-            }
-        });
     }
 
     private void caricaImmagineProfilo(Image imgProfilo, String username) {
