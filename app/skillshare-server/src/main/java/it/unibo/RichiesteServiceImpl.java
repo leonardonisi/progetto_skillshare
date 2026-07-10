@@ -131,9 +131,7 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
             }
         }
 
-        int nuovoIdRichiesta = dbRichieste.keySet().stream()
-                                        .max(Integer::compareTo)
-                                        .orElse(0) + 1;
+        int nuovoIdRichiesta = DatabaseCore.generaNuovoIdRichiesta();
 
         RichiestaScambio nuova = new RichiestaScambio(nuovoIdRichiesta, idAnnuncio, richiedente, proprietario);
         nuova.setMessaggioProposta(messaggio);
@@ -148,7 +146,7 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
             DatabaseCore.getMappaUtenti().put(utenteRichiedente.getUsername(), utenteRichiedente);
         }
 
-        DatabaseCore.getMappaRichieste().put(nuovoIdRichiesta, nuova);
+        dbRichieste.put(nuovoIdRichiesta, nuova);
         DatabaseCore.commit();
         
         return nuova;
