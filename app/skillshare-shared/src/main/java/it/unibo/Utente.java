@@ -23,19 +23,20 @@ public class Utente implements Serializable {
 
     private int contatoreAnnunciInseriti;
     private int contatoreRichiesteInviate;
-    private HashMap<String, Integer> scambiConclusiPerCategoria;
-    private List<String> badgeOttenuti;
+    private HashMap<String, Integer> scambiConclusiPerCategoria = new HashMap<>();
+    private List<String> badgeOttenuti = new ArrayList<>();
+
+
+
 
     public Utente(String username, String password) {
         this.username = username;
         this.password = password;
-        
         this.competenzePreferite = new ArrayList<>();
         this.annunciPubblicati = new ArrayList<>();
         this.richiesteInviateId = new ArrayList<>();
         this.richiesteRicevuteId = new ArrayList<>();
         this.fotoProfiloBase64 = "images/utente.jpg";
-
         this.contatoreAnnunciInseriti = 0;
         this.contatoreRichiesteInviate = 0;
         this.scambiConclusiPerCategoria = new HashMap<>();
@@ -52,6 +53,8 @@ public class Utente implements Serializable {
         this.annunciPubblicati = new ArrayList<>();
         this.richiesteInviateId = new ArrayList<>();
         this.richiesteRicevuteId = new ArrayList<>();
+        this.scambiConclusiPerCategoria = new HashMap<>();
+        this.badgeOttenuti = new ArrayList<>();
     }
 
     public Utente() {
@@ -62,6 +65,8 @@ public class Utente implements Serializable {
         this.fotoProfiloBase64 = "images/utente.jpg";
         this.bio = "";
         this.locazione = "";
+        this.scambiConclusiPerCategoria = new HashMap<>();
+        this.badgeOttenuti = new ArrayList<>();
     }
 
     public String getUsername() { return username; }

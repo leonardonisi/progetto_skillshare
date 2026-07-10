@@ -2,6 +2,7 @@ package it.unibo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 public class DatabaseSeeder{
@@ -282,57 +283,57 @@ public class DatabaseSeeder{
         dbAnnunci.put(annuncioMatty5.getId(), annuncioMatty5);
 
         // creazione Richieste
-        RichiestaScambio richiesta1 = new RichiestaScambio(1, 6, "filker67", "brung05");
+        RichiestaScambio richiesta1 = new RichiestaScambio(6, 6, "filker67", "brung05");
         richiesta1.setStato(RichiestaScambio.StatoRichiesta.IN_ATTESA);
         filker67.getRichiesteInviateId().add(richiesta1.getId());
         brung05.getRichiesteRicevuteId().add(richiesta1.getId());
 
-        RichiestaScambio richiesta2 = new RichiestaScambio(2, 13, "filker67", "leonisi007");
+        RichiestaScambio richiesta2 = new RichiestaScambio(13, 13, "filker67", "leonisi007");
         richiesta2.setStato(RichiestaScambio.StatoRichiesta.ACCETTATO);
         filker67.getRichiesteInviateId().add(richiesta2.getId());
         leonisi007.getRichiesteRicevuteId().add(richiesta2.getId());
 
-        RichiestaScambio richiesta3 = new RichiestaScambio(3, 18, "filker67", "mastroky");
+        RichiestaScambio richiesta3 = new RichiestaScambio(18, 18, "filker67", "mastroky");
         richiesta3.setStato(RichiestaScambio.StatoRichiesta.CONCLUSO);
         filker67.getRichiesteInviateId().add(richiesta3.getId());
         mastroky.getRichiesteRicevuteId().add(richiesta3.getId());
 
-        RichiestaScambio richiesta4 = new RichiestaScambio(4, 1, "brung05", "filker67");
+        RichiestaScambio richiesta4 = new RichiestaScambio(1, 1, "brung05", "filker67");
         richiesta4.setStato(RichiestaScambio.StatoRichiesta.ACCETTATO);
         brung05.getRichiesteInviateId().add(richiesta4.getId());
         filker67.getRichiesteRicevuteId().add(richiesta4.getId());
 
-        RichiestaScambio richiesta5 = new RichiestaScambio(5, 15, "brung05", "leonisi007");
+        RichiestaScambio richiesta5 = new RichiestaScambio(15, 15, "brung05", "leonisi007");
         richiesta5.setStato(RichiestaScambio.StatoRichiesta.IN_ATTESA);
         brung05.getRichiesteInviateId().add(richiesta5.getId());
         leonisi007.getRichiesteRicevuteId().add(richiesta5.getId());
 
-        RichiestaScambio richiesta6 = new RichiestaScambio(6, 20, "brung05", "mastroky");
+        RichiestaScambio richiesta6 = new RichiestaScambio(20, 20, "brung05", "mastroky");
         richiesta6.setStato(RichiestaScambio.StatoRichiesta.RIFIUTATO);
         brung05.getRichiesteInviateId().add(richiesta6.getId());
         mastroky.getRichiesteRicevuteId().add(richiesta6.getId());
 
-        RichiestaScambio richiesta7 = new RichiestaScambio(7, 4, "leonisi007", "filker67");
+        RichiestaScambio richiesta7 = new RichiestaScambio(4, 4, "leonisi007", "filker67");
         richiesta7.setStato(RichiestaScambio.StatoRichiesta.CONCLUSO);
         leonisi007.getRichiesteInviateId().add(richiesta7.getId());
         filker67.getRichiesteRicevuteId().add(richiesta7.getId());
 
-        RichiestaScambio richiesta8 = new RichiestaScambio(8, 7, "leonisi007", "brung05");
+        RichiestaScambio richiesta8 = new RichiestaScambio(7, 7, "leonisi007", "brung05");
         richiesta8.setStato(RichiestaScambio.StatoRichiesta.ACCETTATO);
         leonisi007.getRichiesteInviateId().add(richiesta8.getId());
         brung05.getRichiesteRicevuteId().add(richiesta8.getId());
 
-        RichiestaScambio richiesta9 = new RichiestaScambio(9, 17, "leonisi007", "mastroky");
+        RichiestaScambio richiesta9 = new RichiestaScambio(17, 17, "leonisi007", "mastroky");
         richiesta9.setStato(RichiestaScambio.StatoRichiesta.IN_ATTESA);
         leonisi007.getRichiesteInviateId().add(richiesta9.getId());
         mastroky.getRichiesteRicevuteId().add(richiesta9.getId());
 
-        RichiestaScambio richiesta10 = new RichiestaScambio(10, 3, "mastroky", "filker67");
+        RichiestaScambio richiesta10 = new RichiestaScambio(3, 3, "mastroky", "filker67");
         richiesta10.setStato(RichiestaScambio.StatoRichiesta.RIFIUTATO);
         mastroky.getRichiesteInviateId().add(richiesta10.getId());
         filker67.getRichiesteRicevuteId().add(richiesta10.getId());
 
-        RichiestaScambio richiesta11 = new RichiestaScambio(11, 8, "mastroky", "brung05");
+        RichiestaScambio richiesta11 = new RichiestaScambio(8, 8, "mastroky", "brung05");
         richiesta11.setStato(RichiestaScambio.StatoRichiesta.CONCLUSO);
         mastroky.getRichiesteInviateId().add(richiesta11.getId());
         brung05.getRichiesteRicevuteId().add(richiesta11.getId());
@@ -342,21 +343,32 @@ public class DatabaseSeeder{
         mastroky.getRichiesteInviateId().add(richiesta12.getId());
         leonisi007.getRichiesteRicevuteId().add(richiesta12.getId());
 
-        dbRichieste.put(richiesta1.getId(), richiesta1);
-        dbRichieste.put(richiesta2.getId(), richiesta2);
-        dbRichieste.put(richiesta3.getId(), richiesta3);
+        List<RichiestaScambio> tutteLeRichieste = Arrays.asList(
+            richiesta1, richiesta2, richiesta3, richiesta4, 
+            richiesta5, richiesta6, richiesta7, richiesta8, 
+            richiesta9, richiesta10, richiesta11, richiesta12
+        );
 
-        dbRichieste.put(richiesta4.getId(), richiesta4);
-        dbRichieste.put(richiesta5.getId(), richiesta5);
-        dbRichieste.put(richiesta6.getId(), richiesta6);
-
-        dbRichieste.put(richiesta7.getId(), richiesta7);
-        dbRichieste.put(richiesta8.getId(), richiesta8);
-        dbRichieste.put(richiesta9.getId(), richiesta9);
-
-        dbRichieste.put(richiesta10.getId(), richiesta10);
-        dbRichieste.put(richiesta11.getId(), richiesta11);
-        dbRichieste.put(richiesta12.getId(), richiesta12);
+        for (RichiestaScambio r : tutteLeRichieste) {
+            if (r.getStato() == RichiestaScambio.StatoRichiesta.ACCETTATO || 
+                r.getStato() == RichiestaScambio.StatoRichiesta.CONCLUSO) {
+                
+                Annuncio annuncioCollegato = dbAnnunci.get(r.getIdAnnuncio());
+                if (annuncioCollegato != null) {
+                    annuncioCollegato.setAttivo(false);
+                    dbAnnunci.put(annuncioCollegato.getId(), annuncioCollegato);
+                }
+                
+                for (RichiestaScambio altraRichiesta : tutteLeRichieste) {
+                    if (altraRichiesta.getId().equals(r.getId()) && 
+                        altraRichiesta.getIdAnnuncio().equals(r.getIdAnnuncio()) && 
+                        altraRichiesta.getStato() == RichiestaScambio.StatoRichiesta.IN_ATTESA) {
+                        
+                        altraRichiesta.setStato(RichiestaScambio.StatoRichiesta.RIFIUTATO);
+                    }
+                }
+            }
+        }
 
         int msgId = 1;
         
@@ -377,6 +389,8 @@ public class DatabaseSeeder{
                 .recensione("Studente molto preparato e propositivo. Lo scambio è stato fluido e piacevole.")
                 .build();
 
+        richiesta3.setValutatoDaProprietario(true);
+
         Valutazione recensione2 = new Valutazione.Builder()
                 .id(4)
                 .autore("filker67")
@@ -385,15 +399,34 @@ public class DatabaseSeeder{
                 .recensione("Molto bravo nella tecnica, abbiamo collaborato bene. Consigliato.")
                 .build();
 
+        richiesta7.setValutatoDaProprietario(true);
+
         Valutazione recensione3 = new Valutazione.Builder()
                 .id(8)
-                .autore("brung05")
-                .destinatario("mastroky")
+                .autore("mastroky")
+                .destinatario("brung05")
                 .voto(5)
                 .recensione("Competenza altissima sul marketing. Mi ha salvato il profilo Instagram!")
                 .build();
 
-        // Inserimento con chiave univoca "ID_Autore"
+        richiesta11.setValutatoDaRichiedente(true);
+
+        dbRichieste.put(richiesta1.getId(), richiesta1);
+        dbRichieste.put(richiesta2.getId(), richiesta2);
+        dbRichieste.put(richiesta3.getId(), richiesta3);
+
+        dbRichieste.put(richiesta4.getId(), richiesta4);
+        dbRichieste.put(richiesta5.getId(), richiesta5);
+        dbRichieste.put(richiesta6.getId(), richiesta6);
+
+        dbRichieste.put(richiesta7.getId(), richiesta7);
+        dbRichieste.put(richiesta8.getId(), richiesta8);
+        dbRichieste.put(richiesta9.getId(), richiesta9);
+
+        dbRichieste.put(richiesta10.getId(), richiesta10);
+        dbRichieste.put(richiesta11.getId(), richiesta11);
+        dbRichieste.put(richiesta12.getId(), richiesta12);
+
         dbValutazioni.put(recensione1.getId() + "_" + recensione1.getAutore(), recensione1);
         dbValutazioni.put(recensione2.getId() + "_" + recensione2.getAutore(), recensione2);
         dbValutazioni.put(recensione3.getId() + "_" + recensione3.getAutore(), recensione3);

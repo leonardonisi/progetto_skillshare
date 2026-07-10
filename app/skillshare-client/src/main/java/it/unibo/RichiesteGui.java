@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.i18n.client.NumberFormat;
 
 public class RichiesteGui extends Composite {
 
@@ -208,9 +209,31 @@ public class RichiesteGui extends Composite {
 
         HorizontalPanel userPanel = new HorizontalPanel();
 
-        Label lblRating = new Label("4.9");
+        Label lblRating = new Label("..."); 
         lblRating.getElement().getStyle().setProperty("fontSize", "18px");
         lblRating.getElement().getStyle().setProperty("fontWeight", "bold");
+        lblRating.getElement().getStyle().setProperty("marginRight", "10px");
+
+        skillService.getValutazioniUtente(annuncio.getAutore(), new AsyncCallback<List<Valutazione>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                lblRating.setText("N/A");
+            }
+
+            @Override
+            public void onSuccess(List<Valutazione> valutazioni) {
+                if (valutazioni == null || valutazioni.isEmpty()) {
+                    lblRating.setText("N/A");
+                } else {
+                    double somma = 0;
+                    for (Valutazione v : valutazioni) {
+                        somma += v.getVoto();
+                    }
+                    double media = somma / valutazioni.size();
+                    lblRating.setText(NumberFormat.getFormat("0.0").format(media));
+                }
+            }
+        });
 
         imgProfilo = new Image();
         imgProfilo.setPixelSize(40, 40);
@@ -334,14 +357,16 @@ public class RichiesteGui extends Composite {
                 break;
             
             case CONCLUSO:
-                Button btnValuta = new Button("Valuta");
-                btnValuta.getElement().setId("btn-valuta-scambio");
+                if (richiesta.isValutatoDaRichiedente()) {
+                    Button btnGiaValutato = new Button("Già Valutato");
+                    btnGiaValutato.setEnabled(false);
+                    buttonGroups.add(btnGiaValutato);
+                } else {
+                    Button btnValuta = new Button("Valuta");
+                    btnValuta.addClickHandler(event -> apriPopupValutazione(annuncio, richiesta));
+                    buttonGroups.add(btnValuta);
+                }
 
-                btnValuta.addClickHandler(event -> {
-                    apriPopupValutazione(annuncio);
-                });
-
-                buttonGroups.add(btnValuta);
                 buttonGroups.add(btnChat);
                 break;
         }
@@ -371,7 +396,7 @@ public class RichiesteGui extends Composite {
         });
     }
 
-    public void apriPopupValutazione(Annuncio skill) {
+    public void apriPopupValutazione(Annuncio skill, RichiestaScambio richiesta) {
         DialogBox popup = new DialogBox();
         popup.setText("Valuta lo scambio");
         popup.setAnimationEnabled(true);
@@ -392,21 +417,21 @@ public class RichiesteGui extends Composite {
 
         HorizontalPanel starPanel = new HorizontalPanel();
         starPanel.setSpacing(5);
-        final int[] votoSelezionato = {0}; 
+        final int[] votoSelezionato = { 0 };
         Label[] stelle = new Label[5];
-        
+
         for (int i = 0; i < 5; i++) {
             final int starValue = i + 1;
             stelle[i] = new Label("☆");
             stelle[i].getElement().setId("star-" + starValue);
             stelle[i].getElement().getStyle().setProperty("fontSize", "24px");
             stelle[i].getElement().getStyle().setProperty("cursor", "pointer");
-            
+
             stelle[i].addClickHandler(e -> {
                 votoSelezionato[0] = starValue;
                 for (int j = 0; j < 5; j++) {
                     stelle[j].setText(j < starValue ? "★" : "☆");
-                    stelle[j].getElement().getStyle().setProperty("color", j < starValue ? "#FFD700" : "#000000"); 
+                    stelle[j].getElement().getStyle().setProperty("color", j < starValue ? "#FFD700" : "#000000");
                 }
             });
             starPanel.add(stelle[i]);
@@ -417,36 +442,50 @@ public class RichiesteGui extends Composite {
 
         HorizontalPanel btnPanel = new HorizontalPanel();
         btnPanel.setSpacing(10);
-        
+
         Button btnAnnulla = new Button("Annulla");
         btnAnnulla.getElement().setId("btn-annulla-valutazione");
         btnAnnulla.addClickHandler(e -> popup.hide());
-        
+
         Button btnInvia = new Button("Invia");
         btnInvia.getElement().setId("btn-invia-valutazione");
+
         btnInvia.addClickHandler(e -> {
             if (votoSelezionato[0] == 0) {
                 Window.alert("Per favore, seleziona un voto con le stelle.");
                 return;
             }
-            
+
             Valutazione nuovaValutazione = new Valutazione.Builder()
-                .id(skill.getId())
-                .autore(utenteCorrente)
-                .voto(votoSelezionato[0])
-                .recensione(txtRecensione.getText())
-                .build();
-                
+                    .id(skill.getId())
+                    .autore(utenteCorrente)
+                    .destinatario(richiesta.getProprietarioUser())
+                    .voto(votoSelezionato[0])
+                    .recensione(txtRecensione.getText())
+                    .build();
+
             skillService.salvaValutazione(nuovaValutazione, new AsyncCallback<Boolean>() {
                 @Override
                 public void onFailure(Throwable caught) {
                     Window.alert("Errore di connessione.");
                 }
+
                 @Override
                 public void onSuccess(Boolean salvata) {
                     if (salvata) {
                         Window.alert("Valutazione salvata con successo!");
                         popup.hide();
+
+                        skillService.impostaRichiestaValutata(richiesta.getId(), false, new AsyncCallback<Void>() {
+                            @Override
+                            public void onFailure(Throwable caught) { }
+                            @Override
+                            public void onSuccess(Void result) {
+                                contentArea.clear();
+                                getRichiesteScambio();
+                            }
+                        });
+
                     } else {
                         Window.alert("Errore: Hai già valutato questo scambio.");
                     }
@@ -457,7 +496,7 @@ public class RichiesteGui extends Composite {
         btnPanel.add(btnInvia);
         btnPanel.add(btnAnnulla);
         panel.add(btnPanel);
-        
+
         popup.setWidget(panel);
         popup.center();
     }
