@@ -24,6 +24,9 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.i18n.client.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,8 @@ public class ForYouGui extends Composite {
     // Servizi e Contenitori Principali
     private SimplePanel contenitoreDinamico;
     private final ForYouServiceAsync servizio = GWT.create(ForYouService.class);
+    private final RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
+    private final SkillServiceAsync skillService = GWT.create(SkillService.class);
 
     // Componenti della vista Marketplace
     VerticalPanel colonnaSinistra;
@@ -48,8 +53,6 @@ public class ForYouGui extends Composite {
     private Label lblLocazione;
     private Label alertAnnunci;
 
-    // private Button btnRichiedi;
-    // private Button btnChat;
     private List<Utente> tuttiGliUtenti;
     private List<Annuncio> annunciUtenteOrdinati;
 
@@ -240,10 +243,31 @@ public class ForYouGui extends Composite {
         lblUsername.getElement().setId("username-card-utente");
         lblUsername.getElement().getStyle().setProperty("fontSize", "20px");
 
-        Label lblVoto = new Label("4.9");
+        Label lblVoto = new Label("..."); 
         lblVoto.getElement().getStyle().setProperty("fontSize", "22px");
         lblVoto.getElement().getStyle().setProperty("fontWeight", "bold");
         lblVoto.getElement().getStyle().setProperty("marginLeft", "15px");
+
+        skillService.getValutazioniUtente(a.getUsername(), new AsyncCallback<List<Valutazione>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                lblVoto.setText("N/A");
+            }
+
+            @Override
+            public void onSuccess(List<Valutazione> valutazioni) {
+                if (valutazioni == null || valutazioni.isEmpty()) {
+                    lblVoto.setText("N/A");
+                } else {
+                    double somma = 0;
+                    for (Valutazione v : valutazioni) {
+                        somma += v.getVoto();
+                    }
+                    double media = somma / valutazioni.size();
+                    lblVoto.setText(NumberFormat.getFormat("0.0").format(media));
+                }
+            }
+        });
 
         Image imgCard = new Image();
         imgCard.setPixelSize(40, 40);
@@ -277,7 +301,28 @@ public class ForYouGui extends Composite {
         dettaglioAnnunciUtente.clear();
 
         usernameProfilo.setText(a.getUsername());
-        votoProfilo.setText("4.9"); // voto fisso di mockup, da collegare a database
+
+        skillService.getValutazioniUtente(a.getUsername(), new AsyncCallback<List<Valutazione>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                votoProfilo.setText("N/A");
+            }
+
+            @Override
+            public void onSuccess(List<Valutazione> valutazioni) {
+                if (valutazioni == null || valutazioni.isEmpty()) {
+                    votoProfilo.setText("N/A");
+                } else {
+                    double somma = 0;
+                    for (Valutazione v : valutazioni) {
+                        somma += v.getVoto();
+                    }
+                    double media = somma / valutazioni.size();
+                    votoProfilo.setText(NumberFormat.getFormat("0.0").format(media));
+                }
+            }
+        });
+
         caricaImmagineProfilo(imgProfilo, a.getUsername());
         imgProfilo.setVisible(true);
         lblBiografia.setText("BIOGRAFIA: " + a.getBio());
@@ -368,8 +413,65 @@ public class ForYouGui extends Composite {
         btnRichiedi.getElement().getStyle().setProperty("border", "none");
         btnRichiedi.getElement().getStyle().setProperty("marginRight", "10px");
 
-        // btnRichiedi.addClickHandler(event -> cambiaVista(creaVistaPlaceholder("Pagina
-        // RICHIESTA SCAMBIO in costruzione...")));
+        btnRichiedi.addClickHandler(event -> {
+            if (a == null)
+                return;
+
+            DialogBox popupOfferta = new DialogBox();
+            popupOfferta.setText("Formula la tua proposta di scambio");
+            popupOfferta.setGlassEnabled(true);
+            popupOfferta.setAnimationEnabled(true);
+
+            VerticalPanel layoutPopup = new VerticalPanel();
+            layoutPopup.setSpacing(10);
+            layoutPopup.add(new Label("Cosa offri in controprestazione per: " + a.getTitolo() + "?"));
+
+            TextArea inputControprestazione = new TextArea();
+            inputControprestazione.setWidth("350px");
+            inputControprestazione.setVisibleLines(4);
+            layoutPopup.add(inputControprestazione);
+
+            HorizontalPanel bottoniPopup = new HorizontalPanel();
+            bottoniPopup.setSpacing(10);
+            Button btnInviaProposta = new Button("Invia Richiesta");
+            Button btnAnnullaProposta = new Button("Annulla");
+
+            btnAnnullaProposta.addClickHandler(e -> popupOfferta.hide());
+
+            btnInviaProposta.addClickHandler(e -> {
+                String proposta = inputControprestazione.getText().trim();
+                if (proposta.isEmpty()) {
+                    Window.alert("Il messaggio della proposta non può essere vuoto!");
+                    return;
+                }
+
+                richiesteService.inviaRichiesta(a.getId(), utenteCorrente, a.getAutore(), proposta, new AsyncCallback<RichiestaScambio>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Errore imprevisto: " + caught.getMessage()); 
+                    }
+
+                    @Override
+                    public void onSuccess(RichiestaScambio result) {
+                        if(result == null){
+                            Window.alert("Attenzione: Hai già inoltrato una richiesta per questo annuncio!");
+                            btnRichiedi.setVisible(false);
+                        }
+                        else{
+                            Window.alert("Proposta inviata!");
+                            popupOfferta.hide();
+                        }
+                    }
+                });
+            });
+
+            bottoniPopup.add(btnInviaProposta);
+            bottoniPopup.add(btnAnnullaProposta);
+            layoutPopup.add(bottoniPopup);
+
+            popupOfferta.setWidget(layoutPopup);
+            popupOfferta.center();
+        });
 
         // Bottone Dettaglio Chat
         Button btnChat = new Button("💬");

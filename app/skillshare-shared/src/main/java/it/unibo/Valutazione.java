@@ -9,7 +9,7 @@ public class Valutazione implements Serializable {
     private int id;
     private String autore;
     private String destinatario;
-    private int voto; // Da 1 a 5
+    private int voto;
     private String recensione;
 
     public Valutazione() {

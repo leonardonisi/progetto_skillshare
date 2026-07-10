@@ -105,17 +105,31 @@ public class SkillServiceImpl extends RemoteServiceServlet implements SkillServi
     }
 
     @Override
+    public void impostaRichiestaValutata(Integer idRichiesta, boolean proprietario) {
+        ConcurrentMap<Integer, RichiestaScambio> dbRichieste = DatabaseCore.getMappaRichieste();
+        RichiestaScambio richiesta = dbRichieste.get(idRichiesta);
+
+        if (richiesta != null) {
+            if (proprietario) {
+                richiesta.setValutatoDaProprietario(true);
+            } else{
+                richiesta.setValutatoDaRichiedente(true);
+            }
+            dbRichieste.put(idRichiesta, richiesta);
+            DatabaseCore.commit();
+        }
+    }
+
+    @Override
     public List<Valutazione> getValutazioniUtente(String username) {
         List<Valutazione> risultati = new ArrayList<>();
         
-        // Controllo di sicurezza
         if (username == null || username.trim().isEmpty()) {
             return risultati;
         }
 
         ConcurrentMap<String, Valutazione> dbValutazioni = DatabaseCore.getMappaValutazioni();
 
-        // Filtra le recensioni in base al destinatario
         for (Valutazione v : dbValutazioni.values()) {
             if (v != null && username.equals(v.getDestinatario())) {
                 risultati.add(v);

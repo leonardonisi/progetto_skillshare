@@ -25,7 +25,7 @@ public class RegisterGui{
     public void mostra(){
         RootPanel.get().clear();
 
-        HTML title = new HTML("<h1 style='color: #87CEEB;'>Registrazione a SkillShare</h1>");
+        HTML title = new HTML("<h1 style='color: #007BFF;'>Registrazione a SkillShare</h1>");
         title.getElement().setId("titolo-registrazione");
 
         final TextBox usernameField = new TextBox();

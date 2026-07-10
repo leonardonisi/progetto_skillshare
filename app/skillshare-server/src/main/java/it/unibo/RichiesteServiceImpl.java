@@ -87,7 +87,6 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
                 richiesta.setConfermatoDaRichiedente(true);
             }
 
-            // Quando ENTRAMBI gli utenti premono la spunta (✓), lo scambio si conclude ufficialmente
             if (richiesta.isConfermatoDaProprietario() && richiesta.isConfermatoDaRichiedente()) {
                 richiesta.setStato(RichiestaScambio.StatoRichiesta.CONCLUSO);
 
@@ -95,7 +94,6 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
                 if (annuncio != null && annuncio.getCategoria() != null) {
                     String tag = annuncio.getCategoria();
 
-                    // 1. Aggiornamento Proprietario
                     Utente proprietario = DatabaseCore.getMappaUtenti().get(richiesta.getProprietarioUser());
                     if (proprietario != null) {
                         proprietario.incrementaScambiCategoria(tag);
@@ -105,7 +103,6 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
                         DatabaseCore.getMappaUtenti().put(proprietario.getUsername(), proprietario);
                     }
 
-                    // 2. Aggiornamento Richiedente
                     Utente richiedente = DatabaseCore.getMappaUtenti().get(richiesta.getRichiedenteUser());
                     if (richiedente != null) {
                         richiedente.incrementaScambiCategoria(tag);
@@ -124,11 +121,21 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
     }
 
     @Override
-    public RichiestaScambio inviaRichiesta(Integer idAnnuncio, String richiedente, String proprietario,
-            String messaggio) {
-        // Usiamo l'ID dell'annuncio sia come ID richiesta che come chiave della mappa
-        // per consistenza totale
-        RichiestaScambio nuova = new RichiestaScambio(idAnnuncio, idAnnuncio, richiedente, proprietario);
+    public RichiestaScambio inviaRichiesta(Integer idAnnuncio, String richiedente, String proprietario, String messaggio) {
+
+        ConcurrentMap<Integer, RichiestaScambio> dbRichieste = DatabaseCore.getMappaRichieste();
+
+        for(RichiestaScambio r : dbRichieste.values()){
+            if(r.getIdAnnuncio().equals(idAnnuncio) && r.getRichiedenteUser().equals(richiedente)){
+                return null;
+            }
+        }
+
+        int nuovoIdRichiesta = dbRichieste.keySet().stream()
+                                        .max(Integer::compareTo)
+                                        .orElse(0) + 1;
+
+        RichiestaScambio nuova = new RichiestaScambio(nuovoIdRichiesta, idAnnuncio, richiedente, proprietario);
         nuova.setMessaggioProposta(messaggio);
         nuova.setStato(RichiestaScambio.StatoRichiesta.IN_ATTESA);
 
@@ -141,19 +148,38 @@ public class RichiesteServiceImpl extends RemoteServiceServlet implements Richie
             DatabaseCore.getMappaUtenti().put(utenteRichiedente.getUsername(), utenteRichiedente);
         }
 
-        // Salva usando l'ID annuncio come chiave
-        DatabaseCore.getMappaRichieste().put(idAnnuncio, nuova);
+        DatabaseCore.getMappaRichieste().put(nuovoIdRichiesta, nuova);
         DatabaseCore.commit();
+        
         return nuova;
     }
 
     @Override
     public RichiestaScambio gestisciRispostaRichiesta(Integer idRichiesta, boolean accetta) {
-        // idRichiesta corrisponde all'ID dell'annuncio salvato come chiave
-        RichiestaScambio r = DatabaseCore.getMappaRichieste().get(idRichiesta);
+        System.out.println("Sto accettando la richiesta: " + idRichiesta);
+        ConcurrentMap<Integer, RichiestaScambio> dbRichieste = DatabaseCore.getMappaRichieste();
+        ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
+        RichiestaScambio r = dbRichieste.get(idRichiesta);
+
         if (r != null) {
-            r.setStato(accetta ? RichiestaScambio.StatoRichiesta.ACCETTATO : RichiestaScambio.StatoRichiesta.RIFIUTATO);
-            DatabaseCore.getMappaRichieste().put(idRichiesta, r);
+            if (accetta) {
+                r.setStato(RichiestaScambio.StatoRichiesta.ACCETTATO);
+                Annuncio annuncio = dbAnnunci.get(r.getIdAnnuncio());
+                annuncio.setAttivo(false);
+                dbAnnunci.put(r.getIdAnnuncio(), annuncio);
+
+                for (RichiestaScambio req : dbRichieste.values()) {
+                    if (!req.getId().equals(idRichiesta)
+                            && req.getIdAnnuncio().equals(r.getIdAnnuncio())
+                            && req.getStato() == RichiestaScambio.StatoRichiesta.IN_ATTESA) {
+                        req.setStato(RichiestaScambio.StatoRichiesta.RIFIUTATO);
+                        dbRichieste.put(req.getId(), req);
+                    }
+                }
+            } else {
+                r.setStato(RichiestaScambio.StatoRichiesta.RIFIUTATO);
+            }
+            dbRichieste.put(idRichiesta, r);
             DatabaseCore.commit();
         }
         return r;

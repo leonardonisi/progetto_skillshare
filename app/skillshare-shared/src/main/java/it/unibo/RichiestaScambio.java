@@ -19,7 +19,9 @@ public class RichiestaScambio implements Serializable {
     private String proprietarioUser;  
     private StatoRichiesta stato;
     private boolean confermatoDaProprietario;
-    private boolean confermatoDaRichiedente;   
+    private boolean confermatoDaRichiedente;
+    private boolean valutatoDaProprietario;
+    private boolean valutatoDaRichiedente;
 
     private String messaggioProposta;
 
@@ -34,6 +36,8 @@ public class RichiestaScambio implements Serializable {
         this.stato = StatoRichiesta.IN_ATTESA;
         this.confermatoDaProprietario = false;
         this.confermatoDaRichiedente = false;
+        this.valutatoDaProprietario = false;
+        this.valutatoDaRichiedente = false;
     }
 
     public Integer getId() { return id; }
@@ -59,4 +63,10 @@ public class RichiestaScambio implements Serializable {
 
     public String getMessaggioProposta() { return messaggioProposta; }
     public void setMessaggioProposta(String messaggioProposta) { this.messaggioProposta = messaggioProposta; }
+
+    public boolean isValutatoDaProprietario() { return valutatoDaProprietario; }
+    public void setValutatoDaProprietario(boolean valutatoDaProprietario) { this.valutatoDaProprietario = valutatoDaProprietario; }
+
+    public boolean isValutatoDaRichiedente() { return valutatoDaRichiedente; }
+    public void setValutatoDaRichiedente(boolean valutatoDaRichiedente) { this.valutatoDaRichiedente = valutatoDaRichiedente; }
 }

@@ -7,13 +7,14 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-
+import com.google.gwt.i18n.client.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MarketGui extends Composite {
 
     private final MarketServiceAsync servizio = GWT.create(MarketService.class);
+    private SkillServiceAsync skillService = GWT.create(SkillService.class);
     private final RichiesteServiceAsync richiesteService = GWT.create(RichiesteService.class);
     private String utenteCorrente;
 
@@ -225,59 +226,9 @@ public class MarketGui extends Composite {
         btnRichiedi.setVisible(false);
 
         btnRichiedi.addClickHandler(event -> {
-            if (annuncioSelezionato == null)
-                return;
-
-            DialogBox popupOfferta = new DialogBox();
-            popupOfferta.setText("Formula la tua proposta di scambio");
-            popupOfferta.setGlassEnabled(true);
-            popupOfferta.setAnimationEnabled(true);
-
-            VerticalPanel layoutPopup = new VerticalPanel();
-            layoutPopup.setSpacing(10);
-            layoutPopup.add(new Label("Cosa offri in controprestazione per: " + annuncioSelezionato.getTitolo() + "?"));
-
-            TextArea inputControprestazione = new TextArea();
-            inputControprestazione.setWidth("350px");
-            inputControprestazione.setVisibleLines(4);
-            layoutPopup.add(inputControprestazione);
-
-            HorizontalPanel bottoniPopup = new HorizontalPanel();
-            bottoniPopup.setSpacing(10);
-            Button btnInviaProposta = new Button("Invia Richiesta");
-            Button btnAnnullaProposta = new Button("Annulla");
-
-            btnAnnullaProposta.addClickHandler(e -> popupOfferta.hide());
-
-            btnInviaProposta.addClickHandler(e -> {
-                String proposta = inputControprestazione.getText().trim();
-                if (proposta.isEmpty()) {
-                    Window.alert("Il messaggio della proposta non può essere vuoto!");
-                    return;
-                }
-
-                richiesteService.inviaRichiesta(annuncioSelezionato.getId(), utenteCorrente,
-                        annuncioSelezionato.getAutore(), proposta, new AsyncCallback<RichiestaScambio>() {
-                            @Override
-                            public void onFailure(Throwable caught) {
-                                Window.alert("Errore nell'invio della richiesta: " + caught.getMessage());
-                            }
-
-                            @Override
-                            public void onSuccess(RichiestaScambio result) {
-                                Window.alert(
-                                        "Proposta inviata con successo! Troverai lo stato nella pagina Richieste.");
-                                popupOfferta.hide();
-                            }
-                        });
-            });
-
-            bottoniPopup.add(btnInviaProposta);
-            bottoniPopup.add(btnAnnullaProposta);
-            layoutPopup.add(bottoniPopup);
-
-            popupOfferta.setWidget(layoutPopup);
-            popupOfferta.center();
+            if (annuncioSelezionato != null) {
+                gestisciClickRichiesta();
+            }
         });
 
         // Bottone Dettaglio Chat
@@ -322,6 +273,62 @@ public class MarketGui extends Composite {
     }
 
     // --- METODI DI SUPPORTO ---
+
+    private void gestisciClickRichiesta() {
+        DialogBox popupOfferta = new DialogBox();
+        popupOfferta.setText("Formula la tua proposta di scambio");
+        popupOfferta.setGlassEnabled(true);
+        popupOfferta.setAnimationEnabled(true);
+
+        VerticalPanel layoutPopup = new VerticalPanel();
+        layoutPopup.setSpacing(10);
+        layoutPopup.add(new Label("Cosa offri in controprestazione per: " + annuncioSelezionato.getTitolo() + "?"));
+
+        TextArea inputControprestazione = new TextArea();
+        inputControprestazione.setWidth("350px");
+        inputControprestazione.setVisibleLines(4);
+        layoutPopup.add(inputControprestazione);
+
+        Button btnInviaProposta = new Button("Invia Richiesta");
+        Button btnAnnullaProposta = new Button("Annulla");
+
+        btnAnnullaProposta.addClickHandler(e -> popupOfferta.hide());
+
+        btnInviaProposta.addClickHandler(e -> {
+            String proposta = inputControprestazione.getText().trim();
+            if (proposta.isEmpty()) {
+                Window.alert("Il messaggio non può essere vuoto!");
+                return;
+            }
+
+        richiesteService.inviaRichiesta(annuncioSelezionato.getId(), utenteCorrente,
+            annuncioSelezionato.getAutore(), proposta, new AsyncCallback<RichiestaScambio>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    Window.alert("Errore imprevisto: " + caught.getMessage()); 
+                }
+
+                @Override
+                public void onSuccess(RichiestaScambio result) {
+                    if(result == null){
+                        Window.alert("Attenzione: Hai già inoltrato una richiesta per questo annuncio!");
+                        btnRichiedi.setVisible(false);
+                    }
+                    else{
+                        Window.alert("Proposta inviata!");
+                        popupOfferta.hide();
+                    }
+                }
+            });
+        });
+
+        HorizontalPanel bottoniPopup = new HorizontalPanel();
+        bottoniPopup.add(btnInviaProposta);
+        bottoniPopup.add(btnAnnullaProposta);
+        layoutPopup.add(bottoniPopup);
+        popupOfferta.setWidget(layoutPopup);
+        popupOfferta.center();
+    }
 
     private SimplePanel creaDivisorio() {
         SimplePanel divisorio = new SimplePanel();
@@ -409,7 +416,28 @@ public class MarketGui extends Composite {
         titoloDettaglio.setText(a.getTitolo());
         imgAnnuncio.setVisible(true);
         caricaImmagineProfilo(imgAnnuncio, a.getAutore());
-        votoDettaglio.setText("4.9");
+        
+        skillService.getValutazioniUtente(a.getAutore(), new AsyncCallback<List<Valutazione>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                votoDettaglio.setText("N/A");
+            }
+
+            @Override
+            public void onSuccess(List<Valutazione> valutazioni) {
+                if (valutazioni == null || valutazioni.isEmpty()) {
+                    votoDettaglio.setText("N/A");
+                } else {
+                    double somma = 0;
+                    for (Valutazione v : valutazioni) {
+                        somma += v.getVoto();
+                    }
+                    double media = somma / valutazioni.size();
+                    votoDettaglio.setText(NumberFormat.getFormat("0.0").format(media));
+                }
+            }
+        });
+
         lblCategoria.setText("CATEGORIA: " + a.getCategoria());
         lblDescrizione.setText("DESCRIZIONE: " + a.getSkillOfferta());
         lblDispo.setText("DISPONIBILITÀ: " + a.getDisponibilita());
@@ -417,62 +445,6 @@ public class MarketGui extends Composite {
 
         btnRichiedi.setVisible(true);
         btnChat.setVisible(true);
-
-        btnRichiedi.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                DialogBox popupOfferta = new DialogBox();
-                popupOfferta.setText("Formula la tua proposta di scambio");
-                popupOfferta.setGlassEnabled(true);
-                popupOfferta.setAnimationEnabled(true);
-
-                VerticalPanel layoutPopup = new VerticalPanel();
-                layoutPopup.setSpacing(10);
-                layoutPopup.add(new Label("Cosa offri in controprestazione per: " + a.getTitolo() + "?"));
-
-                TextArea inputControprestazione = new TextArea();
-                inputControprestazione.setWidth("350px");
-                inputControprestazione.setVisibleLines(4);
-                layoutPopup.add(inputControprestazione);
-
-                HorizontalPanel bottoniPopup = new HorizontalPanel();
-                bottoniPopup.setSpacing(10);
-                Button btnInviaProposta = new Button("Invia Richiesta");
-                Button btnAnnullaProposta = new Button("Annulla");
-
-                btnAnnullaProposta.addClickHandler(e -> popupOfferta.hide());
-
-                btnInviaProposta.addClickHandler(e -> {
-                    String proposta = inputControprestazione.getText().trim();
-                    if (proposta.isEmpty()) {
-                        Window.alert("Il messaggio della proposta non può essere vuoto!");
-                        return;
-                    }
-
-                    richiesteService.inviaRichiesta(a.getId(), utenteCorrente, a.getAutore(), proposta,
-                            new AsyncCallback<RichiestaScambio>() {
-                                @Override
-                                public void onFailure(Throwable caught) {
-                                    Window.alert("Errore nell'invio della richiesta: " + caught.getMessage());
-                                }
-
-                                @Override
-                                public void onSuccess(RichiestaScambio result) {
-                                    Window.alert(
-                                            "Proposta inviata con successo! Troverai lo stato nella pagina Richieste.");
-                                    popupOfferta.hide();
-                                }
-                            });
-                });
-
-                bottoniPopup.add(btnInviaProposta);
-                bottoniPopup.add(btnAnnullaProposta);
-                layoutPopup.add(bottoniPopup);
-
-                popupOfferta.setWidget(layoutPopup);
-                popupOfferta.center();
-            }
-        });
     }
 
     private void caricaImmagineProfilo(Image imgProfilo, String username) {

@@ -25,7 +25,7 @@ public class CreateAdGui {
         RootPanel.get().clear();
 
         // Inizializzazione Widget
-        HTML title = new HTML("<h1 style='color: #87CEEB;'>PUBBLICA ANNUNCIO</h1>");
+        HTML title = new HTML("<h1 style='color: #007BFF;'>PUBBLICA ANNUNCIO</h1>");
         HTML subtitle = new HTML("<h2>Inserisci i dettagli del tuo annuncio:</h2>");
         final TextBox titleField = new TextBox();
         final ListBox categoryList = new ListBox();

@@ -21,7 +21,6 @@ public class CreateAdServiceImpl extends RemoteServiceServlet implements CreateA
         }
         
         try {
-            // Recupero dinamico delle mappe (fondamentale per i Test in RAM)
             ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
             ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
 
