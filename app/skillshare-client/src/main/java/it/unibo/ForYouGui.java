@@ -475,8 +475,24 @@ public class ForYouGui extends Composite {
         btnChat.getElement().getStyle().setProperty("fontSize", "20px");
 
         btnChat.addClickHandler(event -> {
-            cambiaVista(new ChatGui());
+            if (a != null) {
+                String interlocutore = a.getAutore();
+                String utenteLoggato = SessionManager.getUtenteLoggato();
+
+                if (utenteLoggato.equals(interlocutore)) {
+                    interlocutore = "UtenteScambio_1";
+                }
+
+                ChatGui vistaChat = new ChatGui();
+                cambiaVista(vistaChat);
+                vistaChat.apriConversazione(interlocutore);
+            }
         });
+        /*
+         * btnChat.addClickHandler(event -> {
+         * cambiaVista(new ChatGui());
+         * });
+         */
 
         // Assemblaggio Contenitore Bottoni
         btnContainer.add(btnRichiedi);

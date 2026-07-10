@@ -240,7 +240,19 @@ public class MarketGui extends Composite {
 
         btnChat.setVisible(false);
         btnChat.addClickHandler(event -> {
-            mainLayout.cambiaVista(new ChatGui());
+            if (annuncioSelezionato != null) {
+                String interlocutore = annuncioSelezionato.getAutore();
+                String utenteLoggato = SessionManager.getUtenteLoggato();
+
+                // Evitiamo l'auto-chat se l'annuncio è il nostro
+                if (utenteLoggato.equals(interlocutore)) {
+                    interlocutore = "UtenteScambio_1";
+                }
+
+                ChatGui vistaChat = new ChatGui();
+                mainLayout.cambiaVista(vistaChat);
+                vistaChat.apriConversazione(interlocutore);
+            }
         });
 
         btnContainer.add(btnRichiedi);

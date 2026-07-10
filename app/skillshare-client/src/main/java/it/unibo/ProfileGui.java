@@ -32,7 +32,7 @@ public class ProfileGui {
     // Lista per tenere traccia delle categorie scelte ed evitare i duplicati
     private List<String> categorieSelezionate = new ArrayList<>();
 
-    private String fotoBase = ""; 
+    private String fotoBase = "";
     private Image photoImg;
     private Button editButton;
     private Utente utenteAttuale;
@@ -53,7 +53,9 @@ public class ProfileGui {
         btnHome.getElement().getStyle().setProperty("padding", "6px 12px");
         btnHome.getElement().getStyle().setProperty("cursor", "pointer");
 
-        btnHome.addClickHandler(event -> {new MainLayoutGui().mostra();});
+        btnHome.addClickHandler(event -> {
+            new MainLayoutGui().mostra();
+        });
 
         pageBackground.add(btnHome);
         pageBackground.setCellHorizontalAlignment(btnHome, HasHorizontalAlignment.ALIGN_LEFT);
@@ -112,10 +114,10 @@ public class ProfileGui {
 
         final Label usernameLabel = new Label();
         usernameLabel.getElement().setId("txt-username");
-        
+
         final String utenteLoggato = SessionManager.getUtenteLoggato();
         usernameLabel.setText(utenteLoggato);
-        
+
         usernameLabel.setWidth("200px");
         usernameLabel.getElement().getStyle().setProperty("textAlign", "center");
         usernameLabel.getElement().getStyle().setProperty("padding", "5px");
@@ -124,7 +126,7 @@ public class ProfileGui {
         HorizontalPanel ratingPanel = new HorizontalPanel();
         ratingPanel.setSpacing(5);
         ratingPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        Label lblRating = new Label("Caricamento rating..."); 
+        Label lblRating = new Label("Caricamento rating...");
         lblRating.getElement().setId("lbl-rating-medio");
         lblRating.getElement().getStyle().setProperty("fontSize", "18px");
         lblRating.getElement().getStyle().setProperty("fontWeight", "bold");
@@ -142,7 +144,7 @@ public class ProfileGui {
 
         Label bioTitle = new Label("Biografia:");
         bioTitle.getElement().getStyle().setProperty("fontWeight", "bold");
-        
+
         final TextArea bioArea = new TextArea();
         bioArea.getElement().setId("txt-bio");
         bioArea.setWidth("100%");
@@ -152,7 +154,7 @@ public class ProfileGui {
 
         Label locazioneTitle = new Label("Località:");
         locazioneTitle.getElement().getStyle().setProperty("fontWeight", "bold");
-        
+
         final TextBox locazioneBox = new TextBox();
         locazioneBox.getElement().setId("txt-locazione");
         locazioneBox.setWidth("100%");
@@ -169,7 +171,7 @@ public class ProfileGui {
         editButton.getElement().setId("btn-modifica");
         editButton.getElement().getStyle().setProperty("marginTop", "20px");
         editButton.getElement().getStyle().setProperty("padding", "10px 20px");
-        editButton.setVisible(false);//finchè non ci sono modifiche non è visibile
+        editButton.setVisible(false);// finchè non ci sono modifiche non è visibile
 
         // Chiamata al server per caricare i dati reali
         profileService.getUtente(utenteLoggato, new AsyncCallback<Utente>() {
@@ -185,8 +187,9 @@ public class ProfileGui {
 
                     bioArea.setText(profiloSalvato.getBio() != null ? profiloSalvato.getBio() : "");
                     locazioneBox.setText(profiloSalvato.getLocazione() != null ? profiloSalvato.getLocazione() : "");
-                    
-                    if (profiloSalvato.getFotoProfiloBase64() != null && !profiloSalvato.getFotoProfiloBase64().isEmpty()) {
+
+                    if (profiloSalvato.getFotoProfiloBase64() != null
+                            && !profiloSalvato.getFotoProfiloBase64().isEmpty()) {
                         fotoBase = profiloSalvato.getFotoProfiloBase64();
                         photoImg.setUrl(fotoBase);
                     }
@@ -197,7 +200,7 @@ public class ProfileGui {
                     }
                     VerticalPanel panelBadgeContenitore = new VerticalPanel();
                     panelBadgeContenitore.setWidth("100%");
-                    panelBadgeContenitore.setSpacing(10);        
+                    panelBadgeContenitore.setSpacing(10);
                     panelBadgeContenitore.getElement().getStyle().setProperty("marginTop", "20px");
                     panelBadgeContenitore.getElement().getStyle().setProperty("padding", "15px");
                     panelBadgeContenitore.getElement().getStyle().setProperty("border", "1px dashed #007BFF");
@@ -211,7 +214,8 @@ public class ProfileGui {
                     List<String> distintiviSbloccati = profiloSalvato.getBadgeOttenuti();
 
                     if (distintiviSbloccati == null || distintiviSbloccati.isEmpty()) {
-                        Label lblNessunBadge = new Label("Nessun badge sbloccato finora. Completa 10 azioni per ricevere la tua prima medaglia!");
+                        Label lblNessunBadge = new Label(
+                                "Nessun badge sbloccato finora. Completa 10 azioni per ricevere la tua prima medaglia!");
                         lblNessunBadge.getElement().getStyle().setProperty("fontStyle", "italic");
                         panelBadgeContenitore.add(lblNessunBadge);
                     } else {
@@ -322,7 +326,8 @@ public class ProfileGui {
                         removeBtn.getElement().getStyle().setProperty("fontWeight", "bold");
 
                         // Rimozione
-                        removeBtn.addClickHandler(e -> {categorieSelezionate.remove(scelta); 
+                        removeBtn.addClickHandler(e -> {
+                            categorieSelezionate.remove(scelta);
                             tagPanel.remove(tagContainer);
                             editButton.setVisible(true);
                         });
@@ -348,13 +353,13 @@ public class ProfileGui {
         bodyPanel.add(rightPanel);
 
         editButton.addClickHandler(event -> {
-           if (utenteAttuale != null) {
+            if (utenteAttuale != null) {
                 utenteAttuale.setBio(bioArea.getText());
                 utenteAttuale.setLocazione(locazioneBox.getText());
                 utenteAttuale.setFotoProfiloBase64(fotoBase);
-                
+
                 utenteAttuale.setCompetenzePreferite(new ArrayList<>(categorieSelezionate));
-           }
+            }
 
             // Salvataggio sul database tramite il server
             profileService.saveUtente(utenteAttuale, new AsyncCallback<Void>() {
@@ -387,7 +392,7 @@ public class ProfileGui {
         storicoContainer.setSpacing(10);
         storicoContainer.getElement().getStyle().setProperty("marginTop", "20px");
         storicoContainer.getElement().getStyle().setProperty("marginBottom", "40px");
-        
+
         Label storicoTitle = new Label("Storico Recensioni");
         storicoTitle.getElement().getStyle().setProperty("fontWeight", "bold");
         storicoTitle.getElement().getStyle().setProperty("fontSize", "20px");
@@ -400,7 +405,6 @@ public class ProfileGui {
 
         // chiamata RCP per ottenere le recensioni dell'utente
         caricaEmostraRecensioni(utenteLoggato, lblRating, storicoContainer);
-
 
     }
 
@@ -428,23 +432,25 @@ public class ProfileGui {
                     somma += v.getVoto();
                 }
                 double media = somma / recensioni.size();
-                
+
                 String mediaFormat = String.valueOf(Math.round(media * 10.0) / 10.0);
-                
+
                 StringBuilder stelle = new StringBuilder();
                 int stellePiene = (int) Math.round(media);
                 for (int i = 0; i < 5; i++) {
-                    if (i < stellePiene) stelle.append("★");
-                    else stelle.append("☆");
+                    if (i < stellePiene)
+                        stelle.append("★");
+                    else
+                        stelle.append("☆");
                 }
-                
+
                 lblRating.setText(mediaFormat + " " + stelle.toString());
-                lblRating.getElement().getStyle().setProperty("color", "#FFD700"); 
+                lblRating.getElement().getStyle().setProperty("color", "#FFD700");
 
                 // Rendering Storico Recensioni
                 for (int i = recensioni.size() - 1; i >= 0; i--) {
                     Valutazione v = recensioni.get(i);
-                    
+
                     VerticalPanel cardRecensione = new VerticalPanel();
                     cardRecensione.setWidth("100%");
                     cardRecensione.getElement().setId("item-recensione-" + i);
@@ -455,12 +461,14 @@ public class ProfileGui {
 
                     HorizontalPanel headerRec = new HorizontalPanel();
                     headerRec.setWidth("100%");
-                    
+
                     Label autore = new Label("Da: " + v.getAutore());
                     autore.getElement().getStyle().setProperty("fontWeight", "bold");
-                    
+
                     StringBuilder votoStella = new StringBuilder();
-                    for(int s=0; s<5; s++) { votoStella.append(s < v.getVoto() ? "★" : "☆"); }
+                    for (int s = 0; s < 5; s++) {
+                        votoStella.append(s < v.getVoto() ? "★" : "☆");
+                    }
                     Label lblVoto = new Label(votoStella.toString());
                     lblVoto.getElement().getStyle().setProperty("color", "#FFD700");
 
@@ -481,7 +489,7 @@ public class ProfileGui {
         });
     }
 
-    // Legge il file e lo trasforma in testo Base64
+    // Legge il file e lo trasforma in testo
     private native void leggiImmagineBase(Element input, ProfileGui gui) /*-{
         var file = input.files[0];
         if (!file) return;
@@ -493,9 +501,9 @@ public class ProfileGui {
     }-*/;
 
     public void aggiornaFotoCaricata(String base) {
-        this.fotoBase = base;          
-        this.photoImg.setUrl(base);    
-        this.editButton.setVisible(true);  
+        this.fotoBase = base;
+        this.photoImg.setUrl(base);
+        this.editButton.setVisible(true);
     }
 
 }
