@@ -2,9 +2,7 @@ package it.unibo;
 
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
 import org.mapdb.DB;
-import org.mapdb.Serializer;
 import java.util.concurrent.ConcurrentMap;
-import jakarta.servlet.ServletException;
 
 @SuppressWarnings("serial")
 public class LoginServiceImpl extends RemoteServiceServlet implements LoginService {

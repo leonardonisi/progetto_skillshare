@@ -5,18 +5,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.support.ui.Select;
 
 import java.time.Duration;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,29 +62,30 @@ public class ProfileSeleniumTest {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-profilo")));
     }
 
-    // Verifica che la pagina del profilo si carichi correttamente e che il titolo sia presente
+    // Verifica che la pagina del profilo si carichi correttamente e che il titolo
+    // sia presente
     @Test
     void pageLoadsWithCorrectTitle() {
         WebElement titleElement = driver.findElement(By.id("titolo-profilo"));
         assertEquals("IL MIO PROFILO", titleElement.getText());
     }
 
-    //verifica che la sezione foto del profilo sia presente e visibile
+    // verifica che la sezione foto del profilo sia presente e visibile
     @Test
     void photoIsPresent() {
         WebElement photo = driver.findElement(By.id("img-photo"));
         assertTrue(photo.isDisplayed());
     }
 
-    //verifica che le TextBox dell'utente siano presenti e visibili
+    // verifica che le TextBox dell'utente siano presenti e visibili
     @Test
     void userInfoIsPresentAndEditable() {
         WebElement usernameLabel = driver.findElement(By.id("txt-username"));
         WebElement bioArea = driver.findElement(By.id("txt-bio"));
-        
+
         assertTrue(usernameLabel.isDisplayed());
         assertTrue(bioArea.isDisplayed());
-        
+
         assertTrue(usernameLabel.getText().length() > 0);
     }
 
@@ -99,7 +96,7 @@ public class ProfileSeleniumTest {
         assertTrue(categorieDropdown.isDisplayed());
     }
 
-    //verifica che il pannello per le categorie selezionate sia presente e visibile
+    // verifica che il pannello per le categorie selezionate sia presente e visibile
     @Test
     void categoriesAreaIsPresent() {
         WebElement categorieDropdown = driver.findElement(By.id("select-categorie"));
@@ -107,7 +104,7 @@ public class ProfileSeleniumTest {
 
         WebElement tagPanel = driver.findElement(By.id("panel-tag-categorie"));
         assertNotNull(tagPanel);
-    } 
+    }
 
     // Verifica che la TextBox della locazione sia presente
     @Test
@@ -116,7 +113,8 @@ public class ProfileSeleniumTest {
         assertTrue(locazioneBox.isDisplayed());
     }
 
-    //verifica che il bottone "Torna alla Home" sia presente e funzioni correttamente
+    // verifica che il bottone "Torna alla Home" sia presente e funzioni
+    // correttamente
     @Test
     void backToHomeButtonWorks() {
         WebElement btnHome = driver.findElement(By.id("btn-torna-home"));
@@ -140,11 +138,10 @@ public class ProfileSeleniumTest {
     void saveButtonAppearsWhenTyping() {
         WebElement btnModifica = driver.findElement(By.id("btn-modifica"));
         WebElement txtBio = driver.findElement(By.id("txt-bio"));
-        
+
         txtBio.sendKeys(" Test"); // Simula la digitazione
-        
+
         assertTrue(btnModifica.isDisplayed(), "Il bottone Salva deve apparire dopo aver digitato qualcosa.");
     }
-
 
 }

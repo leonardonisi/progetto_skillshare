@@ -51,6 +51,8 @@ public class ChatSeleniumTest {
             // Nessun alert presente
         }
 
+        DatabaseCore.enableTestMode();
+        DatabaseCore.seedDatabase();
         driver.get(BASE_URL);
 
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
@@ -58,13 +60,13 @@ public class ChatSeleniumTest {
         WebElement inputUsername = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("input-username")));
 
         // Inserisci le credenziali per superare la login
-        inputUsername.sendKeys("admin");
+        inputUsername.sendKeys("filker67");
         driver.findElement(By.id("input-password")).sendKeys("password");
         driver.findElement(By.id("btn-login")).click();
 
         // Attende il caricamento della Home e clicca sul pulsante per andare in CHAT
         WebElement btnChat = wait.until(ExpectedConditions.elementToBeClickable(By.id("nav-chat")));
-        btnChat.click(); // Mancava anche il comando .click() effettivo per cambiare schermata!
+        btnChat.click();
 
         // Per i test simuliamo l'ingresso diretto o il click alla vista
         waitForApp();
@@ -93,34 +95,32 @@ public class ChatSeleniumTest {
     @Test
     void testVisualizzazioneListaContatti() {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-        WebElement contatto1 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("contatto-UtenteScambio_1")));
-        
+        WebElement contatto1 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("contatto-mastroky")));
+
         assertTrue(contatto1.isDisplayed());
-        assertTrue(contatto1.getText().contains("UtenteScambio_1"));
+        assertTrue(contatto1.getText().contains("mastroky"));
     }
 
     @Test
     void testAperturaConversazioneMostraMessaggi() {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
-        WebElement contatto1 = wait.until(ExpectedConditions.elementToBeClickable(By.id("contatto-UtenteScambio_1")));
+        WebElement contatto1 = wait.until(ExpectedConditions.elementToBeClickable(By.id("contatto-mastroky")));
         contatto1.click();
 
-        WebElement areaMessaggi = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("area-cronologia-messaggi")));
+        WebElement areaMessaggi = wait
+                .until(ExpectedConditions.visibilityOfElementLocated(By.id("area-cronologia-messaggi")));
 
-        wait.until(ExpectedConditions.textToBePresentInElement(areaMessaggi, "Skillshare"));
-        wait.until(ExpectedConditions.textToBePresentInElement(areaMessaggi, "Ciao!"));
-
-        String testoTotale = areaMessaggi.getText();
-        assertTrue(testoTotale.contains("Skillshare"));
-        assertTrue(testoTotale.contains("Ciao!"));
+        // Verifica la presenza dei messaggi reali inseriti nel DatabaseSeeder
+        wait.until(ExpectedConditions.textToBePresentInElement(areaMessaggi, "workshop"));
+        assertTrue(areaMessaggi.getText().contains("scrittura"));
     }
 
     @Test
     void testInvioMessaggioConSuccesso() {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
-        wait.until(ExpectedConditions.elementToBeClickable(By.id("contatto-UtenteScambio_1"))).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("contatto-mastroky"))).click();
 
         WebElement inputMessaggio = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("input-messaggio")));
         WebElement btnInvia = driver.findElement(By.id("btn-invia-messaggio"));
@@ -132,6 +132,9 @@ public class ChatSeleniumTest {
         assertEquals("", inputMessaggio.getAttribute("value"));
 
         WebElement areaMessaggi = driver.findElement(By.id("area-cronologia-messaggi"));
+
+        wait.until(ExpectedConditions.textToBePresentInElement(areaMessaggi, testoMessaggio));
+
         assertTrue(areaMessaggi.getText().contains(testoMessaggio));
     }
 

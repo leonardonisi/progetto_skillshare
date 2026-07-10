@@ -4,7 +4,6 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.AfterAll;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,12 +50,14 @@ public class SkillsSeleniumTest {
             // Nessun alert presente
         }
 
+        DatabaseCore.enableTestMode();
+        DatabaseCore.seedDatabase();
         driver.get(BASE_URL);
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
 
         // LOGIN
         WebElement inputUsername = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("input-username")));
-        inputUsername.sendKeys("admin");
+        inputUsername.sendKeys("filker67");
         driver.findElement(By.id("input-password")).sendKeys("password");
         driver.findElement(By.id("btn-login")).click();
 
@@ -99,38 +100,4 @@ public class SkillsSeleniumTest {
         assertTrue(btnConcluse.getText().contains("Skills Concluse"), "Il testo dovrebbe contenere 'Skills Concluse'");
     }
 
-    /* Test da rivedere, non passa
-    @Test
-    void testScenarioModificaDatiAnnuncioEsistente() {
-        driver.navigate().refresh();
-        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-
-        WebElement btnSidebar = wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-skill-0")));
-        btnSidebar.click();
-
-        // Click sul pulsante Modifica
-        WebElement btnModifica = wait
-                .until(ExpectedConditions.visibilityOfElementLocated(By.id("btn-modifica-annuncio")));
-        assertTrue(btnModifica.isDisplayed());
-        btnModifica.click();
-
-        WebElement inputTitolo = wait
-                .until(ExpectedConditions.visibilityOfElementLocated(By.id("input-modifica-titolo")));
-        WebElement inputDescrizione = driver.findElement(By.id("input-modifica-descrizione"));
-        WebElement btnConferma = driver.findElement(By.id("btn-modifica-conferma"));
-
-        inputTitolo.clear();
-        inputTitolo.sendKeys("CUCINA POLLO MODIFICATO");
-        inputDescrizione.clear();
-        inputDescrizione.sendKeys("Nuova descrizione per ricetta pollo");
-
-        btnConferma.click();
-
-        WebElement titoloAggiornato = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("lbl-titolo")));
-        WebElement descAggiornata = driver.findElement(By.id("lbl-descrizione"));
-
-        assertEquals("CUCINA POLLO MODIFICATO", titoloAggiornato.getText());
-        assertEquals("DETTAGLI OGGETTO: Nuova descrizione per ricetta pollo", descAggiornata.getText());
-    }
-        */
 }

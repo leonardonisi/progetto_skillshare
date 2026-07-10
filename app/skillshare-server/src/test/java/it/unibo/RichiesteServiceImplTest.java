@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mapdb.DB;
 import org.mapdb.Serializer;
 import java.util.concurrent.ConcurrentMap;
-import java.util.List;
 
 public class RichiesteServiceImplTest {
 
@@ -22,10 +21,11 @@ public class RichiesteServiceImplTest {
     @BeforeEach
     void setUp() {
         DatabaseCore.enableTestMode();
-        DatabaseCore.close(); 
+        DatabaseCore.close();
 
         DB db = DatabaseCore.getDB();
-        ConcurrentMap<String, Utente> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
+        ConcurrentMap<String, Utente> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.JAVA)
+                .createOrOpen();
         dbUtenti.clear();
         dbUtenti.put("admin", new Utente("admin", "password"));
 
@@ -38,7 +38,8 @@ public class RichiesteServiceImplTest {
         annuncio.setTitolo("Ripetizioni di Java");
         dbAnnunci.put(100, annuncio);
 
-        ConcurrentMap<Integer, RichiestaScambio> dbRichieste = db.hashMap("richieste", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+        ConcurrentMap<Integer, RichiestaScambio> dbRichieste = db
+                .hashMap("richieste", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
         dbRichieste.clear();
 
         RichiestaScambio richiesta = new RichiestaScambio();
@@ -56,14 +57,14 @@ public class RichiesteServiceImplTest {
     @Test
     void testGetMieRichiesteReturnsData() {
         List<RichiestaScambio> richieste = richiesteService.getRichiesteScambio("admin");
-        
+
         assertNotNull(richieste);
         assertFalse(richieste.isEmpty());
     }
 
     @Test
     void testDoppiaConfermaPortaAStatoConcluso() {
-        
+
         RichiestaScambio r = new RichiestaScambio(999, 1, "mario", "admin");
         r.setStato(RichiestaScambio.StatoRichiesta.ACCETTATO);
         DatabaseCore.getMappaRichieste().put(999, r);

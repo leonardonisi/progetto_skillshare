@@ -7,11 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.mapdb.DB;
-import org.mapdb.Serializer;
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
-import jakarta.servlet.ServletException;
 
-public class ForYouServiceImpl extends RemoteServiceServlet implements ForYouService  {
+public class ForYouServiceImpl extends RemoteServiceServlet implements ForYouService {
 
     @Override
     public List<Utente> getUtentiConsigliati(String usernameCorrente) {
@@ -24,7 +22,7 @@ public class ForYouServiceImpl extends RemoteServiceServlet implements ForYouSer
 
         Map<String, Integer> mappaMatch = new HashMap<>();
         Map<String, Integer> mappaTotaleAnnunci = new HashMap<>();
-        
+
         List<Utente> utentiFiltratiOrdinati = new ArrayList<>();
         for (Utente u : dbUtenti.values()) {
             if (!u.getUsername().equals(usernameCorrente)) {
@@ -33,11 +31,12 @@ public class ForYouServiceImpl extends RemoteServiceServlet implements ForYouSer
                 utentiFiltratiOrdinati.add(u);
             }
         }
-        
+
         for (Annuncio annuncio : dbAnnunci.values()) {
-            if(annuncio.isAttivo()){
+            if (annuncio.isAttivo()) {
                 String autore = annuncio.getAutore();
-                if (autore == null) continue;
+                if (autore == null)
+                    continue;
 
                 // Incrementiamo totale annunci pubblicati dall'autore
                 mappaTotaleAnnunci.put(autore, mappaTotaleAnnunci.getOrDefault(autore, 0) + 1);
@@ -55,13 +54,13 @@ public class ForYouServiceImpl extends RemoteServiceServlet implements ForYouSer
 
             // Regola 1: Ordina per numero di Match (Decrescente)
             if (match1 != match2) {
-                return Integer.compare(match2, match1); 
+                return Integer.compare(match2, match1);
             }
 
             // Regola 2: Se i match sono uguali, ordina per annunci totali (Decrescente)
             int totale1 = mappaTotaleAnnunci.getOrDefault(u1.getUsername(), 0);
             int totale2 = mappaTotaleAnnunci.getOrDefault(u2.getUsername(), 0);
-            
+
             return Integer.compare(totale2, totale1);
         });
 
@@ -69,7 +68,7 @@ public class ForYouServiceImpl extends RemoteServiceServlet implements ForYouSer
     }
 
     @Override
-    public List<Annuncio> getAnnunciOrdinati(String utenteCorrente, String utenteAnnunci){
+    public List<Annuncio> getAnnunciOrdinati(String utenteCorrente, String utenteAnnunci) {
         DB db = DatabaseCore.getDB();
         ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
         ConcurrentMap<Integer, Annuncio> dbAnnunci = DatabaseCore.getMappaAnnunci();
@@ -82,18 +81,20 @@ public class ForYouServiceImpl extends RemoteServiceServlet implements ForYouSer
         List<Annuncio> annunciUtenteScelto = new ArrayList<>();
         List<Annuncio> cacheSupporto = new ArrayList<>();
 
-        for (Annuncio a : dbAnnunci.values()){
-            if(a.isAttivo()){
+        for (Annuncio a : dbAnnunci.values()) {
+            if (a.isAttivo()) {
                 String autore = a.getAutore();
-                if (autore == null) continue;
+                if (autore == null)
+                    continue;
                 else if (autore.equals(utenteAnnunci))
                     annunciUtenteScelto.add(a);
             }
         }
 
-        for (Annuncio a : annunciUtenteScelto){
+        for (Annuncio a : annunciUtenteScelto) {
             String categoria = a.getCategoria();
-            if (categoria == null) continue;
+            if (categoria == null)
+                continue;
             else if (categoriePreferite.contains(categoria))
                 annunciOrdinati.add(a);
             else
@@ -106,7 +107,7 @@ public class ForYouServiceImpl extends RemoteServiceServlet implements ForYouSer
     }
 
     @Override
-    public Utente getUtente(String username){
+    public Utente getUtente(String username) {
         DB db = DatabaseCore.getDB();
         ConcurrentMap<String, Utente> dbUtenti = DatabaseCore.getMappaUtenti();
 

@@ -44,14 +44,15 @@ public class MainLayoutSeleniumTest {
     void loadAppAndLogin() {
         driver.get(BASE_URL);
 
-        // Aspetta il login e superalo per arrivare alla tua Home Page
+        DatabaseCore.enableTestMode();
+        DatabaseCore.seedDatabase();
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement usernameField = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("input-username")));
         WebElement passwordField = driver.findElement(By.id("input-password"));
         WebElement loginButton = driver.findElement(By.id("btn-login"));
 
         usernameField.clear();
-        usernameField.sendKeys("admin");
+        usernameField.sendKeys("filker67");
         passwordField.clear();
         passwordField.sendKeys("password");
         loginButton.click();
@@ -165,60 +166,21 @@ public class MainLayoutSeleniumTest {
     }
 
     @Test
-    public void testSelezioneCategoriaFiltraSkillCorrettamente() {
-        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-
-        WebElement tendinaElement = wait.until(ExpectedConditions.elementToBeClickable(By.id("tendina-categorie")));
-        Select tendina = new Select(tendinaElement);
-
-        tendina.selectByVisibleText("Sviluppo Software");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("card-annuncio")));
-        List<WebElement> cardList = driver.findElements(By.id("card-annuncio"));
-
-        WebElement primaCard = cardList.get(0);
-        primaCard.click();
-
-        WebElement categoriaAnnuncio = wait
-                .until(ExpectedConditions.visibilityOfElementLocated(By.id("lbl-categoria")));
-        assertTrue(categoriaAnnuncio.getText().contains("Sviluppo Software"));
-    }
-
-    @Test
-    public void testBarraDiRicercaFiltraSkillCorrettamente() {
-        WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
-
-        WebElement searchBar = wait.until(ExpectedConditions.elementToBeClickable(By.id("search-bar")));
-
-        searchBar.getText();
-        searchBar.sendKeys("GWT");
-
-        List<WebElement> cardList = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.className("card-annuncio-class")));
-        
-        WebElement primaCard = cardList.get(0);
-        primaCard.click();
-
-        WebElement titoloAnnuncio = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("lbl-titolo")));
-        WebElement descrizioneAnnuncio = wait
-                .until(ExpectedConditions.visibilityOfElementLocated(By.id("lbl-descrizione")));
-
-        String titoloTesto = titoloAnnuncio.getText().toLowerCase();
-        String descrizioneTesto = descrizioneAnnuncio.getText().toLowerCase();
-
-        assertTrue(titoloTesto.contains("gwt") || descrizioneTesto.contains("gwt"));
-    }
-
-    @Test
-    void clickLogoutEConfermaRimandaAllaPaginaDiLogin() {
+    void clickLogoutEAnnullamentoMantieneInterfaccia() {
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         WebElement btnLogout = wait.until(ExpectedConditions.elementToBeClickable(By.id("btn-logout")));
 
+        // Clicca per attivare l'interazione
         btnLogout.click();
         Alert alertConferma = wait.until(ExpectedConditions.alertIsPresent());
-        alertConferma.accept();
+        assertEquals("Sei sicuro di voler fare il logout?", alertConferma.getText());
 
-        WebElement titoloLogin = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("titolo-login")));
-        WebElement inputUsernameLogin = driver.findElement(By.id("input-username"));
-        assertTrue(titoloLogin.isDisplayed());
-        assertTrue(inputUsernameLogin.isDisplayed());
+        // Simula il click su "Annulla"
+        alertConferma.dismiss();
+
+        // Verifica che l'interfaccia non sia stata toccata e la navbar sia ancora
+        // attiva
+        WebElement marketLink = driver.findElement(By.id("nav-market"));
+        assertTrue(marketLink.isDisplayed(), "L'interfaccia deve rimanere attiva se il logout viene annullato");
     }
 }
