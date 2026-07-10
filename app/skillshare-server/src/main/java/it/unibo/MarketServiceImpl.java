@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 import org.mapdb.DB;
-import org.mapdb.Serializer;
 import com.google.gwt.user.server.rpc.jakarta.RemoteServiceServlet;
-import jakarta.servlet.ServletException;
 
 public class MarketServiceImpl extends RemoteServiceServlet implements MarketService {
 
@@ -19,7 +17,7 @@ public class MarketServiceImpl extends RemoteServiceServlet implements MarketSer
         List<Annuncio> annunciFiltrati = new ArrayList<>();
 
         for (Annuncio a : dbAnnunci.values()) {
-            if(a.isAttivo()){
+            if (a.isAttivo()) {
                 if (!a.getAutore().equals(usernameDaEscludere)) {
                     annunciFiltrati.add(a);
                 }

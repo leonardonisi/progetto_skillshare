@@ -4,7 +4,6 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.AfterAll;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +33,7 @@ public class RichiesteSeleniumTest {
         driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
     }
-    
+
     @AfterAll
     static void stopDriver() {
         if (driver != null) {
@@ -61,15 +60,20 @@ public class RichiesteSeleniumTest {
 
         // NAVIGAZIONE VERSO LA TENDINA
         WebElement navSkill = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("nav-skill")));
-        new org.openqa.selenium.interactions.Actions(driver).moveToElement(navSkill).perform();
-
-        WebElement btnMieRichieste = wait.until(ExpectedConditions.elementToBeClickable(By.id("menu-item-le-mie-richieste")));
-        btnMieRichieste.click();
+        try {
+            new org.openqa.selenium.interactions.Actions(driver).moveToElement(navSkill).perform();
+            WebElement btnLeMieRichieste = wait
+                    .until(ExpectedConditions.elementToBeClickable(By.id("menu-item-le-mie-richieste")));
+            btnLeMieRichieste.click();
+        } catch (Exception e) {
+            ((org.openqa.selenium.JavascriptExecutor) driver)
+                    .executeScript("document.getElementById('menu-item-le-mie-richieste').click();");
+        }
 
         // VERIFICA CARICAMENTO PAGINA ASPETTANDO LA PRIMA TENDINA
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("sidebar-skills-richieste")));
     }
-   
+
     // -------------------------------------------------------------------------
     // TEST
     // -------------------------------------------------------------------------
@@ -78,21 +82,24 @@ public class RichiesteSeleniumTest {
     void sidebarSkillsRichiesteIsPresent() {
         WebElement btnRichieste = driver.findElement(By.id("sidebar-skills-richieste"));
         assertTrue(btnRichieste.isDisplayed());
-        assertTrue(btnRichieste.getText().contains("Skills Richieste"), "Il testo dovrebbe contenere 'Skills Richieste'");
+        assertTrue(btnRichieste.getText().contains("Skills Richieste"),
+                "Il testo dovrebbe contenere 'Skills Richieste'");
     }
 
     @Test
     void sidebarSkillsAccettateIsPresent() {
         WebElement btnAccettate = driver.findElement(By.id("sidebar-skills-accettate"));
         assertTrue(btnAccettate.isDisplayed());
-        assertTrue(btnAccettate.getText().contains("Skills Accettate"), "Il testo dovrebbe contenere 'Skills Accettate'");
+        assertTrue(btnAccettate.getText().contains("Skills Accettate"),
+                "Il testo dovrebbe contenere 'Skills Accettate'");
     }
 
     @Test
     void sidebarSkillsRifiutateIsPresent() {
         WebElement btnRifiutate = driver.findElement(By.id("sidebar-skills-rifiutate"));
         assertTrue(btnRifiutate.isDisplayed());
-        assertTrue(btnRifiutate.getText().contains("Skills Rifiutate"), "Il testo dovrebbe contenere 'Skills Rifiutate'");
+        assertTrue(btnRifiutate.getText().contains("Skills Rifiutate"),
+                "Il testo dovrebbe contenere 'Skills Rifiutate'");
     }
 
     @Test

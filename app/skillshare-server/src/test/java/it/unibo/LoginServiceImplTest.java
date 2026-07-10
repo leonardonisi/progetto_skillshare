@@ -1,6 +1,5 @@
 package it.unibo;
 
-import com.google.gwt.user.server.rpc.jakarta.AbstractRemoteServiceServlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,10 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import java.lang.reflect.Field;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import java.util.concurrent.ConcurrentMap;
 import org.mapdb.Serializer;
@@ -37,10 +33,11 @@ class LoginServiceImplTest {
     @BeforeEach
     void setUp() throws Exception {
         DatabaseCore.enableTestMode();
-        DatabaseCore.close(); 
+        DatabaseCore.close();
 
         DB db = DatabaseCore.getDB();
-        ConcurrentMap<String, Utente> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.JAVA).createOrOpen();
+        ConcurrentMap<String, Utente> dbUtenti = db.hashMap("utenti", Serializer.STRING, Serializer.JAVA)
+                .createOrOpen();
         dbUtenti.clear();
         dbUtenti.put("admin", new Utente("admin", "password"));
         DatabaseCore.commit();

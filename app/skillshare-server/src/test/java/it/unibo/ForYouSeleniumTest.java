@@ -5,7 +5,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -13,10 +12,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.support.ui.Select;
 import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.*;
-
 
 public class ForYouSeleniumTest {
 
@@ -63,41 +60,43 @@ public class ForYouSeleniumTest {
     }
 
     @Test
-    void testPresenzaListaUtentiConsigliati(){
+    void testPresenzaListaUtentiConsigliati() {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='card-utente']")));
         List<WebElement> cardsUtenti = driver.findElements(By.xpath("//div[@id='card-utente']"));
-        
+
         assertFalse(cardsUtenti.isEmpty());
     }
 
     @Test
-    void cardUtenteMostraDettaglioEAnnunciUtente(){
+    void cardUtenteMostraDettaglioEAnnunciUtente() {
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//div[@id='card-utente']")));
-        
+
         WebElement primaCard = driver.findElements(By.xpath("//div[@id='card-utente']")).get(0);
         String usernameNellaCard = primaCard.findElement(By.id("username-card-utente")).getText();
-        
+
         primaCard.click();
 
-        WebElement usernameProfiloDettaglio = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("username-profilo")));
+        WebElement usernameProfiloDettaglio = wait
+                .until(ExpectedConditions.presenceOfElementLocated(By.id("username-profilo")));
         assertEquals(usernameNellaCard, usernameProfiloDettaglio.getText());
     }
 
     @Test
-    void cardUtenteCambiaVistaUtente(){
+    void cardUtenteCambiaVistaUtente() {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='card-utente']")));
         List<WebElement> cards = driver.findElements(By.xpath("//div[@id='card-utente']"));
-        
+
         assertTrue(cards.size() > 1);
 
         cards.get(0).click();
-        WebElement usernameProfiloUI = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("username-profilo")));
+        WebElement usernameProfiloUI = wait
+                .until(ExpectedConditions.presenceOfElementLocated(By.id("username-profilo")));
         String username1 = usernameProfiloUI.getText();
 
         cards.get(1).click();
         wait.until(ExpectedConditions.not(ExpectedConditions.textToBe(By.id("username-profilo"), username1)));
         String username2 = driver.findElement(By.id("username-profilo")).getText();
-        
+
         assertNotEquals(username1, username2);
     }
 }

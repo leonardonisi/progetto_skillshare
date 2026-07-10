@@ -1,7 +1,5 @@
 package it.unibo;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FocusPanel;
@@ -9,25 +7,17 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.i18n.client.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ForYouGui extends Composite {
@@ -243,7 +233,7 @@ public class ForYouGui extends Composite {
         lblUsername.getElement().setId("username-card-utente");
         lblUsername.getElement().getStyle().setProperty("fontSize", "20px");
 
-        Label lblVoto = new Label("..."); 
+        Label lblVoto = new Label("...");
         lblVoto.getElement().getStyle().setProperty("fontSize", "22px");
         lblVoto.getElement().getStyle().setProperty("fontWeight", "bold");
         lblVoto.getElement().getStyle().setProperty("marginLeft", "15px");
@@ -445,24 +435,24 @@ public class ForYouGui extends Composite {
                     return;
                 }
 
-                richiesteService.inviaRichiesta(a.getId(), utenteCorrente, a.getAutore(), proposta, new AsyncCallback<RichiestaScambio>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Window.alert("Errore imprevisto: " + caught.getMessage()); 
-                    }
+                richiesteService.inviaRichiesta(a.getId(), utenteCorrente, a.getAutore(), proposta,
+                        new AsyncCallback<RichiestaScambio>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Errore imprevisto: " + caught.getMessage());
+                            }
 
-                    @Override
-                    public void onSuccess(RichiestaScambio result) {
-                        if(result == null){
-                            Window.alert("Attenzione: Hai già inoltrato una richiesta per questo annuncio!");
-                            btnRichiedi.setVisible(false);
-                        }
-                        else{
-                            Window.alert("Proposta inviata!");
-                            popupOfferta.hide();
-                        }
-                    }
-                });
+                            @Override
+                            public void onSuccess(RichiestaScambio result) {
+                                if (result == null) {
+                                    Window.alert("Attenzione: Hai già inoltrato una richiesta per questo annuncio!");
+                                    btnRichiedi.setVisible(false);
+                                } else {
+                                    Window.alert("Proposta inviata!");
+                                    popupOfferta.hide();
+                                }
+                            }
+                        });
             });
 
             bottoniPopup.add(btnInviaProposta);

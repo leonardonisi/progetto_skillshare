@@ -1,9 +1,6 @@
 package it.unibo;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -301,25 +298,24 @@ public class MarketGui extends Composite {
                 return;
             }
 
-        richiesteService.inviaRichiesta(annuncioSelezionato.getId(), utenteCorrente,
-            annuncioSelezionato.getAutore(), proposta, new AsyncCallback<RichiestaScambio>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    Window.alert("Errore imprevisto: " + caught.getMessage()); 
-                }
+            richiesteService.inviaRichiesta(annuncioSelezionato.getId(), utenteCorrente,
+                    annuncioSelezionato.getAutore(), proposta, new AsyncCallback<RichiestaScambio>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Window.alert("Errore imprevisto: " + caught.getMessage());
+                        }
 
-                @Override
-                public void onSuccess(RichiestaScambio result) {
-                    if(result == null){
-                        Window.alert("Attenzione: Hai già inoltrato una richiesta per questo annuncio!");
-                        btnRichiedi.setVisible(false);
-                    }
-                    else{
-                        Window.alert("Proposta inviata!");
-                        popupOfferta.hide();
-                    }
-                }
-            });
+                        @Override
+                        public void onSuccess(RichiestaScambio result) {
+                            if (result == null) {
+                                Window.alert("Attenzione: Hai già inoltrato una richiesta per questo annuncio!");
+                                btnRichiedi.setVisible(false);
+                            } else {
+                                Window.alert("Proposta inviata!");
+                                popupOfferta.hide();
+                            }
+                        }
+                    });
         });
 
         HorizontalPanel bottoniPopup = new HorizontalPanel();
@@ -416,7 +412,7 @@ public class MarketGui extends Composite {
         titoloDettaglio.setText(a.getTitolo());
         imgAnnuncio.setVisible(true);
         caricaImmagineProfilo(imgAnnuncio, a.getAutore());
-        
+
         skillService.getValutazioniUtente(a.getAutore(), new AsyncCallback<List<Valutazione>>() {
             @Override
             public void onFailure(Throwable caught) {

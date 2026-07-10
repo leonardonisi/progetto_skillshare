@@ -58,6 +58,7 @@ public class SkillsGui extends Composite {
         discMieSkills.setOpen(true);
         listaMieSkill.setWidth("100%");
         discMieSkills.setContent(listaMieSkill);
+        discMieSkills.getElement().setId("sidebar-mie-skills");
 
         DisclosurePanel discRichiesteAttesa = new DisclosurePanel("Richieste in attesa");
         discRichiesteAttesa.setOpen(true);
@@ -67,10 +68,12 @@ public class SkillsGui extends Composite {
         DisclosurePanel discAccettate = new DisclosurePanel("Skills Accettate");
         listaSkillsAccettate.setWidth("100%");
         discAccettate.setContent(listaSkillsAccettate);
+        discAccettate.getElement().setId("sidebar-skills-accettate");
 
         DisclosurePanel discConcluse = new DisclosurePanel("Skills Concluse");
         listaSkillsConcluse.setWidth("100%");
         discConcluse.setContent(listaSkillsConcluse);
+        discConcluse.getElement().setId("sidebar-skills-concluse");
 
         DisclosurePanel discRifiutate = new DisclosurePanel("Skills Rifiutate");
         listaSkillsRifiutate.setWidth("100%");
@@ -120,8 +123,12 @@ public class SkillsGui extends Composite {
 
                     @Override
                     public void onSuccess(List<Annuncio> annunciPubblicati) {
+                        int indiceSkill = 0; // Contatore incrementale per gli ID attesi dai test Selenium
+
                         for (Annuncio s : annunciPubblicati) {
                             Button btnSkill = creaBottoneSidebar(s.getTitolo());
+                            btnSkill.getElement().setId("btn-skill-" + indiceSkill); // Assegnazione dinamica dell'ID
+                            indiceSkill++;
 
                             String statoScambioDellaSkill = "ATTIVA";
                             RichiestaScambio richiestaAssociata = null;
@@ -484,7 +491,7 @@ public class SkillsGui extends Composite {
 
         HorizontalPanel userPanel = new HorizontalPanel();
 
-        Label lblRating = new Label("..."); 
+        Label lblRating = new Label("...");
         lblRating.getElement().getStyle().setProperty("fontSize", "18px");
         lblRating.getElement().getStyle().setProperty("fontWeight", "bold");
         lblRating.getElement().getStyle().setProperty("marginRight", "10px");
