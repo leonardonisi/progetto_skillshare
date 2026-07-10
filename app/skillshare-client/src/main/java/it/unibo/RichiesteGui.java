@@ -309,7 +309,7 @@ public class RichiesteGui extends Composite {
                 btnConfermaScambio.addClickHandler(event -> {
                     btnConfermaScambio.setEnabled(false);
 
-                    richiesteService.elaboraAzioneScambio(annuncio.getId(), utenteCorrente, true, new AsyncCallback<RichiestaScambio>() {
+                    richiesteService.elaboraAzioneScambio(richiesta.getId(), utenteCorrente, true, new AsyncCallback<RichiestaScambio>() {
                         @Override
                         public void onFailure(Throwable caught) {
                             Window.alert("Errore durante la conferma: " + caught.getMessage());
